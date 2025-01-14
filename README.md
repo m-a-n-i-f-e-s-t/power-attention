@@ -91,59 +91,17 @@ class CausalSelfAttention(nn.Module):
 - FP16 and BF16 support
 - Replacement for standard attention in transformer models is possible for fine-tuning
 
-## Development
+## Example Training Loop
 
-### Setup
+We have a simple training loop in `training/train.py` to demo the kernel, based on nanoGPT.
 
-The project uses a Makefile to manage development tasks. First, set up a virtual environment and install dependencies:
+To install the dependencies, run `pip install .[train]`.
 
-```bash
-# Install base dependencies
-make deps
-
-# For development (includes testing tools)
-make deps-dev
-
-# For benchmarking
-make deps-benchmark
-
-# For training
-make deps-train
-```
-
-By default, the virtual environment is created in `.venv`. You can override this location by setting the `POWER_ATTENTION_VENV_PATH` environment variable:
-
-```bash
-POWER_ATTENTION_VENV_PATH=~/.virtualenvs/power-attention make deps-dev
-```
-
-### Common Tasks
-
-Before running any code that depends on the package, you need to build & install the package.
-The command `make dev` will build & install the package in the venv.
-
-Run unit tests (takes about 16 min on an RTX A6000):
-```bash
-make test
-```
-
-Run benchmarks:
-```bash
-make benchmark
-```
-
-For a full list of available commands:
-```bash
-make help
-```
-
-### Training Example
-
-After installing training dependencies (`make deps-train`), you can run the training script:
+`cd training/` and run the script with `python train.py`. Some examples:
 
 ```bash
 # Single GPU training
-python training/train.py \
+python train.py \
   --batch_size=32 \
   --attention_kernel=power \
   --degree=2 \
@@ -153,7 +111,7 @@ python training/train.py \
   --out_dir=out/my_model
 
 # Multi-GPU training with DDP (example with 4 GPUs)
-torchrun --standalone --nproc_per_node=4 training/train.py \
+torchrun --standalone --nproc_per_node=4 train.py \
   --batch_size=32 \
   --attention_kernel=power \
   --degree=2 \
@@ -185,6 +143,32 @@ torchrun --nproc_per_node=8 --nnodes=2 --node_rank=1 --master_addr=123.456.123.4
 ```
 
 Note: If your cluster does not have Infiniband interconnect, prepend `NCCL_IB_DISABLE=1` to the commands.
+
+
+## Development
+
+You will need to include the development dependencies.
+Also, you will probably want to install the package in editable mode, so you can make changes to the code and see them immediately.
+The following command will do this:
+
+```bash
+pip install -e .[dev]
+```
+
+Editable mode only works with the Python part of the code, the C++ part still needs to be rebuilt explicitly whenever there is a change.
+TODO(jbuckman): one liner to do do this?
+
+### Common Tasks
+
+Run unit tests (takes about 16 min on an RTX A6000):
+```bash
+./test
+```
+
+Run benchmarks:
+```bash
+./benchmark
+```
 
 ## Contributing
 
