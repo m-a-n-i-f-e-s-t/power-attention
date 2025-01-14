@@ -8,7 +8,7 @@ VENV_DIR ?= $(if $(POWER_ATTENTION_VENV_PATH),$(POWER_ATTENTION_VENV_PATH),.venv
 PIP := $(VENV_DIR)/bin/pip
 PYTEST := $(VENV_DIR)/bin/pytest
 
-.PHONY: all build test benchmark release release-test clean check-version venv deps deps-dev deps-benchmark deps-train
+.PHONY: all build test benchmark release release-test clean check-version venv deps deps-dev deps-train
 
 all: build test
 
@@ -20,22 +20,19 @@ venv:
 	$(PIP) install --upgrade pip
 
 deps: venv
-	$(PIP) install -r requirements.txt
+	$(PIP) install .
 
 deps-dev: deps
-	$(PIP) install -r requirements-dev.txt
-
-deps-benchmark: deps
-	$(PIP) install -r requirements-benchmark.txt
+	$(PIP) install ".[dev]"
 
 deps-train: deps
-	$(PIP) install -r requirements-train.txt
+	$(PIP) install ".[train]"
 
 # Development commands
 test: deps-dev
 	$(PYTEST) power_attention/tests.py -v
 
-benchmark: deps-benchmark
+benchmark: deps-dev
 	$(VENV_DIR)/bin/python test/benchmark.py
 
 # Version checking
@@ -78,7 +75,6 @@ help:
 	@echo "  make venv          - Create virtual environment"
 	@echo "  make deps          - Install base dependencies"
 	@echo "  make deps-dev      - Install development dependencies"
-	@echo "  make deps-benchmark - Install benchmark dependencies"
 	@echo "  make deps-train    - Install training dependencies"
 	@echo "  make test          - Run tests"
 	@echo "  make benchmark     - Run benchmarks"
