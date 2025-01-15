@@ -222,9 +222,9 @@ checkpoint = None # free up memory
 
 # compile the model
 if compile:
-    print("compiling the model... (takes a ~minute)")
-    unoptimized_model = model
+    print("compiling the model...(takes a ~minute)", flush=True, end='')
     model = torch.compile(model) # requires PyTorch 2.0
+    print("...done.")
 
 # wrap model into DDP container
 if ddp:

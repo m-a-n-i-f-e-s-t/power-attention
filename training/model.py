@@ -15,6 +15,7 @@ import torch
 import torch.nn as nn
 from power_attention import power_full
 from torch.nn import functional as F
+from torch.utils.checkpoint import checkpoint
 
 class LayerNorm(nn.Module):
     """ LayerNorm but with an optional bias. PyTorch doesn't support simply bias=False """
@@ -234,21 +235,21 @@ class GPT(nn.Module):
         device = idx.device
         b, t = idx.size()
         # forward the GPT model itself
-        tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
+        tok_emb = self.transformer.wte(idx).to(torch.get_autocast_gpu_dtype()) # token embeddings of shape (b, t, n_embd)
         x = self.transformer.drop(tok_emb)
         for block in self.transformer.h:
-            x = block(x)
+            x = checkpoint(block, x)
         x = self.transformer.ln_f(x)
 
         if targets is not None:
             # if we are given some desired targets also calculate the loss
-            logits = self.lm_head(x)
+            logits = self.lm_head(x).float()
             loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
             tail_idx = int(self.config.block_size*.1)
             tail_loss = F.cross_entropy(logits[:, -tail_idx:, :].reshape(-1, logits.size(-1)), targets[:, -tail_idx:].reshape(-1), ignore_index=-1)
         else:
             # inference-time mini-optimization: only forward the lm_head on the very last position
-            logits = self.lm_head(x[:, [-1], :]) # note: using list [-1] to preserve the time dim
+            logits = self.lm_head(x[:, [-1], :]).float() # note: using list [-1] to preserve the time dim
             loss = tail_loss = None
 
         return logits, loss, tail_loss
