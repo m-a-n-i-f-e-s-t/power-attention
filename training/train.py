@@ -238,15 +238,12 @@ def estimate_loss():
     model.eval()
     for split in ['train', 'val']:
         losses = torch.zeros(eval_iters)
-        tail_losses = torch.zeros(eval_iters)
         for k in range(eval_iters):
             X, Y = get_batch(split)
             with ctx:
-                logits, loss, tail_loss = model(X, Y)
+                loss = model(X, Y)
             losses[k] = loss.item()
-            tail_losses[k] = tail_loss.item()
         out[f'{split}/avg'] = losses.mean()
-        out[f'{split}/tail'] = tail_losses.mean()
     model.train()
     return out
 
@@ -297,14 +294,12 @@ while True:
         if torch.cuda.is_available(): torch.cuda.synchronize() # sync for timing
         total_eval_time += time.time() - eval_start_time
         eval_count += 1
-        print(f"[{run_name}] step {iter_num} (eval {eval_count}): avg loss {losses['train/avg']:.4f}, val {losses['val/avg']:.4f} | tail loss train {losses['train/tail']:.4f}, val {losses['val/tail']:.4f}")
+        print(f"[{run_name}] step {iter_num} (eval {eval_count}): avg loss {losses['train/avg']:.4f}, val {losses['val/avg']:.4f}")
         if not disable_logging:
             logger.log("eval", {
                 "iter": iter_num,
                 "train.loss.avg": losses['train/avg'].item(),
                 "heldout.loss.avg": losses['val/avg'].item(),
-                "train.loss.tail": losses['train/tail'].item(),
-                "heldout.loss.tail": losses['val/tail'].item(),
                 "lr": lr,
                 "train_hours": (time.time() - train_start_time - total_eval_time) / 3600,  # Convert seconds to hours
                 "total_hours": (time.time() - train_start_time) / 3600,  # Convert seconds to hours
@@ -314,8 +309,6 @@ while True:
                 "iter": iter_num,
                 "train/avg_loss": losses['train/avg'],
                 "val/avg_loss": losses['val/avg'],
-                "train/tail_loss": losses['train/tail'],
-                "val/tail_loss": losses['val/tail'],
                 "lr": lr,
             })
         if losses['val/avg'] < best_val_loss or always_save_checkpoint:
@@ -349,7 +342,7 @@ while True:
             # looking at the source of that context manager, it just toggles this variable
             model.require_backward_grad_sync = (micro_step == gradient_accumulation_steps - 1)
         with ctx:
-            logits, loss, _ = model(X, Y)
+            loss = model(X, Y)
             # scale to account for gradient accumulation
             loss = loss / gradient_accumulation_steps
         # immediately async prefetch next batch while model is doing the forward pass on the GPU

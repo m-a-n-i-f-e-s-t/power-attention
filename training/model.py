@@ -13,6 +13,7 @@ from dataclasses import dataclass
 
 import torch
 import torch.nn as nn
+from fused_projxent import FusedProjectionPlusCrossEntropyLoss
 from power_attention import power_full
 from torch.nn import functional as F
 from torch.utils.checkpoint import checkpoint
@@ -211,7 +212,7 @@ class GPT(nn.Module):
             h = nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
             ln_f = LayerNorm(config.n_embd, bias=config.bias),
         ))
-        self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
+        self.lm_head = FusedProjectionPlusCrossEntropyLoss(config.n_embd, config.vocab_size)
         # with weight tying when using torch.compile() some warnings get generated:
         # "UserWarning: functional_call was passed multiple values for tied weights.
         # This behavior is deprecated and will be an error in future versions"
@@ -236,7 +237,7 @@ class GPT(nn.Module):
         return n_params
 
     def _init_weights(self, module):
-        if isinstance(module, nn.Linear):
+        if isinstance(module, nn.Linear) or isinstance(module, FusedProjectionPlusCrossEntropyLoss):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
             if module.bias is not None:
                 torch.nn.init.zeros_(module.bias)
@@ -250,21 +251,16 @@ class GPT(nn.Module):
         tok_emb = self.transformer.wte(idx).to(torch.get_autocast_gpu_dtype()) # token embeddings of shape (b, t, n_embd)
         x = self.transformer.drop(tok_emb)
         for block in self.transformer.h:
-            x = checkpoint(block, x)
+            x = checkpoint(block, x, use_reentrant=False)
         x = self.transformer.ln_f(x)
 
         if targets is not None:
-            # if we are given some desired targets also calculate the loss
-            logits = self.lm_head(x).float()
-            loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
-            tail_idx = int(self.config.block_size*.1)
-            tail_loss = F.cross_entropy(logits[:, -tail_idx:, :].reshape(-1, logits.size(-1)), targets[:, -tail_idx:].reshape(-1), ignore_index=-1)
+            loss_or_logits = self.lm_head(x.view(-1, x.size(-1)), targets.view(-1), n_loop_iters=8)
         else:
             # inference-time mini-optimization: only forward the lm_head on the very last position
-            logits = self.lm_head(x[:, [-1], :]).float() # note: using list [-1] to preserve the time dim
-            loss = tail_loss = None
+            loss_or_logits = self.lm_head(x[:, [-1], :]).float() # note: using list [-1] to preserve the time dim
 
-        return logits, loss, tail_loss
+        return loss_or_logits
 
     def configure_optimizers(self, weight_decay, learning_rate, betas, device_type):
         # start with all of the candidate parameters
