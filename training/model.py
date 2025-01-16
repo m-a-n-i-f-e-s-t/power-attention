@@ -212,7 +212,8 @@ class GPT(nn.Module):
             h = nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
             ln_f = LayerNorm(config.n_embd, bias=config.bias),
         ))
-        self.lm_head = FusedProjectionPlusCrossEntropyLoss(config.n_embd, config.vocab_size)
+        # self.lm_head = FusedProjectionPlusCrossEntropyLoss(config.n_embd, config.vocab_size)
+        self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
         # with weight tying when using torch.compile() some warnings get generated:
         # "UserWarning: functional_call was passed multiple values for tied weights.
         # This behavior is deprecated and will be an error in future versions"
@@ -255,7 +256,8 @@ class GPT(nn.Module):
         x = self.transformer.ln_f(x)
 
         if targets is not None:
-            loss_or_logits = self.lm_head(x.view(-1, x.size(-1)), targets.view(-1), n_loop_iters=8)
+            # loss_or_logits = self.lm_head(x.view(-1, x.size(-1)), targets.view(-1), n_loop_iters=8)
+            loss_or_logits = F.cross_entropy(self.lm_head(x).view(b*t, self.config.vocab_size).float(), targets.view(b*t), ignore_index=-1)
         else:
             # inference-time mini-optimization: only forward the lm_head on the very last position
             loss_or_logits = self.lm_head(x[:, [-1], :]).float() # note: using list [-1] to preserve the time dim

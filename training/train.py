@@ -33,7 +33,6 @@ from model import GPTConfig, GPT
 # -----------------------------------------------------------------------------
 # default config values designed to train a gpt2 (124M) on OpenWebText
 # I/O
-out_dir = 'out'
 disable_eval = False
 eval_interval = 100
 eval_slowdown_factor = 1.2
@@ -116,7 +115,8 @@ else:
 tokens_per_iter = gradient_accumulation_steps * ddp_world_size * batch_size * block_size
 print(f"tokens per iteration will be: {tokens_per_iter:,}")
 
-if master_process:
+if master_process and not disable_logging:
+    out_dir = f'out/{run_name}'
     os.makedirs(out_dir, exist_ok=True)
 torch.manual_seed(1337 + seed_offset)
 torch.backends.cuda.matmul.allow_tf32 = True # allow tf32 on matmul
@@ -311,7 +311,7 @@ while True:
                 "val/avg_loss": losses['val/avg'],
                 "lr": lr,
             })
-        if losses['val/avg'] < best_val_loss or always_save_checkpoint:
+        if losses['val/avg'] < best_val_loss or always_save_checkpoint and not disable_logging:
             best_val_loss = losses['val/avg']
             if iter_num > 0:
                 checkpoint = {
