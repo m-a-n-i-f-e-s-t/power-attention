@@ -123,7 +123,7 @@ def create_inputs(b=2, t=32, h=8, d=32, dtype=torch.float16, device='cuda', gati
 
 ## TUTORIAL ##
 if __name__ == '__main__':
-    from tests_and_benchmarks._timing import report_fwd_bwd
+    from perf._timing import report_fwd_bwd
 
     # Hyperparameters
     b, t, h, d = (8, 1024, 16, 64)

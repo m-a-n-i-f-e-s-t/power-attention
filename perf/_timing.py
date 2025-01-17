@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 
 import torch
-from tests_and_benchmarks._utils import clone_or_none, prune_non_tensors, tensors_to_ones_like
+from perf._utils import clone_or_none, prune_non_tensors, tensors_to_ones_like
 
 
 def get_compiled_versions(fn, inputs, warmup=3):

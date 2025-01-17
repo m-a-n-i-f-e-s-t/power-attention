@@ -1,6 +1,6 @@
 from typing import Callable, Dict, List, Optional, Any
 from collections import defaultdict
-from tests_and_benchmarks._benchmark import Benchmark
+from perf._benchmark import Benchmark
 
 # Global registry state
 _benchmarks: Dict[str, Benchmark] = {}

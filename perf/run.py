@@ -9,8 +9,8 @@ import click
 import yaml
 from pathlib import Path
 import pprint
-from tests_and_benchmarks.benchmarks import *
-from tests_and_benchmarks._registration import lookup, list_benchmarks
+from perf.benchmarks import *
+from perf._registration import lookup, list_benchmarks
 
 torch._dynamo.config.cache_size_limit = 64 # Increased from a default of 8 to prevent warnings
 

@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from itertools import product
-from tests_and_benchmarks._benchmark import Measurement
-from tests_and_benchmarks._registration import register_benchmark
-from tests_and_benchmarks._timing import get_timing_functions
+from perf._benchmark import Measurement
+from perf._registration import register_benchmark
+from perf._timing import get_timing_functions
 
 from power_attention.power_full import (
     power_full,

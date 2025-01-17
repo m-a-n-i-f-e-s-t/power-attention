@@ -1,7 +1,7 @@
 from typing import Callable, Dict, List, Set, Optional, Any, Union, NamedTuple
 from dataclasses import dataclass, field
 from collections import defaultdict
-from tests_and_benchmarks._utils import check_filter_matches
+from perf._utils import check_filter_matches
 
 @dataclass
 class Measurement:

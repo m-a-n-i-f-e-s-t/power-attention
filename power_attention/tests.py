@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from functools import partial
 from itertools import product
-from tests_and_benchmarks._checks import (
+from perf._checks import (
     check_tensor_property_pairs,
     check_inputs_created_determinstically,
     check_fn_compiles,

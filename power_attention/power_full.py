@@ -189,7 +189,7 @@ def create_inputs(b=2, t=1024, h=8, d=32, qhead_ratio=1, dtype=torch.float16, de
 
 ## TUTORIAL ##
 if __name__ == '__main__':
-    from tests_and_benchmarks._timing import report_fwd_bwd
+    from perf._timing import report_fwd_bwd
 
     # Create inputs
     t = 1024

@@ -1,0 +1,1 @@
+from perf.benchmarks.power_full import power_full_speed

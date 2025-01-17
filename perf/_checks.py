@@ -1,8 +1,8 @@
 from typing import Any, Callable
 import torch
 
-from tests_and_benchmarks._precision import compare
-from tests_and_benchmarks._utils import clone_grads, clear_grads, same_device
+from perf._precision import compare
+from perf._utils import clone_grads, clear_grads, same_device
 
 # General checks
 
