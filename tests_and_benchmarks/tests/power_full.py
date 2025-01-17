@@ -2,7 +2,6 @@ import torch
 import pytest
 import torch.nn as nn
 import torch.nn.functional as F
-from functools import partial
 from itertools import product
 from tests_and_benchmarks._checks import (
     check_tensor_property_pairs,

@@ -7,158 +7,12 @@ import torch.nn.functional as F
 from functools import partial
 from torch.utils._pytree import tree_map
 from power_attention._attention import attention, attention_reference
-from power_attention._attention.reference import attention_reference_fwd
 from power_attention._update_state import update_state, update_state_reference
-from power_attention._update_state.reference import update_state_reference_fwd
 from power_attention._discumsum import discumsum, discumsum_reference
-from power_attention._query_state import query_state, query_state_reference, ExpandedDim
+from power_attention._query_state import query_state, query_state_reference
 from power_attention._p1_full import p1_full
-from power_attention.utils import register_multi_grad_hook, clone_grads, get_statistics, plot_precision
-from power_attention.checks import clone_inputs
-from power_attention.timing_utils import report_fwd_bwd
-
-from collections import defaultdict
 import math
-from collections import defaultdict
-res = {
-    'fwd': defaultdict(list),
-    'ref_fwd': defaultdict(list),
-    'bwd': defaultdict(list),
-    'ref_bwd': defaultdict(list),
-}
 
-
-def dump_inputs(inputs, prefix, names):
-    for name, input in zip(names, inputs):
-        if isinstance(input, torch.Tensor):
-            torch.save(input, f'{prefix}_{name}.pt')
-            print(f'saved {name} to {prefix}_{name}.pt')
-        else:
-            print(f'{name} is not a tensor, value: {input}')
-
-counter = 0
-collect_interval = 1
-total_samples = 20
-
-def capture(Y, y, Y_test, y_test, Y_ref, y_ref, Y_gold, y_gold, ref_inputs, gold_inputs, test_inputs):
-    if not Y.requires_grad:
-        return
-    Y_ref_error = (Y_ref - Y_gold).abs()
-    y_ref_error = (y_ref - y_gold).abs()
-    Y_test_error = (Y_test - Y_gold).abs()
-    y_test_error = (y_test - y_gold).abs()
-    res['ref_fwd']['Y'].append(get_statistics(Y_ref_error / Y_gold.abs()))
-    res['ref_fwd']['y'].append(get_statistics(y_ref_error / y_gold.abs()))
-    res['fwd']['Y'].append(get_statistics(Y_test_error / Y_gold.abs()))
-    res['fwd']['y'].append(get_statistics(y_test_error / y_gold.abs()))
-
-
-    def hook(grads):
-        """ use Y_grad and y_grad as gradients for Y_ref, y_ref, Y_gold, and y_gold """
-        global counter
-        if counter % collect_interval != 0:
-            counter += 1
-        else:
-            current_sample = len(res['ref_bwd'][0])
-            print(f'collecting samples at {counter=}, {current_sample=}')
-            counter += 1
-            Y_grad, y_grad = grads
-            torch.autograd.backward([Y_gold, y_gold], [Y_grad, y_grad])
-            torch.autograd.backward([Y_ref, y_ref], [Y_grad, y_grad])
-            torch.autograd.backward([Y_test, y_test], [Y_grad, y_grad])
-            gold_inputs_grads = clone_grads(gold_inputs)
-            ref_inputs_grads = clone_grads(ref_inputs)
-            test_inputs_grads = clone_grads(test_inputs)
-            for i in range(len(gold_inputs_grads)):
-                ref_grad_error = (gold_inputs_grads[i] - ref_inputs_grads[i]).abs().to(torch.float32)
-                test_grad_error = (gold_inputs_grads[i] - test_inputs_grads[i]).abs().to(torch.float32)
-                res['ref_bwd'][i].append(get_statistics(ref_grad_error/gold_inputs_grads[i].abs()))
-                res['bwd'][i].append(get_statistics(test_grad_error/gold_inputs_grads[i].abs()))
-                if i == len(gold_inputs_grads) - 1 and len(res['ref_bwd'][i]) == total_samples:
-                    dump_inputs(test_inputs, 'test', ['Q', 'S', 's', 'Y', 'y', 'rowmax', 'deg', 'stabilizer', 'zero_initial_state', 'ε', 'deterministic'])
-                    dump_inputs(ref_inputs, 'ref', ['Q', 'S', 's', 'Y', 'y', 'rowmax', 'deg', 'stabilizer', 'zero_initial_state', 'ε', 'deterministic'])
-                    print(f"collected {total_samples} samples, exiting")
-                    ref_bwd_precisions = {key_idx: res['ref_bwd'][key] for key_idx, key in enumerate(res['ref_bwd'].keys())}
-                    test_bwd_precisions = {key_idx: res['bwd'][key] for key_idx, key in enumerate(res['bwd'].keys())}
-                    plot_precision(ref_bwd_precisions, test_bwd_precisions, range(0, total_samples * collect_interval, collect_interval), 'Iteration', 'Power Full BWD relative error')
-                    ref_fwd_precisions = {key_idx: res['ref_fwd'][key] for key_idx, key in enumerate(res['ref_fwd'].keys())}
-                    test_fwd_precisions = {key_idx: res['fwd'][key] for key_idx, key in enumerate(res['fwd'].keys())}
-                    import pdb; pdb.set_trace()
-                    plot_precision(ref_fwd_precisions, test_fwd_precisions, range(0, total_samples * collect_interval, collect_interval), 'Iteration', 'Power Full FWD relative error')
-
-                    import sys
-                    sys.exit()
-            return Y_grad, y_grad
-
-    
-    register_multi_grad_hook([Y, y], hook)
-
-DEBUG = False
-
-res = {
-    'fwd': defaultdict(list),
-    'ref_fwd': defaultdict(list),
-    'bwd': defaultdict(list),
-    'ref_bwd': defaultdict(list),
-}
-
-
-def dump_inputs(inputs, prefix, names):
-    for name, input in zip(names, inputs):
-        if isinstance(input, torch.Tensor):
-            torch.save(input, f'{prefix}_{name}.pt')
-            print(f'saved {name} to {prefix}_{name}.pt')
-        else:
-            print(f'{name} is not a tensor, value: {input}')
-
-
-def capture(Y, y, Y_test, y_test, Y_ref, y_ref, Y_gold, y_gold, ref_inputs, gold_inputs, test_inputs):
-    if not Y.requires_grad:
-        return
-    Y_ref_error = (Y_ref - Y_gold).abs()
-    y_ref_error = (y_ref - y_gold).abs()
-    Y_test_error = (Y_test - Y_gold).abs()
-    y_test_error = (y_test - y_gold).abs()
-    res['ref_fwd']['Y'].append(get_statistics(Y_ref_error / Y_gold.abs()))
-    res['ref_fwd']['y'].append(get_statistics(y_ref_error / y_gold.abs()))
-    res['fwd']['Y'].append(get_statistics(Y_test_error / Y_gold.abs()))
-    res['fwd']['y'].append(get_statistics(y_test_error / y_gold.abs()))
-
-
-    def hook(grads):
-        """ use Y_grad and y_grad as gradients for Y_ref, y_ref, Y_gold, and y_gold """
-        Y_grad, y_grad = grads
-        torch.autograd.backward([Y_gold, y_gold], [Y_grad, y_grad])
-        torch.autograd.backward([Y_ref, y_ref], [Y_grad, y_grad])
-        torch.autograd.backward([Y_test, y_test], [Y_grad, y_grad])
-        gold_inputs_grads = clone_grads(gold_inputs)
-        ref_inputs_grads = clone_grads(ref_inputs)
-        test_inputs_grads = clone_grads(test_inputs)
-        dump_inputs(test_inputs, 'test', ['Q', 'S', 's', 'Y', 'y', 'rowmax', 'deg', 'stabilizer', 'zero_initial_state', 'ε', 'deterministic'])
-        dump_inputs(ref_inputs, 'ref', ['Q', 'S', 's', 'Y', 'y', 'rowmax', 'deg', 'stabilizer', 'zero_initial_state', 'ε', 'deterministic'])
-        for i in range(len(gold_inputs_grads)):
-            ref_grad_error = (gold_inputs_grads[i] - ref_inputs_grads[i]).abs()
-            test_grad_error = (gold_inputs_grads[i] - test_inputs_grads[i]).abs()
-            res['ref_bwd'][i].append(get_statistics(ref_grad_error/gold_inputs_grads[i].abs()))
-            res['bwd'][i].append(get_statistics(test_grad_error/gold_inputs_grads[i].abs()))
-            if i == len(gold_inputs_grads) - 1 and len(res['ref_bwd'][i]) == 20:
-                print("collected 20 samples, exiting")
-                ref_bwd_precisions = {key_idx: res['ref_bwd'][key] for key_idx, key in enumerate(res['ref_bwd'].keys())}
-                test_bwd_precisions = {key_idx: res['bwd'][key] for key_idx, key in enumerate(res['bwd'].keys())}
-                plot_precision(ref_bwd_precisions, test_bwd_precisions, range(20), 'Iteration', 'Power Full BWD relative error')
-                ref_fwd_precisions = {key_idx: res['ref_fwd'][key] for key_idx, key in enumerate(res['ref_fwd'].keys())}
-                test_fwd_precisions = {key_idx: res['fwd'][key] for key_idx, key in enumerate(res['fwd'].keys())}
-                import pdb; pdb.set_trace()
-                plot_precision(ref_fwd_precisions, test_fwd_precisions, range(20), 'Iteration', 'Power Full FWD relative error')
-
-                import sys
-                sys.exit()
-        return Y_grad, y_grad
-
-    
-    register_multi_grad_hook([Y, y], hook)
-
-DEBUG = False
 
 def power_full(Q, K, V, log_G=None, initial_state=None,
                deg=2, stabilizer=None, ε=1e-5,
@@ -335,6 +189,8 @@ def create_inputs(b=2, t=1024, h=8, d=32, qhead_ratio=1, dtype=torch.float16, de
 
 ## TUTORIAL ##
 if __name__ == '__main__':
+    from tests_and_benchmarks._timing import report_fwd_bwd
+
     # Create inputs
     t = 1024
     chunk_size=128

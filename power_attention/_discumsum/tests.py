@@ -1,7 +1,7 @@
 import torch
 import pytest
 from itertools import product
-from power_attention.checks import (
+from tests_and_benchmarks._checks import (
     check_tensor_property_pairs,
     check_inputs_created_determinstically,
     check_fn_compiles,

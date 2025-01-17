@@ -8,7 +8,7 @@ from torch.utils._pytree import tree_map
 from types import NoneType
 from typing import Optional, Tuple
 from power_attention._update_state import ExpandedDim
-from power_attention.utils import dummify
+from power_attention._utils import dummify
 from power_attention._attention.impl import attention
 
 

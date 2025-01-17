@@ -8,7 +8,6 @@ from torch.utils._pytree import tree_map
 from typing import Optional, Tuple
 from power_attention._query_state.fwd import query_state_fwd
 from power_attention._query_state.bwd import ExpandedDim as compute_expanded_dim, query_state_bwd
-from power_attention.timing_utils import report_fwd_bwd
 
 # Define the primary query_state entrypoint
 @torch.library.custom_op("power_attention::query_state", mutates_args=())
@@ -96,7 +95,8 @@ def create_inputs(b=2, n=4, c=128, h=8, d=32, dtype=torch.float16, fused=False, 
 
 ## TUTORIAL ##
 if __name__ == '__main__':
-    from power_attention.timing_utils import get_compiled_versions, estimate_runtime
+    from tests_and_benchmarks._timing import get_compiled_versions, estimate_runtime
+    from tests_and_benchmarks._timing import report_fwd_bwd
 
     # Hyperparameters
     b, n, c, h, d = (8, 8, 128, 16, 64)

@@ -83,9 +83,9 @@ pythonpath = [
     "."
 ]
 testpaths = [
-   "power_attention"
+   "tests_and_benchmarks/tests"
 ]
-python_files = "tests.py"
+python_files = "*.py"
 python_functions = "test_*"
 xfail_strict = true
 filterwarnings = [

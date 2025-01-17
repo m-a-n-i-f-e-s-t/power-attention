@@ -11,7 +11,6 @@ from types import NoneType
 from typing import Tuple
 from power_attention._update_state.fwd import ExpandedDim as compute_expanded_dim, update_state_fwd
 from power_attention._update_state.bwd import update_state_bwd
-from power_attention.timing_utils import report_fwd_bwd
 
 
 # Define the primary update_state entrypoint
@@ -69,6 +68,8 @@ def create_inputs(b=2, n=4, c=128, h=8, d=32, dtype=torch.float16, device='cuda'
 
 ## TUTORIAL ##
 if __name__ == '__main__':
+    from tests_and_benchmarks._timing import report_fwd_bwd
+
     # Hyperparameters
     b, n, c, h, d = (8, 8, 128, 16, 64)
     dtype = torch.float16

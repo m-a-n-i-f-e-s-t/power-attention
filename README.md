@@ -95,9 +95,49 @@ class CausalSelfAttention(nn.Module):
 
 We have a simple training loop in `training/train.py` to demo the kernel, based on nanoGPT.
 
+<<<<<<< HEAD
 To install the dependencies, run `pip install .[train]`.
 
 `cd training/` and run the script with `python train.py`. Some examples:
+=======
+To install the development dependencies, use:
+
+```bash
+pip install -r requirements.txt
+```
+
+This command makes the power-attention library installed in editable mode, meaning changes to the Python
+part of the library will be immediately reflected. However, after making changes to the C++ code, a
+recompilation is required:
+
+```bash
+make dev
+```
+
+### Testing & Benchmarking
+
+Run correctness tests with
+
+```bash
+pytest
+```
+
+Benchmark numerical precision & generate a report with
+
+```bash
+TODO
+```
+
+Benchmark speed & generate a report with
+
+```bash
+TODO
+```
+
+### Training Example
+
+To immediately see the kernel in action, `cd training` and use:
+>>>>>>> main
 
 ```bash
 # Single GPU training
