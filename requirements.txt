@@ -22,3 +22,5 @@ click
 pyyaml
 bokeh
 matplotlib
+zarr
+flash_attn
