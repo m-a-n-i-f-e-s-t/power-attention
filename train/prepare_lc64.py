@@ -65,8 +65,10 @@ def main(build_from_raw, destination_folder, source_folder, num_shards, train_to
         print(f'train.bin is {os.path.getsize(train_file)/1e9:.1f}GB')
         print(f'val.bin is {os.path.getsize(val_file)/1e9:.1f}GB')
     else:
-        # TODO: Implement non-raw processing logic
-        pass
+        # Download preprocessed dataset from GCS
+        os.environ['GSUTIL_PARALLEL_THREAD_COUNT'] = '8'
+        os.environ['GSUTIL_PARALLEL_PROCESS_COUNT'] = '64'
+        os.system(f'gsutil -m cp -r gs://longcrawl64/*.bin {destination_folder}')
 
 
 

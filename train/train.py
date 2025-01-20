@@ -21,7 +21,7 @@ import time
 import math
 import pickle
 from contextlib import nullcontext
-import tiktoken
+from datetime import timedelta
 
 import numpy as np
 import torch
@@ -95,7 +95,7 @@ config = {k: globals()[k] for k in config_keys} # will be useful for logging
 # various inits, derived attributes, I/O setup
 ddp = int(os.environ.get('RANK', -1)) != -1 # is this a ddp run?
 if ddp:
-    init_process_group(backend=backend)
+    init_process_group(backend=backend, timeout=timedelta(minutes=30))
     ddp_rank = int(os.environ['RANK'])
     ddp_local_rank = int(os.environ['LOCAL_RANK'])
     ddp_world_size = int(os.environ['WORLD_SIZE'])
@@ -105,8 +105,9 @@ if ddp:
     seed_offset = ddp_rank # each process gets a different seed
     # world_size number of processes will be training simultaneously, so we can scale
     # down the desired gradient accumulation iterations per process proportionally
-    assert gradient_accumulation_steps % ddp_world_size == 0
+    assert gradient_accumulation_steps % ddp_world_size == 0 
     gradient_accumulation_steps //= ddp_world_size
+    torch._dynamo.config.optimize_ddp = False
 else:
     # if not ddp, we are running on a single gpu, and one process
     master_process = True
