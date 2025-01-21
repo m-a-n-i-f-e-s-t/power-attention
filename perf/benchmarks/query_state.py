@@ -29,7 +29,7 @@ other_param_ranges = {
     'dtype': [torch.bfloat16],
     'device': ['cuda'],
     'fused': [True, False],
-    'stabilizer': [1.0],
+    'scale': [1.0],
     'direction': ['fwd', 'bwd', 'fwd+bwd'],
 }
 SPEED_TEST_CASES = [
@@ -55,7 +55,7 @@ other_param_ranges = {
     'dtype': [torch.bfloat16],
     'device': ['cuda'],
     'fused': [True, False],
-    'stabilizer': [1.0],
+    'scale': [1.0],
     'direction': ['fwd', 'bwd'],
 }
 PRECISION_TEST_CASES = [

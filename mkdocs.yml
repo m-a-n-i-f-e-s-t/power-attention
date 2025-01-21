@@ -1,0 +1,64 @@
+site_name: Power Attention
+site_url: !ENV READTHEDOCS_CANONICAL_URL
+nav:
+  - Overview: index.md
+  - Getting Started:
+    - Installation: installation.md
+    - Quickstart: quickstart.md
+    - API Reference: reference/api.md
+  - Performance:
+    - Benchmarking: benchmarking.md
+  - Contributing:
+    - Guidelines: contributing/index.md
+    - Releasing: contributing/release.md
+theme:
+  name: material
+  custom_dir: docs/overrides
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - toc.follow
+    - toc.integrate
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - tables
+  - attr_list
+  - md_in_html
+
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [power_attention]
+          options:
+            show_source: true
+            show_root_heading: true
+            heading_level: 1
+            docstring_style: google
+            show_signature_annotations: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - javascripts/readthedocs.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

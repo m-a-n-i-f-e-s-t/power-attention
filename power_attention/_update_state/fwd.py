@@ -5,15 +5,8 @@
 
 ## IMPLEMENTATION ##
 import torch
-from power_attention_cuda import (
-    compute_update_states as update_states_fwd_cuda,
-    InnerBlock_DT,
-    OuterBlock_DT,
-)
-from typing import Tuple
-
-def ExpandedDim(head_size, deg):
-    return ((InnerBlock_DT // OuterBlock_DT + head_size // OuterBlock_DT) * (head_size // InnerBlock_DT) // 2) * (InnerBlock_DT * OuterBlock_DT)
+from power_attention_cuda import compute_update_states as update_states_fwd_cuda
+from power_attention._utils import compute_expanded_dim
 
 @torch.library.custom_op("power_attention::update_state_fwd", mutates_args=(), device_types='cuda')
 def update_state_fwd(K : torch.Tensor, V : torch.Tensor, deg : int) -> torch.Tensor:
@@ -40,7 +33,7 @@ def update_state_fwd(K : torch.Tensor, V : torch.Tensor, deg : int) -> torch.Ten
 @update_state_fwd.register_fake
 def update_state_fwd_fake(K, V, deg):
     b, n, c, h, d = K.shape
-    D = ExpandedDim(d, deg)
+    D = compute_expanded_dim(d, deg)
     return (torch.empty(b, n, h, D, d, device=K.device, dtype=K.dtype))
 
 # Useful function to create sample inputs
@@ -48,7 +41,7 @@ def create_inputs(b=2, n=4, c=128, h=8, d=32, dtype=torch.float16, device='cuda'
     torch.manual_seed(seed)
     K = torch.randn(size=(b, n, c, h, d), dtype=dtype, device=device) / d**.25
     V = torch.randn(size=(b, n, c, h, d), dtype=dtype, device=device)
-    return K, V, 2
+    return dict(K=K, V=V, deg=2)
 
 ## TUTORIAL ##
 if __name__ == '__main__':
@@ -56,12 +49,12 @@ if __name__ == '__main__':
     b, n, c, h, d = (2, 4, 128, 8, 32)
     dtype = torch.float16
     # Create inputs
-    K, V, deg = create_inputs(b, n, c, h, d, dtype, 'cuda')
+    inputs = create_inputs(b, n, c, h, d, dtype, 'cuda')
     # Run function
     with torch.no_grad():
-        S = update_state_fwd(K, V, deg)
+        S = update_state_fwd(**inputs)
     # Compile function, fullgraph=True confirms no graph breaks
     compiled_update_state_forward = torch.compile(update_state_fwd, fullgraph=True)
     with torch.no_grad():
         for _ in range(3):
-            S = compiled_update_state_forward(K, V, deg)
+            S = compiled_update_state_forward(**inputs)

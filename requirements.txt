@@ -22,3 +22,6 @@ click
 pyyaml
 bokeh
 matplotlib
+pymdown-extensions
+mkdocs
+mkdocstrings-python

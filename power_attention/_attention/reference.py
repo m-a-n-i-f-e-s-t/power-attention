@@ -1,20 +1,15 @@
-import code
-from functools import partial
 import torch
 import torch.nn.functional as F
-from einops import rearrange
-from power_attention_cuda import attention_bwd, attention_fwd
-from torch.utils._pytree import tree_map
-from types import NoneType
-from typing import Optional, Tuple
-from power_attention._update_state import ExpandedDim
 from power_attention._utils import dummify
-from power_attention._attention.impl import attention
 
+flash_equivalent = False
+normal_space = False
+normalize_output = False
+ε = 1e-6
 
 class AttentionReference(torch.autograd.Function):
     @staticmethod
-    def _softmax(S, scale, deg, log_G, ε, flash_equivalent, normal_space, dtype, device):
+    def _softmax(S, scale, deg, log_G, dtype, device):
         """Calculate different flavors of "softmax" based on QK product.
         """
         mask = torch.tril(torch.full(S.shape[-2:], True, dtype=torch.bool, device=device))
@@ -32,6 +27,7 @@ class AttentionReference(torch.autograd.Function):
                 Z_rowmax.requires_grad = True
                 Z_scaled = Z_masked / Z_rowmax
                 P = (Z_scaled ** deg).to(dtype)
+                Z_rowmax = torch.log(Z_rowmax ** deg)
         else:
             signs = torch.sign(S)
             T = deg * torch.log(torch.abs(S) + ε)
@@ -52,7 +48,7 @@ class AttentionReference(torch.autograd.Function):
         return P, Z_rowmax
 
     @staticmethod
-    def forward(ctx, Q, K, V, log_G, deg, scale, ε, deterministic, normalize_output=False, flash_equivalent=False, normal_space=False):
+    def forward(ctx, Q, K, V, log_G, deg, scale):
         """Reference implementation of the attention forward pass
         args:
             Q, K, V: [b, t, h, d], query, key, value
@@ -60,17 +56,13 @@ class AttentionReference(torch.autograd.Function):
             deg: int, degree of power
             scale: float or None, scale of key-query inner product
             ε: float
-            deterministic: bool
-            normalize_output: bool, whether to normalize the output by the sum of the attention weights, defaults to False
-            flash_equivalent: bool, whether to use flash_equivalent for the attention operation, defaults to False
-            normal_space: bool, whether to do computation in normal space instead of log space, this helps speed up the kernel but potentially become less stable.
         returns:
-            Y: [b, t, h, d]
-            y: [b, t, h]
+            Y: [b, t, h, d] unnormalized attention output
+            y: [b, t, h] normalization factor
+            rowmax: [b, t, h] rowmax of the attention weights, always in log space
         """
         device = Q.device
         b, t, h, d = Q.shape
-        D = ExpandedDim(d, deg)
         if isinstance(scale, float):
             scale = torch.tensor(scale, dtype=torch.float32, device=device)
 
@@ -79,8 +71,7 @@ class AttentionReference(torch.autograd.Function):
         Q, K, V = Q.transpose(1, 2), K.transpose(1, 2), V.transpose(1, 2) # [b, h, t, d]
         log_G = log_G.transpose(1, 2) if log_G is not None else None # [b, h, t]
         S = torch.matmul(Q, K.transpose(-1, -2))
-        mask = torch.tril(torch.full(S.shape[-2:], True, dtype=torch.bool, device=device))
-        P, Z_rowmax = AttentionReference._softmax(S, scale, deg, log_G, ε, flash_equivalent, normal_space, Q.dtype, Q.device)
+        P, Z_rowmax = AttentionReference._softmax(S, scale, deg, log_G, Q.dtype, Q.device)
 
         y = P.sum(-1, dtype=torch.float32) # [b, h, t]
 
@@ -126,7 +117,7 @@ class AttentionReference(torch.autograd.Function):
         assert not (ctx.normal_space and ctx.flash_equivalent), "Normal space and flash equivalent cannot be both True"
 
         S = torch.matmul(Q, K.transpose(-1, -2))
-        P, _ = AttentionReference._softmax(S.clone(), ctx.scale, ctx.deg, log_G, ctx.ε, ctx.flash_equivalent, ctx.normal_space, Q.dtype, Q.device)
+        P, _ = AttentionReference._softmax(S.clone(), ctx.scale, ctx.deg, log_G, Q.dtype, Q.device)
 
         # compute backward
 
@@ -160,15 +151,19 @@ class AttentionReference(torch.autograd.Function):
             dlog_G = None
 
         dQ, dK, dV = dQ.transpose(1, 2), dK.transpose(1, 2), dV.transpose(1, 2) # [b, t, h, d]
-        # return dQ, dK, dV, dlog_G, None, None, None, None, None, dP, dZ, dS, dy
-        return dQ, dK, dV, dlog_G, None, None, None, None, None
+        return dQ, dK, dV, dlog_G, None, None
     
     @staticmethod
     def backward(ctx, *args):
-        dQ, dK, dV, dlog_G, _, _, _, _, _ = AttentionReference.backward_impl(ctx, *args)
-        return dQ, dK, dV, dlog_G, None, None, None, None, None, None, None
+        dQ, dK, dV, dlog_G, _, _ = AttentionReference.backward_impl(ctx, *args)
+        return dQ, dK, dV, dlog_G, None, None
 
-attention_reference = AttentionReference.apply
+def attention_reference(*args, **kwargs):
+    if args and kwargs:
+        raise ValueError("Cannot pass both args and kwargs")
+    if kwargs:
+        args = (kwargs['Q'], kwargs['K'], kwargs['V'], kwargs['log_G'], kwargs['deg'], kwargs['scale'])
+    return AttentionReference.apply(*args)
 attention_reference_fwd = dummify(AttentionReference.forward)
 attention_reference_fwd_impl = AttentionReference.forward
 attention_reference_bwd_impl = AttentionReference.backward_impl
@@ -236,86 +231,13 @@ class FlashAttentionReference(torch.autograd.Function):
         
 
 
-flash_attention_reference = FlashAttentionReference.apply
+def flash_attention_reference(*args, **kwargs):
+    if args and kwargs:
+        raise ValueError("Cannot pass both args and kwargs")
+    if kwargs:
+        args = (kwargs['Q'], kwargs['K'], kwargs['V'], kwargs['softmax_scale'])
+    return FlashAttentionReference.apply(*args)
 flash_attention_reference_fwd = dummify(FlashAttentionReference.forward)
-
-
-class JacobAttentionLayer(torch.nn.Module):
-    def __init__(self, n_head, n_embd, gating, dtype, device='cuda'):
-        super().__init__()
-        self.n_head = n_head
-        self.n_embd = n_embd
-        self.gating = gating
-        self.c_attn = torch.nn.Linear(n_embd, 3 * n_embd + n_head, bias=False, device=device, dtype=dtype)
-
-    def create_inputs(self, B, T, dtype, device='cuda', seed=42):
-        generator = torch.Generator(device=device).manual_seed(seed)
-        x = torch.randn((B, T, self.n_embd), dtype=dtype, device=device, requires_grad=True, generator=generator)
-        return (x,)
-
-    def forward(self, x, attention_kernel='p2'):
-        B, T, C = x.size() # batch size, sequence length, embedding dimensionality (n_embd)
-        nh = self.n_head
-        hs = C // nh
-
-        self.bias = torch.tril(torch.ones(T, T, dtype=torch.bool, device=x.device)).view(1, 1, T, T)
-
-        # calculate query, key, values for all heads in batch and move head forward to be the batch dim
-        qkvgr = self.c_attn(x)
-        qkv = qkvgr[...,:3*self.n_embd]
-        if self.gating:
-            log_g = torch.nn.functional.logsigmoid(qkvgr[...,3*self.n_embd:3*self.n_embd+self.n_head].to(dtype=torch.float32)).contiguous()
-        else:
-            log_g = None
-        q, k, v  = qkv.split(self.n_embd, dim=2)
-        q = q.view(B, T, nh, hs).contiguous()
-        k = k.view(B, T, nh, hs).contiguous()
-        v = v.view(B, T, nh, hs).contiguous()
-
-        # causal self-attention; Self-attend: (B, nh, T, hs) x (B, nh, hs, T) -> (B, nh, T, T)
-        if attention_kernel == 'sdpa': pass
-        elif attention_kernel == 'flash': pass
-        elif attention_kernel == 'p2':
-            if self.gating: log_g = torch.cumsum(log_g, dim=1)
-            y_unnormalized, norm, _ = attention(q, k, v, log_g,
-                                2,
-                                1.0 / hs**0.5,
-                                1e-7,
-                                False,
-                                False,
-                                False)
-            y = (y_unnormalized / norm.unsqueeze(-1)).to(dtype=v.dtype)
-        elif attention_kernel == 'powerref':
-            if self.gating: log_g = torch.cumsum(log_g, dim=1)
-            y_unnormalized, norm, _ = attention_reference(q, k, v, log_g,
-                                                            2,
-                                                            1.0 / hs**0.5,
-                                                            1e-7,
-                                                            False,
-                                                            False)
-            y = (y_unnormalized / norm.unsqueeze(-1)).to(dtype=v.dtype)
-        elif attention_kernel in {'expref', 'p2ref', 'p4ref'}:
-            q = q.transpose(1, 2) # (B, nh, T, hs)
-            k = k.transpose(1, 2) # (B, nh, T, hs)
-            v = v.transpose(1, 2) # (B, nh, T, hs)
-            if self.gating: log_g = log_g.cumsum(dim=1).transpose(1, 2) # (B, nh, T)
-            # manual implementation of attention
-            att = (q @ k.transpose(-2, -1)) * (1.0 / hs**0.5)
-            if attention_kernel == 'p2ref': att = 2. * torch.log(torch.abs(att) + 1e-7)
-            if attention_kernel == 'p4ref': att = 4. * torch.log(torch.abs(att) + 1e-7)
-            if self.gating: att += log_g[..., None] - log_g[..., None, :]
-            att = att.masked_fill(self.bias[:,:,:T,:T] == 0, float('-inf'))
-            att = F.softmax(att, dim=-1)
-            # att = self.attn_dropout(att)
-            y = att @ v # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
-            y = y.transpose(1, 2) # (B, T, nh, hs)
-        else:
-            raise NotImplementedError(f'Unknown attention kernel: {attention_kernel}')
-        y = y.contiguous().view(B, T, C) # re-assemble all head outputs side by side
-
-        # output projection
-        # y = self.resid_dropout(self.c_proj(y))
-        return y
 
 
 def create_inputs_flash(b, t, h, d, dtype, device, softmax_scale=0.0, requires_grad=False, seed=42):

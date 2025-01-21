@@ -8,10 +8,6 @@ from power_attention_cuda import (
 )
 from power_attention._utils import dummify
 
-
-def ExpandedDim(head_size, deg):
-    return ((InnerBlock_DT // OuterBlock_DT + head_size // OuterBlock_DT) * (head_size // InnerBlock_DT) // 2) * (InnerBlock_DT * OuterBlock_DT)
-
 class SymmetricPowerUpdateStateReference(torch.autograd.Function):
     @staticmethod
     def expand(K, deg):
@@ -90,5 +86,11 @@ class SymmetricPowerUpdateStateReference(torch.autograd.Function):
         dK = dK.transpose(2, 3)
         return dK, dV, None
 
-update_state_reference = SymmetricPowerUpdateStateReference.apply
+
+def update_state_reference(*args, **kwargs):
+    if args and kwargs:
+        raise ValueError("Cannot pass both args and kwargs")
+    if kwargs:
+        args = (kwargs['K'], kwargs['V'], kwargs['deg'])
+    return SymmetricPowerUpdateStateReference.apply(*args)
 update_state_reference_fwd = dummify(SymmetricPowerUpdateStateReference.forward)

@@ -26,7 +26,6 @@ other_param_ranges = {
     'gating': [False, True],
     'chunk_size': [None, 128],
     'deg': [1, 2],
-    'log_space': [False, True],
     'direction': ['fwd', 'bwd', 'fwd+bwd'],
 }
 SPEED_TEST_CASES = [
@@ -36,6 +35,7 @@ SPEED_TEST_CASES = [
 ]
 
 @register_benchmark(param_configs=SPEED_TEST_CASES, groups=['speed', 'power_full'])
+@register_benchmark(param_configs=[{'b': 2, 't': 512, 'h': 6, 'd': 64, 'qhead_ratio': 2, 'dtype': torch.bfloat16, 'device': 'cuda', 'gating': True, 'chunk_size': 128, 'deg': 2, 'direction': 'fwd+bwd'}], groups=['speed', 'power_full'], label='mini')
 def power_full_speed(direction=None, **kw):
     """Measure speed of power attention implementation.
     
@@ -68,7 +68,6 @@ other_param_ranges = {
     'device': ['cuda'],
     'gating': [False, True],
     'deg': [1, 2],
-    'log_space': [False, True],
     'direction': ['fwd', 'bwd'],
 }
 PRECISION_TEST_CASES = [
@@ -77,7 +76,10 @@ PRECISION_TEST_CASES = [
     for values in product(*other_param_ranges.values())
 ]
 
+MINI_SETTINGS = {'b': 1, 't': 512, 'h': 1, 'd': 64, 'qhead_ratio': 1, 'dtype': torch.bfloat16, 'device': 'cuda', 'gating': True, 'chunk_size': 128, 'deg': 2}
+
 @register_benchmark(param_configs=PRECISION_TEST_CASES, groups=['precision', 'power_full'])
+@register_benchmark(param_configs=[{**MINI_SETTINGS, 'direction': 'fwd'}, {**MINI_SETTINGS, 'direction': 'bwd'}], groups=['precision', 'power_full'], label='mini')
 def power_full_precision(direction=None, **kw):
     """Measure precision of power attention implementation compared to fp32 reference.
     
@@ -92,7 +94,7 @@ def power_full_precision(direction=None, **kw):
             between test and reference gradients
     """
     error = benchmark_precision(direction, power_full_reference, power_full, create_inputs, 
-                                kw | {'dtype': torch.float32, 'chunk_size': None, 'log_space': True}, # reference is fp32 and no chunking and log_space
+                                kw | {'dtype': torch.float32, 'chunk_size': None}, # reference is fp32 and no chunking
                                 kw)
     if direction == 'fwd':
         return Measurement(value=error)

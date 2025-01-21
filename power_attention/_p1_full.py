@@ -10,12 +10,13 @@ from torch.utils._pytree import tree_map
 import math
 from power_attention._discumsum import discumsum, discumsum_reference
 from power_attention._attention import attention, attention_reference
+from power_attention._config import normal_space
+
+
 
 def p1_full(Q, K, V, log_G=None, initial_state=None,
-               stabilizer=None, ε=1e-5, chunk_size=None,
-               deterministic=False,
-               use_reference=False,
-               normal_space=False):
+               scale=None, chunk_size=None,
+               use_reference=False):
     if use_reference:
         _attention = attention_reference
         _discumsum = discumsum_reference
@@ -51,7 +52,7 @@ def p1_full(Q, K, V, log_G=None, initial_state=None,
             if gating:
                 log_G = log_G.repeat_interleave(qhead_ratio, dim=2)
         log_G_accum = log_G.cumsum(1) if log_G is not None else None
-        Y, _, _ = _attention(Q, K, V, log_G_accum, 1, stabilizer, ε, deterministic, False, False, False)
+        Y, _, _ = _attention(Q, K, V, log_G_accum, 1, scale)
         assert Y.is_contiguous(), 'Y must be contiguous'
         return Y
 
@@ -89,8 +90,7 @@ def p1_full(Q, K, V, log_G=None, initial_state=None,
         V_flatbatch = V_flatbatch.repeat_interleave(qhead_ratio, dim=2)
         if gating:
             log_G_intrachunk_accum_flatbatch = log_G_intrachunk_accum_flatbatch.repeat_interleave(qhead_ratio, dim=2)
-    attn_Y, _, rowmax = _attention(Q_flatbatch, K_flatbatch, V_flatbatch, log_G_intrachunk_accum_flatbatch, 1, stabilizer, ε, deterministic, False, False, normal_space)
-    if not normal_space: rowmax = torch.exp(rowmax)
+    attn_Y, _, rowmax = _attention(Q_flatbatch, K_flatbatch, V_flatbatch, log_G_intrachunk_accum_flatbatch, 1)
     attn_Y = attn_Y.view(b, n, c, hq, d)
     rowmax = rowmax.view(b, n, c, hq, 1).detach()
 
@@ -101,19 +101,22 @@ def p1_full(Q, K, V, log_G=None, initial_state=None,
     if qhead_ratio > 1:
         S = S.repeat_interleave(qhead_ratio, dim=2)
 
-    correction = (stabilizer / rowmax)
-    qs_Y = _query_state((Q * correction).to(dtype), S)
-    return (attn_Y + qs_Y).reshape(b, t, hq, d)
+    # correction = (scale / rowmax)
+    # qs_Y = _query_state((Q * correction).to(dtype), S)
+    Y = _query_state(Q, S, attn_Y, rowmax, 1, scale)
+    return Y.reshape(b, t, hq, d)
 
 
-def _update_state(K, V):
+def _update_state(K, V, *args):
     # K: [b,n,c,h,D]
     # V: [b,n,c,h,d]
     # Output: [b,n,h,D,d]
     return torch.matmul(K.permute(0, 1, 3, 4, 2), V.transpose(2, 3))  # [b,n,h,D,d]
 
-def _query_state(Q, S):
+def _query_state(Q, S, attn_Y, rowmax, deg, scale, zero_initial_state):
     # Q: [b,n,c,h,D]
     # S: [b,n,h,D,d]
     # Output: [b,n,c,h,d]
-    return torch.matmul(Q.transpose(2, 3), S).transpose(2, 3)  # [b,n,c,h,d]
+    correction = torch.exp(-rowmax)
+    qs_Y = torch.matmul((Q * correction.unsqueeze(-1)).to(Q.dtype).transpose(2, 3), S).transpose(2, 3)  # [b,n,c,h,d]
+    return attn_Y + qs_Y

@@ -697,10 +697,18 @@ namespace power_attention
                     }
                     CUTE_UNROLL
                     for (int m = 0; m < size<0>(tdPQrdY_rowcol); m++) {
-                        CUTE_UNROLL
-                        for (int n = 0; n < size<1>(tdPQrdY_rowcol); n++) {
-                            rdY_attn_rowcol(m, n) = tdPQrdY_rowcol(m, n);
-                            tdPQrdY_rowcol(m, n) = static_cast<Element>(power_attention::fp32_mul(tdPQrdY_rowcol(m, n), r_rowmax(m)));
+                        if (params.multiplier_squared > (r_rowmax(m))) {
+                            CUTE_UNROLL
+                            for (int n = 0; n < size<1>(tdPQrdY_rowcol); n++) {
+                                rdY_attn_rowcol(m, n) = tdPQrdY_rowcol(m, n);
+                                tdPQrdY_rowcol(m, n) = static_cast<Element>(power_attention::fp32_mul(tdPQrdY_rowcol(m, n), r_rowmax(m)));
+                            }
+                        } else {
+                            CUTE_UNROLL
+                            for (int n = 0; n < size<1>(tdPQrdY_rowcol); n++) {
+                                rdY_attn_rowcol(m, n) = static_cast<Element>(power_attention::fp32_mul(tdPQrdY_rowcol(m, n), params.multiplier_squared / r_rowmax(m)));
+                                tdPQrdY_rowcol(m, n) = static_cast<Element>(power_attention::fp32_mul(tdPQrdY_rowcol(m, n), params.multiplier_squared));
+                            }
                         }
                     }
                 } else { // if zero initial state and chunk_id == 0, just copy dY to rdY_attn

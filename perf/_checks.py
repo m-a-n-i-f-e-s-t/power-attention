@@ -281,17 +281,25 @@ def check_fn_backwards_match(*, ref_fn, gold_inputs, test_fn, test_inputs, rtol=
         atol: float. Absolute tolerance for difference
     """
 
+    def _create_grad_tensors(example):
+        if isinstance(example, torch.Tensor):
+            return torch.ones_like(example)
+        elif isinstance(example, (tuple, list)):
+            return [torch.ones_like(e) for e in example]
+        else:
+            raise ValueError(f"Unsupported type: {type(example)}")
+
     gold_output = ref_fn(**gold_inputs)
-    torch.autograd.backward(gold_output, grad_tensors=torch.ones_like(gold_output))
+    torch.autograd.backward(gold_output, grad_tensors=_create_grad_tensors(gold_output))
     gold_grads = clone_grads(gold_inputs)
 
     ref_output = ref_fn(**test_inputs)
-    torch.autograd.backward(ref_output, grad_tensors=torch.ones_like(ref_output))
+    torch.autograd.backward(ref_output, grad_tensors=_create_grad_tensors(ref_output))
     ref_grads = clone_grads(test_inputs)
     
     clear_grads(test_inputs)
     test_output = test_fn(**test_inputs)
-    torch.autograd.backward(test_output, grad_tensors=torch.ones_like(test_output))
+    torch.autograd.backward(test_output, grad_tensors=_create_grad_tensors(test_output))
     test_grads = clone_grads(test_inputs)
 
     sanity_check_tensors([gold_grads, ref_grads, test_grads])

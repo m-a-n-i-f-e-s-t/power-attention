@@ -82,7 +82,6 @@ compile = True # use PyTorch 2.0 to compile the model to be faster
 attention_kernel = 'sdpa' # 'sdpa', 'power'
 disable_gating = False
 chunk_size = None
-log_space = True
 degree = 1
 head_size = 64 # to separate from n_embd
 qhead_ratio = 1
@@ -171,7 +170,7 @@ best_val_loss = 1e9
 model_args = dict(n_layer=n_layer, n_head=n_head, n_embd=n_embd, block_size=block_size,
                   bias=bias, vocab_size=None, dropout=dropout,
                   attention_kernel=attention_kernel, disable_gating=disable_gating, head_size=head_size,
-                  chunk_size=chunk_size, degree=degree, log_space=log_space, qhead_ratio=qhead_ratio) # start with model_args from command line
+                  chunk_size=chunk_size, degree=degree, qhead_ratio=qhead_ratio) # start with model_args from command line
 if init_from == 'scratch':
     # init a new model from scratch
     print("Initializing a new model from scratch")

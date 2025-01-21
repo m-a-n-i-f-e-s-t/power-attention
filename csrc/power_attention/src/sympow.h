@@ -611,9 +611,18 @@ namespace power_attention
                 // expand with rowmax
                 CUTE_UNROLL
                 for (int n = 0; n < size<1>(tdSrPQt_rowcol); n++) {
-                    CUTE_UNROLL
-                    for (int m = 0; m < size<0>(tdSrPQt_rowcol); m++) {
-                        tdSrPQt_rowcol(m, n) = static_cast<Element>(fp32_mul(tdSrPQt_rowcol(m, n), rQt_row[n]) * r_rowmax[n]);
+                    if (params.multiplier_squared <= r_rowmax[n]) {
+                        CUTE_UNROLL
+                        for (int m = 0; m < size<0>(tdSrPQt_rowcol); m++) {
+                            ElementAccum tmp = fp32_mul(tdSrPQt_rowcol(m, n), rQt_row[n]) * params.multiplier_squared;
+                            tdSrPQt_rowcol(m, n) = static_cast<Element>(tmp);
+                        }
+                    } else { // in this case we need to scale dY, as we did in the forward pass
+                        CUTE_UNROLL
+                        for (int m = 0; m < size<0>(tdSrPQt_rowcol); m++) {
+                            ElementAccum tmp = fp32_mul(tdSrPQt_rowcol(m, n), rQt_row[n]) * r_rowmax[n];
+                            tdSrPQt_rowcol(m, n) = static_cast<Element>(tmp);
+                        }
                     }
                 }
             } else {
