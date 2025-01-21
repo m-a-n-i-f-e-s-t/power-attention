@@ -1,12 +1,20 @@
 #!/bin/bash
 
+# Get the directory where the script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Get the project root (parent directory of scripts/)
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+
+# Change to project root directory
+cd "$PROJECT_ROOT" || exit 1
+
 # Set the virtualenv path
 VENV_PATH="$HOME/.power-attention-regression-venv"
 
 # Create virtualenv if it doesn't exist
 if [ ! -d "$VENV_PATH" ]; then
     echo "Creating new virtualenv at $VENV_PATH"
-    python3 -m venv "$VENV_PATH"
+    python -m venv "$VENV_PATH"
 fi
 
 # Activate virtualenv
@@ -16,7 +24,7 @@ source "$VENV_PATH/bin/activate"
 echo "Force reinstalling requirements..."
 pip install -r requirements.txt --force-reinstall
 
-# CD into training directory
+# CD into training directory (now this will always work)
 cd train || exit 1
 
 # Check if git repo is clean
