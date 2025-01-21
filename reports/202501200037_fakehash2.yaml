@@ -8,8 +8,9 @@
     device: cuda
     direction: bwd
     gpus: 1xA6000
+    benchmark: discumsum_speed
     fn: discumsum_speed
-  value: 0.7879120349884033
+  value: 0.7841792583465577
 - attrs:
     b: 2
     n: 16
@@ -20,8 +21,9 @@
     device: cuda
     direction: fwd
     gpus: 1xA6000
+    benchmark: discumsum_speed
     fn: discumsum_speed
-  value: 0.1598975896835327
+  value: 0.16081920266151428
 - attrs:
     b: 2
     n: 16
@@ -32,8 +34,9 @@
     device: cuda
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: discumsum_speed
     fn: discumsum_speed
-  value: 0.9513472080230713
+  value: 0.9500160217285156
 - attrs:
     b: 64
     n: 4
@@ -44,8 +47,9 @@
     device: cuda
     direction: bwd
     gpus: 1xA6000
+    benchmark: discumsum_speed
     fn: discumsum_speed
-  value: 10.304460906982422
+  value: 10.292583084106445
 - attrs:
     b: 64
     n: 4
@@ -56,8 +60,9 @@
     device: cuda
     direction: fwd
     gpus: 1xA6000
+    benchmark: discumsum_speed
     fn: discumsum_speed
-  value: 1.6622591972351075
+  value: 1.6612863540649414
 - attrs:
     b: 64
     n: 4
@@ -68,8 +73,9 @@
     device: cuda
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: discumsum_speed
     fn: discumsum_speed
-  value: 11.956888961791993
+  value: 11.958222198486329
 - attrs:
     b: 1
     n: 64
@@ -80,6 +86,7 @@
     device: cuda
     direction: bwd
     which: X_grad
+    benchmark: discumsum_precision
     fn: discumsum_precision
   value: 0.12412643432617188
 - attrs:
@@ -92,8 +99,9 @@
     device: cuda
     direction: bwd
     which: log_G_grad
+    benchmark: discumsum_precision
     fn: discumsum_precision
-  value: 233.994140625
+  value: 234.0341796875
 - attrs:
     b: 1
     n: 8
@@ -104,6 +112,7 @@
     device: cuda
     direction: bwd
     which: X_grad
+    benchmark: discumsum_precision
     fn: discumsum_precision
   value: 0.013227462768554688
 - attrs:
@@ -116,8 +125,9 @@
     device: cuda
     direction: bwd
     which: log_G_grad
+    benchmark: discumsum_precision
     fn: discumsum_precision
-  value: 5.656158447265625
+  value: 5.65313720703125
 - attrs:
     b: 1
     n: 64
@@ -127,6 +137,7 @@
     X_dtype: torch.bfloat16
     device: cuda
     direction: fwd
+    benchmark: discumsum_precision
     fn: discumsum_precision
   value: 0.09268379211425781
 - attrs:
@@ -138,6 +149,7 @@
     X_dtype: torch.bfloat16
     device: cuda
     direction: fwd
+    benchmark: discumsum_precision
     fn: discumsum_precision
   value: 0.043224334716796875
 - attrs:
@@ -150,6 +162,7 @@
     device: cuda
     direction: bwd
     which: X_grad
+    benchmark: discumsum_precision
     fn: discumsum_precision
   value: 0.12412643432617188
 - attrs:
@@ -162,8 +175,9 @@
     device: cuda
     direction: bwd
     which: log_G_grad
+    benchmark: discumsum_precision
     fn: discumsum_precision
-  value: 40.186767578125
+  value: 40.188720703125
 - attrs:
     b: 1
     n: 8
@@ -174,6 +188,7 @@
     device: cuda
     direction: bwd
     which: X_grad
+    benchmark: discumsum_precision
     fn: discumsum_precision
   value: 0.013227462768554688
 - attrs:
@@ -186,8 +201,9 @@
     device: cuda
     direction: bwd
     which: log_G_grad
+    benchmark: discumsum_precision
     fn: discumsum_precision
-  value: 2.6439590454101562
+  value: 2.6440048217773438
 - attrs:
     b: 1
     n: 64
@@ -197,6 +213,7 @@
     X_dtype: torch.bfloat16
     device: cuda
     direction: fwd
+    benchmark: discumsum_precision
     fn: discumsum_precision
   value: 0.08323287963867188
 - attrs:
@@ -208,6 +225,7 @@
     X_dtype: torch.bfloat16
     device: cuda
     direction: fwd
+    benchmark: discumsum_precision
     fn: discumsum_precision
   value: 0.03223705291748047
 - attrs:
@@ -220,8 +238,9 @@
     device: cuda
     direction: bwd
     gpus: 1xA6000
+    benchmark: discumsum_speed
     fn: discumsum_speed
-  value: 0.16736639738082887
+  value: 0.19056639671325684
 - attrs:
     b: 2
     n: 16
@@ -232,8 +251,9 @@
     device: cuda
     direction: fwd
     gpus: 1xA6000
+    benchmark: discumsum_speed
     fn: discumsum_speed
-  value: 0.10526559948921203
+  value: 0.10623839497566223
 - attrs:
     b: 2
     n: 16
@@ -244,8 +264,9 @@
     device: cuda
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: discumsum_speed
     fn: discumsum_speed
-  value: 0.382259213924408
+  value: 0.35256320238113403
 - attrs:
     b: 64
     n: 4
@@ -256,8 +277,9 @@
     device: cuda
     direction: bwd
     gpus: 1xA6000
+    benchmark: discumsum_speed
     fn: discumsum_speed
-  value: 0.23357439041137695
+  value: 0.2343936085700989
 - attrs:
     b: 64
     n: 4
@@ -268,8 +290,9 @@
     device: cuda
     direction: fwd
     gpus: 1xA6000
+    benchmark: discumsum_speed
     fn: discumsum_speed
-  value: 0.10316799879074097
+  value: 0.10900320410728455
 - attrs:
     b: 64
     n: 4
@@ -280,200 +303,9 @@
     device: cuda
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: discumsum_speed
     fn: discumsum_speed
-  value: 0.37166078090667726
-- attrs:
-    b: 1
-    n: 1
-    c: 128
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: false
-    stabilizer: 1.0
-    direction: bwd
-    which: Q_grad
-    fn: query_state_precision
-  value: 0.1837596893310547
-- attrs:
-    b: 1
-    n: 1
-    c: 128
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: false
-    stabilizer: 1.0
-    direction: bwd
-    which: S_grad
-    fn: query_state_precision
-  value: 0.06508827209472656
-- attrs:
-    b: 1
-    n: 1
-    c: 128
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: true
-    stabilizer: 1.0
-    direction: bwd
-    which: Q_grad
-    fn: query_state_precision
-  value: 1.2263946533203125
-- attrs:
-    b: 1
-    n: 1
-    c: 128
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: true
-    stabilizer: 1.0
-    direction: bwd
-    which: S_grad
-    fn: query_state_precision
-  value: 0.1927337646484375
-- attrs:
-    b: 1
-    n: 1
-    c: 128
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: true
-    stabilizer: 1.0
-    direction: bwd
-    which: Y_grad
-    fn: query_state_precision
-  value: 0.0
-- attrs:
-    b: 1
-    n: 1
-    c: 128
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: false
-    stabilizer: 1.0
-    direction: fwd
-    fn: query_state_precision
-  value: 0.04810070991516113
-- attrs:
-    b: 1
-    n: 1
-    c: 128
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: true
-    stabilizer: 1.0
-    direction: fwd
-    fn: query_state_precision
-  value: 0.21454238891601562
-- attrs:
-    b: 1
-    n: 1
-    c: 2048
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: false
-    stabilizer: 1.0
-    direction: bwd
-    which: Q_grad
-    fn: query_state_precision
-  value: 0.1837596893310547
-- attrs:
-    b: 1
-    n: 1
-    c: 2048
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: false
-    stabilizer: 1.0
-    direction: bwd
-    which: S_grad
-    fn: query_state_precision
-  value: 1.0306396484375
-- attrs:
-    b: 1
-    n: 1
-    c: 2048
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: true
-    stabilizer: 1.0
-    direction: bwd
-    which: Q_grad
-    fn: query_state_precision
-  value: 5.844482421875
-- attrs:
-    b: 1
-    n: 1
-    c: 2048
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: true
-    stabilizer: 1.0
-    direction: bwd
-    which: S_grad
-    fn: query_state_precision
-  value: 2.09210205078125
-- attrs:
-    b: 1
-    n: 1
-    c: 2048
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: true
-    stabilizer: 1.0
-    direction: bwd
-    which: Y_grad
-    fn: query_state_precision
-  value: 0.0
-- attrs:
-    b: 1
-    n: 1
-    c: 2048
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: false
-    stabilizer: 1.0
-    direction: fwd
-    fn: query_state_precision
-  value: 0.06538581848144531
-- attrs:
-    b: 1
-    n: 1
-    c: 2048
-    h: 1
-    d: 64
-    dtype: torch.bfloat16
-    device: cuda
-    fused: true
-    stabilizer: 1.0
-    direction: fwd
-    fn: query_state_precision
-  value: 1.2497100830078125
+  value: 0.35639840364456177
 - attrs:
     t: 16384
     chunk_size: 1024
@@ -488,6 +320,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 226.02471923828125
 - attrs:
@@ -504,6 +337,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 3819.447509765625
 - attrs:
@@ -520,6 +354,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 90.31649780273438
 - attrs:
@@ -536,6 +371,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 226.02471923828125
 - attrs:
@@ -552,6 +388,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 3819.447509765625
 - attrs:
@@ -568,6 +405,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 90.81649780273438
 - attrs:
@@ -584,6 +422,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 56.05271530151367
 - attrs:
@@ -600,6 +439,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 65.90940856933594
 - attrs:
@@ -616,6 +456,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 8.958290100097656
 - attrs:
@@ -632,6 +473,7 @@
     log_space: false
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 5.149296283721924
 - attrs:
@@ -648,6 +490,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 56.05271530151367
 - attrs:
@@ -664,6 +507,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 65.90940856933594
 - attrs:
@@ -680,6 +524,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 8.895790100097656
 - attrs:
@@ -696,6 +541,7 @@
     log_space: true
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 5.142306327819824
 - attrs:
@@ -711,6 +557,7 @@
     deg: 1
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 310.4642333984375
 - attrs:
@@ -726,6 +573,7 @@
     deg: 1
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 308.4642333984375
 - attrs:
@@ -741,6 +589,7 @@
     deg: 1
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 3.3704607486724854
 - attrs:
@@ -756,6 +605,7 @@
     deg: 1
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 3.3704607486724854
 - attrs:
@@ -772,6 +622,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 8059.82421875
 - attrs:
@@ -788,6 +639,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 70122.4453125
 - attrs:
@@ -804,6 +656,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 4235.31787109375
 - attrs:
@@ -820,6 +673,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 8059.82421875
 - attrs:
@@ -836,6 +690,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 69610.4453125
 - attrs:
@@ -852,6 +707,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 4235.31787109375
 - attrs:
@@ -868,6 +724,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 842.449462890625
 - attrs:
@@ -884,6 +741,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 1115.536865234375
 - attrs:
@@ -900,6 +758,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 273.2037048339844
 - attrs:
@@ -916,6 +775,7 @@
     log_space: false
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 333.1227722167969
 - attrs:
@@ -932,6 +792,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 838.449462890625
 - attrs:
@@ -948,6 +809,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 1099.536865234375
 - attrs:
@@ -964,6 +826,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 271.2037048339844
 - attrs:
@@ -980,6 +843,7 @@
     log_space: true
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 331.51141357421875
 - attrs:
@@ -995,6 +859,7 @@
     deg: 2
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 7069.82275390625
 - attrs:
@@ -1010,6 +875,7 @@
     deg: 2
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 7069.82275390625
 - attrs:
@@ -1025,6 +891,7 @@
     deg: 2
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 82.67034912109375
 - attrs:
@@ -1040,6 +907,7 @@
     deg: 2
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 82.67034912109375
 - attrs:
@@ -1056,6 +924,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 1301.54931640625
 - attrs:
@@ -1072,6 +941,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 25135.189453125
 - attrs:
@@ -1088,6 +958,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 605.0252685546875
 - attrs:
@@ -1104,6 +975,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 55.75320053100586
 - attrs:
@@ -1120,6 +992,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 263.8404541015625
 - attrs:
@@ -1136,6 +1009,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 26.458972930908203
 - attrs:
@@ -1152,6 +1026,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 1301.54931640625
 - attrs:
@@ -1168,6 +1043,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 25007.189453125
 - attrs:
@@ -1184,6 +1060,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 601.0252685546875
 - attrs:
@@ -1200,6 +1077,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 55.75320053100586
 - attrs:
@@ -1216,6 +1094,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 263.8404541015625
 - attrs:
@@ -1232,6 +1111,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 26.458972930908203
 - attrs:
@@ -1248,6 +1128,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 241.65179443359375
 - attrs:
@@ -1264,6 +1145,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 357.1236267089844
 - attrs:
@@ -1280,6 +1162,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 72.82417297363281
 - attrs:
@@ -1296,6 +1179,7 @@
     log_space: false
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 150.71975708007812
 - attrs:
@@ -1312,6 +1196,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.3365945816040039
 - attrs:
@@ -1328,6 +1213,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.29859495162963867
 - attrs:
@@ -1344,6 +1230,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.213295578956604
 - attrs:
@@ -1360,6 +1247,7 @@
     log_space: false
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.06967878341674805
 - attrs:
@@ -1376,6 +1264,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 241.65179443359375
 - attrs:
@@ -1392,6 +1281,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 355.1236267089844
 - attrs:
@@ -1408,6 +1298,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 72.82417297363281
 - attrs:
@@ -1424,6 +1315,7 @@
     log_space: true
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 149.917236328125
 - attrs:
@@ -1440,6 +1332,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.3365945816040039
 - attrs:
@@ -1456,6 +1349,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.29859495162963867
 - attrs:
@@ -1472,6 +1366,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.213295578956604
 - attrs:
@@ -1488,6 +1383,7 @@
     log_space: true
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.07155895233154297
 - attrs:
@@ -1503,6 +1399,7 @@
     deg: 1
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 3365.18798828125
 - attrs:
@@ -1518,6 +1415,7 @@
     deg: 1
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 26.500843048095703
 - attrs:
@@ -1533,6 +1431,7 @@
     deg: 1
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 3349.18798828125
 - attrs:
@@ -1548,6 +1447,7 @@
     deg: 1
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 26.500843048095703
 - attrs:
@@ -1563,6 +1463,7 @@
     deg: 1
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 30.582605361938477
 - attrs:
@@ -1578,6 +1479,7 @@
     deg: 1
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.07111603021621704
 - attrs:
@@ -1593,6 +1495,7 @@
     deg: 1
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 30.332605361938477
 - attrs:
@@ -1608,6 +1511,7 @@
     deg: 1
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.07111603021621704
 - attrs:
@@ -1624,6 +1528,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 588610.5
 - attrs:
@@ -1640,6 +1545,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 3850216.75
 - attrs:
@@ -1656,6 +1562,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 198568.75
 - attrs:
@@ -1672,6 +1579,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 658.3994140625
 - attrs:
@@ -1688,6 +1596,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 3157.51513671875
 - attrs:
@@ -1704,6 +1613,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 333.17242431640625
 - attrs:
@@ -1720,6 +1630,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 576322.5
 - attrs:
@@ -1736,6 +1647,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 3801064.75
 - attrs:
@@ -1752,6 +1664,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 195496.75
 - attrs:
@@ -1768,6 +1681,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 658.3994140625
 - attrs:
@@ -1784,6 +1698,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 3157.51513671875
 - attrs:
@@ -1800,6 +1715,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 333.17242431640625
 - attrs:
@@ -1816,6 +1732,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 60654.63671875
 - attrs:
@@ -1832,6 +1749,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 68090.078125
 - attrs:
@@ -1848,6 +1766,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 11580.5263671875
 - attrs:
@@ -1864,6 +1783,7 @@
     log_space: false
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 27367.177734375
 - attrs:
@@ -1880,6 +1800,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 11.710882186889648
 - attrs:
@@ -1896,6 +1817,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 12.266502380371094
 - attrs:
@@ -1912,6 +1834,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 5.213859558105469
 - attrs:
@@ -1928,6 +1851,7 @@
     log_space: false
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 1.8353276252746582
 - attrs:
@@ -1944,6 +1868,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 59630.63671875
 - attrs:
@@ -1960,6 +1885,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 67578.078125
 - attrs:
@@ -1976,6 +1902,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 11452.5263671875
 - attrs:
@@ -1992,6 +1919,7 @@
     log_space: true
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 26952.48828125
 - attrs:
@@ -2008,6 +1936,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 11.710882186889648
 - attrs:
@@ -2024,6 +1953,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 12.266502380371094
 - attrs:
@@ -2040,6 +1970,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 5.213859558105469
 - attrs:
@@ -2056,6 +1987,7 @@
     log_space: true
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 1.8346490859985352
 - attrs:
@@ -2071,6 +2003,7 @@
     deg: 2
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 536572.75
 - attrs:
@@ -2086,6 +2019,7 @@
     deg: 2
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 261.1273498535156
 - attrs:
@@ -2101,6 +2035,7 @@
     deg: 2
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 524284.78125
 - attrs:
@@ -2116,6 +2051,7 @@
     deg: 2
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 261.1273498535156
 - attrs:
@@ -2131,6 +2067,7 @@
     deg: 2
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 3775.6748046875
 - attrs:
@@ -2146,6 +2083,7 @@
     deg: 2
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 1.3388242721557617
 - attrs:
@@ -2161,6 +2099,7 @@
     deg: 2
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 3727.6748046875
 - attrs:
@@ -2176,6 +2115,7 @@
     deg: 2
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 1.3388242721557617
 - attrs:
@@ -2192,6 +2132,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 1.1173858642578125
 - attrs:
@@ -2208,6 +2149,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.6630477905273438
 - attrs:
@@ -2224,6 +2166,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.4789886474609375
 - attrs:
@@ -2240,6 +2183,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.25661468505859375
 - attrs:
@@ -2256,6 +2200,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.13099288940429688
 - attrs:
@@ -2272,6 +2217,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.07236957550048828
 - attrs:
@@ -2288,6 +2234,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 1.1173858642578125
 - attrs:
@@ -2304,6 +2251,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.6630477905273438
 - attrs:
@@ -2320,6 +2268,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.4789886474609375
 - attrs:
@@ -2336,6 +2285,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.25661468505859375
 - attrs:
@@ -2352,6 +2302,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.13099288940429688
 - attrs:
@@ -2368,6 +2319,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.07236957550048828
 - attrs:
@@ -2384,6 +2336,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 15.251373291015625
 - attrs:
@@ -2400,6 +2353,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 17.033767700195312
 - attrs:
@@ -2416,6 +2370,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.13350170850753784
 - attrs:
@@ -2432,6 +2387,7 @@
     log_space: false
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.1873229742050171
 - attrs:
@@ -2448,6 +2404,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.3365945816040039
 - attrs:
@@ -2464,6 +2421,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.24046897888183594
 - attrs:
@@ -2480,6 +2438,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.060118794441223145
 - attrs:
@@ -2496,6 +2455,7 @@
     log_space: false
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.07152223587036133
 - attrs:
@@ -2512,6 +2472,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 15.251373291015625
 - attrs:
@@ -2528,6 +2489,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 17.033767700195312
 - attrs:
@@ -2544,6 +2506,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.13350170850753784
 - attrs:
@@ -2560,6 +2523,7 @@
     log_space: true
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.1873229742050171
 - attrs:
@@ -2576,6 +2540,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.3365945816040039
 - attrs:
@@ -2592,6 +2557,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.24046897888183594
 - attrs:
@@ -2608,6 +2574,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.060118794441223145
 - attrs:
@@ -2624,6 +2591,7 @@
     log_space: true
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.07152223587036133
 - attrs:
@@ -2639,6 +2607,7 @@
     deg: 1
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.09796333312988281
 - attrs:
@@ -2654,6 +2623,7 @@
     deg: 1
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.013705551624298096
 - attrs:
@@ -2669,6 +2639,7 @@
     deg: 1
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.09796333312988281
 - attrs:
@@ -2684,6 +2655,7 @@
     deg: 1
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.013705551624298096
 - attrs:
@@ -2699,6 +2671,7 @@
     deg: 1
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.05576758086681366
 - attrs:
@@ -2714,6 +2687,7 @@
     deg: 1
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.0189974308013916
 - attrs:
@@ -2729,6 +2703,7 @@
     deg: 1
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.05576758086681366
 - attrs:
@@ -2744,6 +2719,7 @@
     deg: 1
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.0189974308013916
 - attrs:
@@ -2760,6 +2736,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 11.823974609375
 - attrs:
@@ -2776,6 +2753,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.44208526611328125
 - attrs:
@@ -2792,6 +2770,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 5.6676025390625
 - attrs:
@@ -2808,6 +2787,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.4462127685546875
 - attrs:
@@ -2824,6 +2804,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.1181640625
 - attrs:
@@ -2840,6 +2821,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.2321929931640625
 - attrs:
@@ -2856,6 +2838,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 11.823974609375
 - attrs:
@@ -2872,6 +2855,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.4563407897949219
 - attrs:
@@ -2888,6 +2872,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 6.02587890625
 - attrs:
@@ -2904,6 +2889,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.4462127685546875
 - attrs:
@@ -2920,6 +2906,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.1181640625
 - attrs:
@@ -2936,6 +2923,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.2321929931640625
 - attrs:
@@ -2952,6 +2940,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 7.0663604736328125
 - attrs:
@@ -2968,6 +2957,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 6.279838562011719
 - attrs:
@@ -2984,6 +2974,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.08096671104431152
 - attrs:
@@ -3000,6 +2991,7 @@
     log_space: false
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.15967273712158203
 - attrs:
@@ -3016,6 +3008,7 @@
     log_space: false
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.32708740234375
 - attrs:
@@ -3032,6 +3025,7 @@
     log_space: false
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.3365192413330078
 - attrs:
@@ -3048,6 +3042,7 @@
     log_space: false
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.030136823654174805
 - attrs:
@@ -3064,6 +3059,7 @@
     log_space: false
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.03654587268829346
 - attrs:
@@ -3080,6 +3076,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 7.0663604736328125
 - attrs:
@@ -3096,6 +3093,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 6.279838562011719
 - attrs:
@@ -3112,6 +3110,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.08096671104431152
 - attrs:
@@ -3128,6 +3127,7 @@
     log_space: true
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.16188955307006836
 - attrs:
@@ -3144,6 +3144,7 @@
     log_space: true
     direction: bwd
     which: K_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.32708740234375
 - attrs:
@@ -3160,6 +3161,7 @@
     log_space: true
     direction: bwd
     which: Q_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.3365192413330078
 - attrs:
@@ -3176,6 +3178,7 @@
     log_space: true
     direction: bwd
     which: V_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.030136823654174805
 - attrs:
@@ -3192,6 +3195,7 @@
     log_space: true
     direction: bwd
     which: log_G_grad
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.036243438720703125
 - attrs:
@@ -3207,6 +3211,7 @@
     deg: 2
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.044075965881347656
 - attrs:
@@ -3222,6 +3227,7 @@
     deg: 2
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.009419441223144531
 - attrs:
@@ -3237,6 +3243,7 @@
     deg: 2
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.044075965881347656
 - attrs:
@@ -3252,6 +3259,7 @@
     deg: 2
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.010312318801879883
 - attrs:
@@ -3267,6 +3275,7 @@
     deg: 2
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.02736961841583252
 - attrs:
@@ -3282,6 +3291,7 @@
     deg: 2
     log_space: false
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.01209266483783722
 - attrs:
@@ -3297,6 +3307,7 @@
     deg: 2
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.02736961841583252
 - attrs:
@@ -3312,9 +3323,1848 @@
     deg: 2
     log_space: true
     direction: fwd
+    benchmark: power_full_precision
     fn: power_full_precision
   value: 0.01209266483783722
 - attrs:
+    b: 1
+    n: 1
+    c: 128
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: false
+    stabilizer: 1.0
+    direction: bwd
+    which: Q_grad
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 0.1837596893310547
+- attrs:
+    b: 1
+    n: 1
+    c: 128
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: false
+    stabilizer: 1.0
+    direction: bwd
+    which: S_grad
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 0.06508827209472656
+- attrs:
+    b: 1
+    n: 1
+    c: 128
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: true
+    stabilizer: 1.0
+    direction: bwd
+    which: Q_grad
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 1.2263946533203125
+- attrs:
+    b: 1
+    n: 1
+    c: 128
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: true
+    stabilizer: 1.0
+    direction: bwd
+    which: S_grad
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 0.1927337646484375
+- attrs:
+    b: 1
+    n: 1
+    c: 128
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: true
+    stabilizer: 1.0
+    direction: bwd
+    which: Y_grad
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 0.0
+- attrs:
+    b: 1
+    n: 1
+    c: 128
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: false
+    stabilizer: 1.0
+    direction: fwd
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 0.04810070991516113
+- attrs:
+    b: 1
+    n: 1
+    c: 128
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: true
+    stabilizer: 1.0
+    direction: fwd
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 0.21454238891601562
+- attrs:
+    b: 1
+    n: 1
+    c: 2048
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: false
+    stabilizer: 1.0
+    direction: bwd
+    which: Q_grad
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 0.1837596893310547
+- attrs:
+    b: 1
+    n: 1
+    c: 2048
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: false
+    stabilizer: 1.0
+    direction: bwd
+    which: S_grad
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 1.0306396484375
+- attrs:
+    b: 1
+    n: 1
+    c: 2048
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: true
+    stabilizer: 1.0
+    direction: bwd
+    which: Q_grad
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 5.844482421875
+- attrs:
+    b: 1
+    n: 1
+    c: 2048
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: true
+    stabilizer: 1.0
+    direction: bwd
+    which: S_grad
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 2.09210205078125
+- attrs:
+    b: 1
+    n: 1
+    c: 2048
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: true
+    stabilizer: 1.0
+    direction: bwd
+    which: Y_grad
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 0.0
+- attrs:
+    b: 1
+    n: 1
+    c: 2048
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: false
+    stabilizer: 1.0
+    direction: fwd
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 0.06538581848144531
+- attrs:
+    b: 1
+    n: 1
+    c: 2048
+    h: 1
+    d: 64
+    dtype: torch.bfloat16
+    device: cuda
+    fused: true
+    stabilizer: 1.0
+    direction: fwd
+    benchmark: query_state_precision
+    fn: query_state_precision
+  value: 1.2497100830078125
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 1
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 4.920985412597656
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 1
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 4.941567611694336
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 1
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 4.351385879516601
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 1
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 4.371814727783203
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 1
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 7.495782089233399
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 1
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 7.505202865600586
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 1
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 6.442547607421875
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 1
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 6.450636672973633
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 1
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 1.6301568031311036
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 1
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 1.7049120903015136
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 1
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 1.5629824638366698
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 1
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 1.6362495422363281
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 1
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 1.6765439987182618
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 1
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 2.0312575340270995
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 1
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 1.6052224159240722
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 1
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 1.9620864868164063
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 1
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 5.379840087890625
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 1
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 5.470515251159668
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 1
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 4.647268867492675
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 1
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 4.747622108459472
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 1
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 5.998284912109375
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 1
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 6.360568428039551
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 1
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 5.0529228210449215
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 1
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 5.410707283020019
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 2
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 30.13677978515625
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 2
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 30.14573974609375
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 2
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 22.240308380126955
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 2
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 22.244862365722657
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 2
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 31.60755157470703
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 2
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 31.576370239257812
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 2
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 23.38713684082031
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 2
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 23.387392425537108
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 2
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 13.51214141845703
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 2
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 13.537586975097657
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 2
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 9.25859375
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 2
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 9.291672897338866
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 2
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 13.883494567871093
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 2
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 13.899520111083984
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 2
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 9.573989868164062
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 2
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 9.585254669189453
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 2
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 42.138467407226564
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 2
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 42.171391296386716
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 2
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 29.1177490234375
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: 128
+    deg: 2
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 29.158039855957032
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 2
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 42.883993530273436
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 2
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 42.87308959960937
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 2
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 29.76993408203125
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: 128
+    deg: 2
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 29.72692413330078
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 1
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 52.9359375
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 1
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 52.960565185546876
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 1
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 52.93598937988281
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 1
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 52.933111572265624
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 1
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 62.846926879882815
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 1
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 62.87227172851563
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 1
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 62.87938232421875
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 1
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 62.846923828125
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 1
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 67.52061462402344
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 1
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 67.57340087890626
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 1
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 67.73658142089843
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 1
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 67.70974426269531
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 1
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 103.77257080078125
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 1
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 103.76826782226563
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 1
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 104.01627807617187
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 1
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 104.02279052734374
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 1
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 120.49054565429688
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 1
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 120.499609375
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 1
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 120.95707397460937
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 1
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 120.881298828125
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 1
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 163.5880859375
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 1
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 163.48431396484375
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 1
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 163.9043701171875
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 1
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 163.889208984375
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 2
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 50.69685516357422
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 2
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 53.55509948730469
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 2
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 50.685594177246095
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 2
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 53.553713989257815
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 2
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 60.47846374511719
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 2
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 62.84574584960937
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 2
+    log_space: false
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 60.39854125976562
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 2
+    log_space: true
+    direction: bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 62.853936767578126
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 2
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 13.069773101806641
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 2
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 10.513561248779297
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 2
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 13.316812896728516
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 2
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 10.703974533081055
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 2
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 10.972159957885742
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 2
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 11.09719009399414
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 2
+    log_space: false
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 11.23184700012207
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 2
+    log_space: true
+    direction: fwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 11.34750747680664
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 2
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 63.73472900390625
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 2
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 64.07234802246094
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 2
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 64.02554626464844
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: false
+    chunk_size: null
+    deg: 2
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 64.27637634277343
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 2
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 68.41461791992188
+- attrs:
+    b: 2
+    t: 16384
+    h: 12
+    d: 64
+    qhead_ratio: 1
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 2
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 70.92617797851562
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 2
+    log_space: false
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 68.64128112792969
+- attrs:
+    b: 2
+    t: 16384
+    h: 6
+    d: 64
+    qhead_ratio: 2
+    dtype: torch.bfloat16
+    device: cuda
+    gating: true
+    chunk_size: null
+    deg: 2
+    log_space: true
+    direction: fwd+bwd
+    gpus: 1xA6000
+    benchmark: power_full_speed
+    fn: power_full_speed
+  value: 71.16999816894531
+- attrs:
     b: 2
     n: 16
     c: 1024
@@ -3326,8 +5176,9 @@
     stabilizer: 1.0
     direction: bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 3.6716030120849608
+  value: 3.6645376205444338
 - attrs:
     b: 2
     n: 16
@@ -3340,8 +5191,9 @@
     stabilizer: 1.0
     direction: bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 3.8599166870117188
+  value: 3.8598623275756836
 - attrs:
     b: 2
     n: 16
@@ -3354,8 +5206,9 @@
     stabilizer: 1.0
     direction: fwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 1.309492826461792
+  value: 1.3093888282775878
 - attrs:
     b: 2
     n: 16
@@ -3368,8 +5221,9 @@
     stabilizer: 1.0
     direction: fwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 1.4024703979492188
+  value: 1.4025728702545166
 - attrs:
     b: 2
     n: 16
@@ -3382,8 +5236,9 @@
     stabilizer: 1.0
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 4.981350708007812
+  value: 4.9733116149902346
 - attrs:
     b: 2
     n: 16
@@ -3396,8 +5251,9 @@
     stabilizer: 1.0
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 5.265356826782226
+  value: 5.260236740112305
 - attrs:
     b: 2
     n: 128
@@ -3410,8 +5266,9 @@
     stabilizer: 1.0
     direction: bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 6.091671752929687
+  value: 6.085120010375976
 - attrs:
     b: 2
     n: 128
@@ -3424,8 +5281,9 @@
     stabilizer: 1.0
     direction: bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 6.262579154968262
+  value: 6.265652847290039
 - attrs:
     b: 2
     n: 128
@@ -3438,8 +5296,9 @@
     stabilizer: 1.0
     direction: fwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 1.3129215717315674
+  value: 1.309183931350708
 - attrs:
     b: 2
     n: 128
@@ -3452,8 +5311,9 @@
     stabilizer: 1.0
     direction: fwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 1.410304021835327
+  value: 1.4087167263031006
 - attrs:
     b: 2
     n: 128
@@ -3466,8 +5326,9 @@
     stabilizer: 1.0
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 7.409561538696289
+  value: 7.404032135009766
 - attrs:
     b: 2
     n: 128
@@ -3480,11 +5341,12 @@
     stabilizer: 1.0
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 7.670117950439453
+  value: 7.677747344970703
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3496,11 +5358,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 4.920524978637696
+  value: 5.066649627685547
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3512,11 +5375,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 4.942848205566406
+  value: 5.091890907287597
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3528,11 +5392,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 4.3511299133300785
+  value: 4.417535972595215
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3544,11 +5409,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 4.372582626342774
+  value: 4.438932418823242
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3560,11 +5426,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 7.498700714111328
+  value: 7.645951843261718
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3576,11 +5443,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 7.500492858886719
+  value: 7.645183944702149
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3592,11 +5460,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 6.448793411254883
+  value: 6.497484970092773
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3608,11 +5477,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 6.462412643432617
+  value: 6.51893310546875
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3624,11 +5494,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 1.6276992797851562
+  value: 1.6547839164733886
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3640,11 +5511,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 1.7020416259765625
+  value: 1.7270784378051758
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3656,11 +5528,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 1.5598079681396484
+  value: 1.5732224941253663
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3672,11 +5545,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 1.6366592407226563
+  value: 1.646847915649414
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3688,11 +5562,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 1.679103946685791
+  value: 1.7017343521118165
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3704,11 +5579,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 2.032179260253906
+  value: 2.058190441131592
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3720,11 +5596,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 1.609267234802246
+  value: 1.6170480728149415
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3736,11 +5613,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 1.9594783782958984
+  value: 1.9749887466430665
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3752,11 +5630,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 5.38260498046875
+  value: 5.54521598815918
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3768,11 +5647,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 5.482751846313477
+  value: 5.646284866333008
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3784,11 +5664,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 4.6483972549438475
+  value: 4.731648254394531
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3800,11 +5681,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 4.746393775939941
+  value: 4.821141052246094
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3816,11 +5698,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 5.984716606140137
+  value: 6.141030311584473
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3832,11 +5715,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 6.348441696166992
+  value: 6.527739715576172
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3848,11 +5732,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 5.050982284545898
+  value: 5.119437217712402
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3864,11 +5749,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 5.4189058303833
+  value: 5.490791893005371
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3880,11 +5766,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 30.150904846191406
+  value: 41.36693572998047
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3896,11 +5783,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 30.162690734863283
+  value: 41.37205810546875
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3912,11 +5800,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 22.23933563232422
+  value: 29.214872741699217
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3928,11 +5817,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 22.248038482666015
+  value: 29.21431121826172
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3944,11 +5834,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 31.603404235839843
+  value: 42.787835693359376
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -3960,11 +5851,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 31.594497680664062
+  value: 42.812364196777345
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3976,11 +5868,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 23.395431518554688
+  value: 30.363803100585937
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -3992,11 +5885,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 23.431578063964842
+  value: 30.353919982910156
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4008,11 +5902,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 13.50435791015625
+  value: 14.107036590576172
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4024,11 +5919,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 13.530780792236328
+  value: 14.128025817871094
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4040,11 +5936,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 9.26981086730957
+  value: 9.259417724609374
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4056,11 +5953,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 9.292083358764648
+  value: 9.284249877929687
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4072,11 +5970,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 13.882623291015625
+  value: 14.475110626220703
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4088,11 +5987,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 13.903923797607423
+  value: 14.49267120361328
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4104,11 +6004,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 9.579618072509765
+  value: 9.56840934753418
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4120,11 +6021,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 9.592114639282226
+  value: 9.578239440917969
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4136,11 +6038,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 42.111741638183595
+  value: 54.05629272460938
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4152,11 +6055,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 42.147177124023436
+  value: 54.06822204589844
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4168,11 +6072,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 29.122097778320313
+  value: 36.1390625
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4184,11 +6089,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 29.1767822265625
+  value: 36.1733642578125
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4200,11 +6106,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 42.91420288085938
+  value: 54.72378845214844
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4216,11 +6123,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 42.91041107177735
+  value: 54.73172607421875
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4232,11 +6140,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 29.74468994140625
+  value: 36.75817108154297
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4248,11 +6157,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 29.730458068847657
+  value: 36.729547119140626
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4264,11 +6174,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 52.93148498535156
+  value: 2.636390495300293
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4280,11 +6191,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 52.97520141601562
+  value: 2.63623685836792
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4296,11 +6208,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 52.94934997558594
+  value: 2.6383872032165527
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4312,11 +6225,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 52.96512145996094
+  value: 2.640691375732422
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4328,11 +6242,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 62.754458618164065
+  value: 3.1587327003479
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4344,11 +6259,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 62.780416870117186
+  value: 3.1755247116088867
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4360,11 +6276,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 62.84877014160156
+  value: 3.199078369140625
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4376,11 +6293,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 62.82890625
+  value: 3.1883792877197266
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4392,11 +6310,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 67.94695739746093
+  value: 2.0766207695007326
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4408,11 +6327,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 67.95791320800781
+  value: 2.0764161109924317
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4424,11 +6344,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 68.18406677246094
+  value: 2.3011327743530274
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4440,11 +6361,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 68.19840087890626
+  value: 2.3013327598571776
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4456,11 +6378,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 104.70128784179687
+  value: 3.2396799087524415
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4472,11 +6395,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 104.69498291015626
+  value: 3.2396799087524415
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4488,11 +6412,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 104.94490356445313
+  value: 3.464857482910156
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4504,11 +6429,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 104.8732177734375
+  value: 3.467059326171875
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4520,11 +6446,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 120.93531494140625
+  value: 4.720998382568359
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4536,11 +6463,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 120.94335327148437
+  value: 4.724530982971191
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4552,11 +6480,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 121.1241943359375
+  value: 4.947761535644531
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4568,11 +6497,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 121.15076904296875
+  value: 4.949958419799804
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4584,11 +6514,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 164.49501342773436
+  value: 6.315264129638672
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4600,11 +6531,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 164.457470703125
+  value: 6.314695739746094
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4616,11 +6548,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 164.782470703125
+  value: 6.557798385620117
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4632,11 +6565,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 164.75331420898436
+  value: 6.56701431274414
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4648,11 +6582,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 50.666395568847655
+  value: 2.6144765853881835
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4664,11 +6599,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 53.57179260253906
+  value: 2.6384894371032717
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4680,11 +6616,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 50.70254058837891
+  value: 2.6198527336120607
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4696,11 +6633,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 53.58269348144531
+  value: 2.643199825286865
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4712,11 +6650,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 60.377655029296875
+  value: 2.9839360237121584
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4728,11 +6667,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 62.78614807128906
+  value: 3.120435333251953
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4744,11 +6684,12 @@
     log_space: false
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 60.28451843261719
+  value: 3.039129638671875
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4760,11 +6701,12 @@
     log_space: true
     direction: bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 62.85435180664062
+  value: 3.1706624031066895
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4776,11 +6718,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 13.687602996826172
+  value: 0.7062000274658203
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4792,11 +6735,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 10.518426513671875
+  value: 0.6792192459106445
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4808,11 +6752,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 13.904889678955078
+  value: 0.9282048225402832
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4824,11 +6769,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 10.716108703613282
+  value: 0.9031168460845947
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4840,11 +6786,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 11.00318717956543
+  value: 0.6797311782836915
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4856,11 +6803,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 11.10799331665039
+  value: 0.7148031949996948
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4872,11 +6820,12 @@
     log_space: false
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 11.208550262451173
+  value: 0.9094656467437744
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4888,11 +6837,12 @@
     log_space: true
     direction: fwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 11.360717010498046
+  value: 0.944383955001831
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4904,11 +6854,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 64.18652038574218
+  value: 3.318169593811035
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4920,11 +6871,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 64.10413818359375
+  value: 3.319500732421875
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4936,11 +6888,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 64.43412170410156
+  value: 3.545292854309082
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -4952,11 +6905,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 64.3062744140625
+  value: 3.5485137939453124
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4968,11 +6922,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 68.40191650390625
+  value: 3.5789310455322267
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 12
     d: 64
     qhead_ratio: 1
@@ -4984,11 +6939,12 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 70.8717041015625
+  value: 3.7314558029174805
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -5000,11 +6956,12 @@
     log_space: false
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 68.59525146484376
+  value: 3.815679931640625
 - attrs:
-    b: 2
-    t: 16384
+    b: 64
+    t: 512
     h: 6
     d: 64
     qhead_ratio: 2
@@ -5016,8 +6973,9 @@
     log_space: true
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: power_full_speed
     fn: power_full_speed
-  value: 71.18074645996094
+  value: 4.006860733032227
 - attrs:
     b: 64
     n: 1
@@ -5030,8 +6988,9 @@
     stabilizer: 1.0
     direction: bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 7.128012847900391
+  value: 7.131801986694336
 - attrs:
     b: 64
     n: 1
@@ -5044,8 +7003,9 @@
     stabilizer: 1.0
     direction: bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 7.516160202026367
+  value: 7.509043121337891
 - attrs:
     b: 64
     n: 1
@@ -5058,8 +7018,9 @@
     stabilizer: 1.0
     direction: fwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 2.519859027862549
+  value: 2.5203712463378904
 - attrs:
     b: 64
     n: 1
@@ -5072,8 +7033,9 @@
     stabilizer: 1.0
     direction: fwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 2.6928127288818358
+  value: 2.693068790435791
 - attrs:
     b: 64
     n: 1
@@ -5086,8 +7048,9 @@
     stabilizer: 1.0
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 9.64751739501953
+  value: 9.645823669433593
 - attrs:
     b: 64
     n: 1
@@ -5100,8 +7063,9 @@
     stabilizer: 1.0
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 10.220952987670898
+  value: 10.20768928527832
 - attrs:
     b: 64
     n: 4
@@ -5114,8 +7078,9 @@
     stabilizer: 1.0
     direction: bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 6.0918783187866214
+  value: 6.090649795532227
 - attrs:
     b: 64
     n: 4
@@ -5128,8 +7093,9 @@
     stabilizer: 1.0
     direction: bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 6.263705825805664
+  value: 6.2633411407470705
 - attrs:
     b: 64
     n: 4
@@ -5142,8 +7108,9 @@
     stabilizer: 1.0
     direction: fwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 1.3124096393585205
+  value: 1.312051248550415
 - attrs:
     b: 64
     n: 4
@@ -5156,8 +7123,9 @@
     stabilizer: 1.0
     direction: fwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 1.4081023693084718
+  value: 1.4069247245788574
 - attrs:
     b: 64
     n: 4
@@ -5170,8 +7138,9 @@
     stabilizer: 1.0
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 7.404902648925781
+  value: 7.392716598510742
 - attrs:
     b: 64
     n: 4
@@ -5184,1541 +7153,6 @@
     stabilizer: 1.0
     direction: fwd+bwd
     gpus: 1xA6000
+    benchmark: query_state_speed
     fn: query_state_speed
-  value: 7.6763652801513675
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 1
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 5.066546821594239
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 1
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 5.0817468643188475
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 1
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 4.418918228149414
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 1
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 4.429977798461914
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 1
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 7.644569396972656
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 1
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 7.65844497680664
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 1
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 6.512640380859375
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 1
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 6.528202819824219
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 1
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 1.651353645324707
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 1
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 1.7285633087158203
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 1
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 1.5730207920074464
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 1
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 1.6496160507202149
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 1
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 1.7030671119689942
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 1
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.0527615547180176
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 1
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 1.6179201126098632
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 1
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 1.9705856323242188
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 1
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 5.548851013183594
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 1
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 5.641574287414551
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 1
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 4.723353576660156
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 1
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 4.824110412597657
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 1
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 6.146866989135742
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 1
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 6.517350387573242
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 1
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 5.12276439666748
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 1
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 5.494477081298828
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 2
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 41.370469665527345
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 2
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 41.38828582763672
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 2
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 29.2020751953125
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 2
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 29.23151397705078
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 2
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 42.806219482421874
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 2
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 42.81681671142578
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 2
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 30.389607238769532
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 2
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 30.356172180175783
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 2
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 14.113325500488282
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 2
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 14.127923583984375
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 2
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 9.270937728881837
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 2
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 9.279845809936523
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 2
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 14.496357727050782
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 2
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 14.511360168457031
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 2
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 9.57030372619629
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 2
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 9.588991928100587
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 2
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 54.068276977539064
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 2
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 54.08936767578125
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 2
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 36.16584014892578
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: 128
-    deg: 2
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 36.20095977783203
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 2
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 54.7609130859375
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 2
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 54.77349853515625
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 2
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 36.76149444580078
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: 128
-    deg: 2
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 36.795904541015624
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 1
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.6347984313964843
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 1
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.629017543792725
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 1
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.6386430740356444
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 1
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.6397696495056153
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 1
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.181414318084717
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 1
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.1875072479248048
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 1
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.1989761352539063
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 1
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.197279930114746
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 1
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.082304096221924
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 1
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.0811728477478026
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 1
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.3052814483642576
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 1
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.3079424858093263
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 1
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.2462846755981447
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 1
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.2436702728271483
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 1
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.4713600158691404
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 1
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.474790573120117
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 1
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 4.7309314727783205
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 1
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 4.727090835571289
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 1
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 4.952883338928222
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 1
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 4.954368209838867
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 1
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 6.3358465194702145
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 1
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 6.3319042205810545
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 1
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 6.561331176757813
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 1
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 6.573311614990234
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 2
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.6072577476501464
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 2
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.6311168670654297
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 2
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.622510528564453
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 2
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.6450431823730467
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 2
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 2.9911041259765625
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 2
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.111782264709473
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 2
-    log_space: false
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.030733013153076
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 2
-    log_space: true
-    direction: bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.1511550903320313
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 2
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 0.70174720287323
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 2
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 0.683673620223999
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 2
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 0.9257984161376953
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 2
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 0.9101312160491943
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 2
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 0.6910464286804199
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 2
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 0.72401921749115
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 2
-    log_space: false
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 0.9170447826385498
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 2
-    log_space: true
-    direction: fwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 0.9553920269012451
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 2
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.3103809356689453
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 2
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.317862319946289
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 2
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.539763259887695
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: false
-    chunk_size: null
-    deg: 2
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.5555328369140624
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 2
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.5854333877563476
-- attrs:
-    b: 64
-    t: 512
-    h: 12
-    d: 64
-    qhead_ratio: 1
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 2
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.7603328704833983
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 2
-    log_space: false
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 3.8393342971801756
-- attrs:
-    b: 64
-    t: 512
-    h: 6
-    d: 64
-    qhead_ratio: 2
-    dtype: torch.bfloat16
-    device: cuda
-    gating: true
-    chunk_size: null
-    deg: 2
-    log_space: true
-    direction: fwd+bwd
-    gpus: 1xA6000
-    fn: power_full_speed
-  value: 4.009364891052246
+  value: 7.664995193481445

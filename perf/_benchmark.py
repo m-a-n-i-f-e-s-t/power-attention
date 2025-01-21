@@ -135,14 +135,14 @@ class Benchmark:
         if hasattr(result, '__iter__') and not isinstance(result, (str, bytes, dict)):
             return [
                 Measurement(
-                    attrs={**params, **r.attrs, 'fn': self.fn_name},
+                    attrs={**params, **r.attrs, 'benchmark': self.name, 'fn': self.fn_name},
                     value=r.value) 
                 for r in result
             ]
         elif isinstance(result, Measurement):
             # Single Measurement
             return [Measurement(
-                attrs={**params, **result.attrs, 'fn': self.fn_name},
+                attrs={**params, **result.attrs, 'benchmark': self.name, 'fn': self.fn_name},
                 value=result.value
             )]
         else:
@@ -150,6 +150,6 @@ class Benchmark:
             if not isinstance(result, float):
                 raise TypeError(f"Benchmark {self.name} returned {type(result)}, expected float, Measurement, or iterable of Measurements")
             return [Measurement(
-                attrs={**params, 'fn': self.fn_name},
+                attrs={**params, 'benchmark': self.name, 'fn': self.fn_name},
                 value=result
             )]
