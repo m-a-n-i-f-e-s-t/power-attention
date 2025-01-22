@@ -1,10 +1,6 @@
-from functools import partial
-import os
-import math
 import torch
-import torch.nn.functional as F
 from einops import rearrange
-from power_attention._utils import dummify, print_tensor
+from power_attention._utils import dummify
 
 InnerBlock = 16
 OuterBlock = 1
@@ -36,67 +32,72 @@ class QueryStateReference(torch.autograd.Function):
         return phi_Q.to(Q.dtype)
 
     @staticmethod
-    def scale_combine_outputs(Y, att_Y, stabilizer, rowmax, zero_initial_state, eps):
+    def scale_combine_outputs(Y, att_Y, scale, rowmax, zero_initial_state):
         """ Scale the outputs from attention and query state and combine them to prevent overflow
         """
         b, n, c, h, d = Y.shape
         dtype = Y.dtype
-        scale_qs = torch.tensor(1, dtype=Y.dtype, device=Y.device) if stabilizer is None else 1 / stabilizer
+        scale_qs = torch.tensor(1, dtype=Y.dtype, device=Y.device) if scale is None else 1 / scale
         scale_attn = torch.exp(-rowmax)
-        qs_factor = scale_attn / scale_qs
+        min_scale = torch.min(scale_qs, scale_attn)
+        qs_factor = min_scale / scale_qs
+        attn_factor = min_scale / scale_attn
         if not zero_initial_state:
-            Y = att_Y + Y * qs_factor.unsqueeze(-1)
+            Y = att_Y * attn_factor.unsqueeze(-1) + Y * qs_factor.unsqueeze(-1)
         else:
             Y[:, 0:1] = att_Y.narrow(1, 0, 1)
-            Y[:, 1:] = att_Y.narrow(1, 1, n - 1) + Y.narrow(1, 1, n - 1) * qs_factor.narrow(1, 1, n - 1).unsqueeze(-1)
+            Y[:, 1:] = att_Y.narrow(1, 1, n - 1) * attn_factor.narrow(1, 1, n - 1).unsqueeze(-1) + Y.narrow(1, 1, n - 1) * qs_factor.narrow(1, 1, n - 1).unsqueeze(-1)
         return Y.to(dtype)
     
     @staticmethod
-    def scale_combine_gradients(dY, stabilizer, rowmax, zero_initial_state):
+    def scale_combine_gradients(dY, scale, rowmax, zero_initial_state):
         """ Scale the gradient from output to gradients for attention
         """
         b, n, c, h, d = dY.shape
-        scale_qs = torch.tensor(1, dtype=dY.dtype, device=dY.device) if stabilizer is None else 1 / stabilizer
+        scale_qs = torch.tensor(1, dtype=dY.dtype, device=dY.device) if scale is None else 1 / scale
         scale_attn = torch.exp(-rowmax)
-        qs_factor = scale_attn / scale_qs
+        min_scale = torch.min(scale_qs, scale_attn)
+        qs_factor = min_scale / scale_qs
+        attn_factor = min_scale / scale_attn
         if not zero_initial_state:
-            dY_attn = dY.clone()
+            dY_attn = (dY.clone() * attn_factor.unsqueeze(-1)).to(dY.dtype)
             dY_qs = (dY * qs_factor.unsqueeze(-1)).to(dY.dtype)
         else:
-            dY_attn = dY.clone()
+            dY_attn = torch.empty_like(dY)
+            dY_attn[:, 0] = dY[:, 0].clone()
+            dY_attn[:, 1:] = (dY[:, 1:].clone() * attn_factor.narrow(1, 1, n - 1).unsqueeze(-1))
             dY_qs = torch.empty_like(dY)
             dY_qs[:, 0] = 0
             dY_qs[:, 1:] = (dY[:, 1:].clone() * qs_factor.narrow(1, 1, n - 1).unsqueeze(-1))
         return dY_attn, dY_qs
 
     @staticmethod
-    def forward(ctx, Q, S, Y, rowmax, deg, stabilizer, zero_initial_state, eps, deterministic):
+    def forward(ctx, Q, S, Y, rowmax, deg, scale, zero_initial_state):
         """Compute query state output
         args:
             Q: [b, n, c, h, d]
             S: [b, n, h, D, d]
             Y: [b, n, c, h, d] or None
-            rowmax: [b, n, c, h] or None
+            rowmax: [b, n, c, h] or None, always in log space
             deg: int
-            stabilizer: float or None
+            scale: float or None
             zero_initial_state: bool
-            eps: float
         returns:
             Y: [b, n, c, h, d]
         """
 
         b, n, c, h, d = Q.shape
         _, _, _, _, D = S.shape
-        if isinstance(stabilizer, float):
-            stabilizer = torch.tensor(stabilizer, dtype=torch.float32, device=Q.device)
+        if isinstance(scale, float):
+            scale = torch.tensor(scale, dtype=torch.float32, device=Q.device)
         att_Y = Y
 
         Q = rearrange(Q, 'b n c h d -> b n h c d')
         
         phi_Q = QueryStateReference.expand(Q, deg)
-        if stabilizer is not None:
-            phi_Q = phi_Q / torch.sqrt(stabilizer)
-            S = S / torch.sqrt(stabilizer)
+        if scale is not None:
+            phi_Q = phi_Q / torch.sqrt(scale)
+            S = S / torch.sqrt(scale)
 
         Y = torch.matmul(phi_Q.to(Q.dtype), S).to(Q.dtype)  # [b n h c d]
 
@@ -104,10 +105,10 @@ class QueryStateReference(torch.autograd.Function):
 
         if att_Y is not None:
             assert rowmax is not None, "rowmax must be provided when fused is true"
-            Y = QueryStateReference.scale_combine_outputs(Y, att_Y, stabilizer, rowmax, zero_initial_state, eps)
+            Y = QueryStateReference.scale_combine_outputs(Y, att_Y, scale, rowmax, zero_initial_state)
 
         ctx.save_for_backward(Q, S, rowmax)
-        ctx.stabilizer = stabilizer
+        ctx.scale = scale
         ctx.zero_initial_state = zero_initial_state
         ctx.deg = deg
         ctx.d = d
@@ -125,11 +126,11 @@ class QueryStateReference(torch.autograd.Function):
         """
         Q, S, rowmax = ctx.saved_tensors
         b, n, c, h, d = Q.shape
-        divisor = torch.sqrt(ctx.stabilizer) if ctx.stabilizer is not None else None
+        divisor = torch.sqrt(ctx.scale) if ctx.scale is not None else None
 
         phi_Q = QueryStateReference.expand(Q, ctx.deg)
         if ctx.fused:
-            dY_attn, dY_qs = QueryStateReference.scale_combine_gradients(dY, ctx.stabilizer, rowmax, ctx.zero_initial_state)
+            dY_attn, dY_qs = QueryStateReference.scale_combine_gradients(dY, ctx.scale, rowmax, ctx.zero_initial_state)
         else:
             dY_attn, dY_qs = None, dY
         dY_qs = dY_qs.transpose(2, 3).to(Q.dtype) # [b, n, h, c, d]
@@ -147,7 +148,6 @@ class QueryStateReference(torch.autograd.Function):
         Q_inner = rearrange(Q, 'b n h c (y i) -> b n h c y i', i=InnerBlock)
         Q_outer = rearrange(Q, 'b n h c (x o) -> b n h c x o', o=OuterBlock)
         y, x = ctx.d // InnerBlock, ctx.d // OuterBlock
-        BlockD = InnerBlock * OuterBlock
 
         for j in range(ctx.d // OuterBlock):
             for i in range((j * OuterBlock) // InnerBlock, y):
@@ -169,6 +169,6 @@ def query_state_reference(*args, **kwargs):
         raise ValueError("Cannot pass both args and kwargs")
     if kwargs:
         args = (kwargs['Q'], kwargs['S'], kwargs['Y'], kwargs['rowmax'], kwargs['deg'], 
-                kwargs['stabilizer'], kwargs['zero_initial_state'], kwargs['eps'], kwargs['deterministic'])
+                kwargs['scale'], kwargs['zero_initial_state'])
     return QueryStateReference.apply(*args)
 query_state_reference_fwd = dummify(QueryStateReference.forward)

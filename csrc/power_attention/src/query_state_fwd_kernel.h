@@ -415,10 +415,21 @@ namespace power_attention
             if (params.non_zero_initial_state || chunk_id > 0) {
                 CUTE_UNROLL
                 for (int m = 0; m < size<0>(acc_o_rowcol); m++) {
-                    float qs_factor = expf(-r_rowmax(m)) / params.multiplier_squared;
-                    CUTE_UNROLL
-                    for (int n = 0; n < size<1>(acc_o_rowcol); n++) {
-                        acc_o_rowcol(m, n) = rY_rowcol(m, n) + acc_o_rowcol(m, n) * qs_factor; // add adjusted Y to acc_o
+                    float scale_attn = expf(-r_rowmax(m));
+                    if (params.multiplier_squared <= scale_attn) {
+                        float true_scale = params.multiplier_squared;
+                        float attn_factor = true_scale / scale_attn;
+                        CUTE_UNROLL
+                        for (int n = 0; n < size<1>(acc_o_rowcol); n++) {
+                            acc_o_rowcol(m, n) += rY_rowcol(m, n) * attn_factor; // add adjusted Y to acc_o
+                        }
+                    } else {
+                        float true_scale = scale_attn;
+                        float qs_factor = true_scale / params.multiplier_squared;
+                        CUTE_UNROLL
+                        for (int n = 0; n < size<1>(acc_o_rowcol); n++) {
+                            acc_o_rowcol(m, n) = rY_rowcol(m, n) + acc_o_rowcol(m, n) * qs_factor; // add adjusted Y to acc_o
+                        }
                     }
                 }
             } else { // in this branch, the initial state is zero so we don't need to add anything

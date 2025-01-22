@@ -1,6 +1,6 @@
 [project]
 name = "power-attention"
-version = "0.9.15"
+version = "0.9.16"
 description = "Kernels for symmetric-power-based linear transformers"
 authors = [
   { name = "Sean Zhang", email = "sean@manifest.com" },

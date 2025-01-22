@@ -5,21 +5,14 @@
 
 ## IMPLEMENTATION ##
 import torch
-from power_attention_cuda import (
-    attention_fwd as attention_fwd_cuda,
-    InnerBlock_DT,
-    OuterBlock_DT,
-)
+from power_attention_cuda import attention_fwd as attention_fwd_cuda
+from power_attention._config import normal_space, flash_equivalent, eps
 from typing import Optional, Tuple
-
-def ExpandedDim(head_size, deg):
-    return ((InnerBlock_DT // OuterBlock_DT + head_size // OuterBlock_DT) * (head_size // InnerBlock_DT) // 2) * (InnerBlock_DT * OuterBlock_DT)
-
 
 @torch.library.custom_op('power::attention_forward', mutates_args=(), device_types='cuda')
 def attention_fwd(Q : torch.Tensor, K : torch.Tensor, V : torch.Tensor, 
                   log_G_Q : Optional[torch.Tensor], log_G_K : Optional[torch.Tensor],
-                  deg : int, scale : float, eps : float, flash_equivalent : bool, normal_space : bool) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+                  deg : int, scale : float) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """Compute power attention forward pass.
     
     Input shapes:
@@ -27,9 +20,6 @@ def attention_fwd(Q : torch.Tensor, K : torch.Tensor, V : torch.Tensor,
         log_G_Q, log_G_K: Optional[batch, seq, head] - Optional log gating factors
         deg: int - Power attention degree
         scale: float - Scale factor for query-key inner product
-        eps: float - Small constant for numerical stability
-        flash_equivalent: bool - Whether to use flash_equivalent for the attention operation, defaults to False. If True, this is equivalent to flash attention (with optional gating)
-        normal_space: bool - Whether to do computation in normal space instead of log space, this helps speed up the kernel but potentially become less stable.
     Output shapes:
         Y: [batch, seq, head, dim] - Output tensor
         y: [batch, seq, head] - Output scaling factors
@@ -48,27 +38,25 @@ def attention_fwd(Q : torch.Tensor, K : torch.Tensor, V : torch.Tensor,
 
 # Fake implementation for tracing and testing
 @attention_fwd.register_fake
-def attention_fwd_fake(Q, K, V, log_G_Q, log_G_K, deg, scale, eps, flash_equivalent, normal_space):
+def attention_fwd_fake(Q, K, V, log_G_Q, log_G_K, deg, scale):
     b, t, h, d = Q.shape
     return (torch.empty(b, t, h, d, device=Q.device, dtype=Q.dtype), 
-            torch.empty(b, h, t, device=Q.device, dtype=torch.float32).transpose(1, 2),
-            torch.empty(b, h, t, device=Q.device, dtype=torch.float32).transpose(1, 2))
+            torch.empty(b, t, h, device=Q.device, dtype=torch.float32),
+            torch.empty(b, t, h, device=Q.device, dtype=torch.float32))
 
 # Useful function to create sample inputs
-def create_inputs(b=2, t=32, h=8, d=32, dtype=torch.float16, device='cuda', gating=False, scale=1.0, flash_equivalent=False, normal_space=False):
+def create_inputs(b=2, t=32, h=8, d=32, dtype=torch.float16, device='cuda', gating=False, scale=1.0, deg=2):
     generator = torch.Generator(device=device).manual_seed(42)
     Q = torch.randn(size=(b, t, h, d), dtype=dtype, device=device, generator=generator) / d**.25
     K = torch.randn(size=(b, t, h, d), dtype=dtype, device=device, generator=generator) / d**.25
     V = torch.randn(size=(b, t, h, d), dtype=dtype, device=device, generator=generator)
     if gating:
-        log_G_Q = torch.zeros(size=(b, h, t), dtype=torch.float32, device=device).transpose(1, 2) - .01
-        log_G_K = torch.zeros(size=(b, h, t), dtype=torch.float32, device=device).transpose(1, 2) - .01
+        log_G_Q = torch.zeros(size=(b, t, h), dtype=torch.float32, device=device) - .01
+        log_G_K = torch.zeros(size=(b, t, h), dtype=torch.float32, device=device) - .01
     else:
         log_G_Q = None
         log_G_K = None
-    deg = 2
-    eps = 1e-6
-    return Q, K, V, log_G_Q, log_G_K, deg, scale, eps, flash_equivalent, normal_space
+    return dict(Q=Q, K=K, V=V, log_G_Q=log_G_Q, log_G_K=log_G_K, deg=deg, scale=scale)
 
 ## TUTORIAL ##
 if __name__ == '__main__':
@@ -76,7 +64,7 @@ if __name__ == '__main__':
     b, t, h, d = (2, 32, 8, 32)
     dtype = torch.float16
     # Create inputs
-    inputs = create_inputs(b, t, h, d, dtype, 'cuda', gating=True, flash_equivalent=False, normal_space=False)
+    inputs = create_inputs(b, t, h, d, dtype, 'cuda', gating=True, scale=1.0, deg=2)
     # Run function
     with torch.no_grad():
         Y, y, rowmax = attention_fwd(*inputs)

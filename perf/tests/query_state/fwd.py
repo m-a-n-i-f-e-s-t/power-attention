@@ -12,10 +12,9 @@ from perf._checks import (
 from power_attention._query_state.fwd import (
     query_state_fwd,
     query_state_fwd_fake,
-    create_inputs as create_inputs_fwd,
-    compute_expanded_dim_size
+    create_inputs as create_inputs_fwd
 )
-
+from power_attention._utils import compute_expanded_dim
 # Define parameter ranges
 param_ranges_fwd = {
     'b': [1, 2],
@@ -26,14 +25,14 @@ param_ranges_fwd = {
     'dtype': [torch.float16, torch.bfloat16],
     'device': ['cuda'], 
     'fused': [True, False],
-    'stabilizer': [1.0, 100.0]
+    'scale': [1.0, 100.0]
 }
 def id_fn(kw):
     return f"shape_{kw['b']}_{kw['n']}_{kw['c']}_{kw['h']}_{kw['d']}-" \
            f"dtype_{kw['dtype']}-" \
            f"fused_{kw['fused']}-" \
            f"device_{kw['device']}-" \
-           f"stabilizer_{kw['stabilizer']}"
+           f"scale_{kw['scale']}"
 FWD_TEST_CASES = [
     dict(zip(param_ranges_fwd.keys(), values))
     for values in product(*param_ranges_fwd.values())
@@ -45,7 +44,7 @@ def test_query_state_fwd_create_inputs(kw):
         kw['b'], kw['n'], kw['c'], kw['h'], kw['d'], 
         kw['dtype'], kw['device']
     )
-    D = compute_expanded_dim_size(kw['d'], inputs['deg'])
+    D = compute_expanded_dim(kw['d'], inputs['deg'])
     check_tensor_property_pairs(
         (inputs['Q'], ((kw['b'], kw['n'], kw['c'], kw['h'], kw['d']), kw['dtype'], kw['device'])),
         (inputs['S'], ((kw['b'], kw['n'], kw['h'], D, kw['d']), kw['dtype'], kw['device'])),

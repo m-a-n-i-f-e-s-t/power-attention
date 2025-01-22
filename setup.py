@@ -261,6 +261,35 @@ ext_modules.append(
     ),
 )
 
+# Development dependencies
+dev_requires = [
+    'numpy>=2.2',
+    'torch>=2.5',
+    'triton>=3.1',
+    'setuptools==69.5.1',
+    'einops',
+    'ninja==1.11.1.3',
+    'pybind11==2.13.6',
+    'psutil',
+    'tiktoken',
+    'datasets',
+    'httpx',
+    'tqdm',
+    'pytest>=8.3.4',
+    'pytest-xdist',
+    'wheel',
+    'build',
+    'cibuildwheel',
+    'auditwheel',
+    'twine',
+    'click',
+    'pyyaml',
+    'bokeh',
+    'matplotlib',
+    'pymdown-extensions',
+    'mkdocs',
+    'mkdocstrings-python',
+]
 
 setup(
     name=PACKAGE_NAME,
@@ -272,5 +301,8 @@ setup(
     cmdclass={
         'bdist_wheel': CustomBdistWheel,
         'build_ext': NinjaBuildExtension,
-    }
+    },
+    extras_require={
+        'dev': dev_requires,
+    },
 )

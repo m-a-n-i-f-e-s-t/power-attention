@@ -1,7 +1,7 @@
 import torch
 from math import floor, ceil
 from functools import partial
-
+from power_attention_cuda import InnerBlock_DT, OuterBlock_DT
 
 DEFAULT_SEEDS = [40 + i for i in range(2)]
 class DummyCtx:
@@ -10,6 +10,9 @@ class DummyCtx:
 
 def dummify(fn):
     return partial(fn, DummyCtx())
+
+def compute_expanded_dim(head_size, deg):
+    return ((InnerBlock_DT // OuterBlock_DT + head_size // OuterBlock_DT) * (head_size // InnerBlock_DT) // 2) * (InnerBlock_DT * OuterBlock_DT)
 
 # Credit: https://github.com/pytorch/pytorch/issues/64947#issuecomment-2304371451
 def torch_quantile(
@@ -80,7 +83,6 @@ def torch_quantile(
         return out.squeeze()
     else:
         return out.squeeze(dim)
-
 
 
 def print_tensor(tensor, indent=0, multi_idx=None):

@@ -1,4 +1,5 @@
 # Power Attention
+[![Build](https://github.com/m-a-n-i-f-e-s-t/power-attention/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/m-a-n-i-f-e-s-t/power-attention/actions/workflows/build-and-test.yml)
 
 A PyTorch extension implementing symmetric power transformers - a variant of linear transformers that achieves transformer-level performance while scaling linearly with sequence length. This package provides efficient CUDA kernels that make it possible to process much longer sequences compared to standard quadratic attention.
 
@@ -21,7 +22,7 @@ Requirements:
 ```bash
 git clone https://github.com/manifest-ai/power-attention.git
 cd power-attention
-pip install .
+pip install -e .
 ```
 
 All other dependencies (PyTorch, Ninja build system, etc.) will be automatically installed through pip.
@@ -32,7 +33,7 @@ The main entry point is the `power_full` function, which implements symmetric po
 
 ```python
 import torch
-from power_attention import power_full
+from power_attention.power_full import power_full
 
 # Create input tensors
 batch_size = 2
@@ -41,17 +42,19 @@ num_heads = 8
 head_dim = 64
 
 Q = torch.randn(batch_size, seq_len, num_heads, head_dim, device='cuda', dtype=torch.float16)
-K = torch.randn(batch_size, seq_len, num_heads, head_dim, device='cuda', dtype=torch.float16)
-V = torch.randn(batch_size, seq_len, num_heads, head_dim, device='cuda', dtype=torch.float16)
+K = torch.randn_like(Q)
+V = torch.randn_like(Q)
 
-# Optional gating tensor (if using gated attention)
-log_G = None  # or torch.nn.functional.logsigmoid(torch.randn(batch_size, seq_len, num_heads, dtype=torch.float32, device='cuda'))
+# Optional gating tensor
+log_G = torch.nn.functional.logsigmoid(
+    torch.randn(batch_size, seq_len, num_heads, dtype=torch.float32, device='cuda')
+)
 
 # Compute attention
 output = power_full(
     Q=Q, K=K, V=V, 
     log_G=log_G,          # Optional gating tensor
-    deg=2,                # Power attention degree
+    deg=4,                # Power parameter p
     chunk_size=128,       # Size of chunks for processing long sequences
 )
 ```
@@ -61,7 +64,7 @@ output = power_full(
 The package includes a drop-in replacement for standard attention in transformer models. See `training/model.py` for a complete example of using power attention in a GPT-style model:
 
 ```python
-from power_attention import power_full
+from power_attention.power_full import power_full
 
 class CausalSelfAttention(nn.Module):
     def __init__(self, config):
@@ -73,8 +76,8 @@ class CausalSelfAttention(nn.Module):
         
         # Use power attention instead of standard attention
         y = power_full(
-            q, k, v, 
-            log_g,
+            Q=q, K=k, V=v, 
+            log_G=log_g,
             deg=self.degree,
             chunk_size=self.chunk_size
         )
@@ -95,38 +98,36 @@ class CausalSelfAttention(nn.Module):
 
 ### Setup
 
-To install the development dependencies, use:
+The package uses pip's editable install mode for development. First, activate your Python virtual environment, then:
 
 ```bash
-pip install -r requirements.txt
-```
+# Install base package in editable mode
+pip install -e .
 
-This command makes the power-attention library installed in editable mode, meaning changes to the Python
-part of the library will be immediately reflected. However, after making changes to the C++ code, a
-recompilation is required:
-
-```bash
-make dev
+# Install development dependencies
+pip install -e .[dev]
 ```
 
 ### Testing & Benchmarking
 
-Run correctness tests with
+Run correctness tests:
 
 ```bash
-pytest
+pytest perf/tests
 ```
 
-Benchmark numerical precision & generate a report with
+Run benchmarks:
 
 ```bash
-TODO
+python3 -m perf.create_report
 ```
 
-Benchmark speed & generate a report with
+### Documentation
+
+To view the documentation locally, run:
 
 ```bash
-TODO
+.venv/bin/mkdocs serve -a 0.0.0.0:8000
 ```
 
 ### Training Example
@@ -141,7 +142,6 @@ python train.py \
   --degree=2 \
   --chunk_size=128 \
   --disable_gating=False \
-  --log_space=True \
   --out_dir=out/my_model
 
 # Multi-GPU training with DDP (example with 4 GPUs)
@@ -151,7 +151,6 @@ torchrun --standalone --nproc_per_node=4 train.py \
   --degree=2 \
   --chunk_size=128 \
   --disable_gating=False \
-  --log_space=True \
   --out_dir=out/my_model
 ```
 
@@ -160,7 +159,6 @@ Key training parameters:
 - `degree`: Power attention degree (default: 1)
 - `chunk_size`: Size of chunks for processing long sequences (default: None)
 - `disable_gating`: Set to true to disable gating mechanism (default: False)
-- `log_space`: Whether to use log space computations (default: True)
 - `batch_size`: Batch size per GPU (default: 12)
 - `block_size`: Sequence length (default: 1024)
 - `out_dir`: Output directory for checkpoints and logs (default: 'out')
@@ -185,8 +183,8 @@ We welcome contributions! Here's how you can help:
 ### Getting Started
 
 1. Fork the repository
-2. Set up your development environment: `make deps-dev`
-3. Create a new branch for your feature/fix: `git checkout -b feature-name`
+2. Create a new branch for your feature/fix: `git checkout -b feature-name`
+3. Install development dependencies: `pip install -e .[dev]`
 
 ### Guidelines
 
@@ -200,8 +198,8 @@ We welcome contributions! Here's how you can help:
 
 1. Update documentation for any new features
 2. Add or update tests as needed
-3. Ensure all tests pass: `make test`
-4. Run benchmarks if performance-critical code was changed: `make benchmark`
+3. Ensure all tests pass: `python3 -m pytest perf/tests`
+4. Run benchmarks if performance-critical code was changed: `python3 -m perf.create_report`
 5. Create a Pull Request with a clear description of changes
 6. Wait for review and address any feedback
 
@@ -217,7 +215,7 @@ For major changes, please open an issue first to discuss what you would like to 
 ## Release Process
 
 1. Update the version in `pyproject.toml`
-2. Run `make dev` && `make test`, as well as benchmarks if applicable
+2. Run `python3 -m pytest tests/` and benchmarks if applicable
 3. Run `make release-test` to build & push to Test PyPI for all Python targets
 4. Run `make release` to build & push to PyPI for all Python targets
 

@@ -97,11 +97,8 @@ class CausalSelfAttention(nn.Module):
         elif self.attention_kernel == 'power':
             y = power_full(q.contiguous(), k.contiguous(), v.contiguous(), log_g,
                 deg=self.degree,
-                stabilizer=1.0 / d**0.5,
-                chunk_size=self.chunk_size,
-                ε=1e-7,
-                deterministic=False,
-                normal_space=not self.log_space)
+                scale=1.0 / d**0.5,
+                chunk_size=self.chunk_size)
             y = self.ln(y)
         else:
             msg = f'Unknown attention kernel: {self.attention_kernel}'
