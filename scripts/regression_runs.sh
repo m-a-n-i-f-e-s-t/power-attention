@@ -33,7 +33,7 @@ if [[ -n $(git status --porcelain) ]]; then
     exit 1
 fi
 # Track the commit hash
-COMMIT_HASH=$(git rev-parse HEAD)
+COMMIT_HASH=$(git rev-parse --short HEAD)
 
 # Current date and time
 CURRENT_TIME=$(date +"%Y%m%d%H%M")
