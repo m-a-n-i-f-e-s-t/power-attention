@@ -22,7 +22,7 @@ source "$VENV_PATH/bin/activate"
 
 # Force reinstall requirements
 echo "Force reinstalling requirements..."
-pip install -r requirements.txt --force-reinstall
+pip install -r requirements.txt
 
 # CD into training directory (now this will always work)
 cd train || exit 1
