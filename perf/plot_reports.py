@@ -2,12 +2,13 @@ import click
 import yaml
 from pathlib import Path
 import pprint
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Set, Hashable
 from bokeh.plotting import figure, show
 from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.io import save, output_file
 from perf._registration import lookup, list_benchmarks
 from perf._benchmark import Measurement, Benchmark
+from perf._utils import filter_measurements
 from perf.benchmarks import *
 
 
@@ -37,65 +38,19 @@ def load_all_reports(reports_dir: Path) -> List[Dict[str, Any]]:
     
     return results
 
-def filter_measurements(measurements: List[Measurement], benchmarks: List[Benchmark], filters: List[str]) -> List[Measurement]:
-    """Filter measurements based on benchmark names and key=value filters."""
-    # Convert filters to dict
-    filter_dict = {}
-    for f in filters:
-        try:
-            key, value = f.split('=')
-            filter_dict[key] = value
-        except ValueError:
-            click.echo(f"Warning: Ignoring invalid filter '{f}'", err=True)
-    
-    filtered = []
-    benchmark_names = set(b.name for b in benchmarks)
-    for m in measurements:
-        # Check if measurement belongs to selected benchmarks
-        if m.attrs['benchmark'] not in benchmark_names:
-            continue
-            
-        # Check if measurement matches all filters
-        matches = True
-        for key, value in filter_dict.items():
-            m_attr = m.get(key)
-            if m_attr is None:
-                matches = False
-                break
-            try:
-                # Try to convert value to same type as m_attr
-                converted_value = type(m_attr)(value)
-                if m_attr != converted_value:
-                    matches = False
-                    break
-            except (ValueError, TypeError):
-                # If conversion fails, no match
-                matches = False
-                break
-        if matches:
-            filtered.append(m)
-    
-    return filtered
-
-def create_plot(reports: List[Dict[str, Any]]):
+def create_plot(unique_measurements: Set[Hashable], reports: List[Dict[str, Any]]):
     """Create an interactive plot of the measurements."""
-    all_unique_measurements = {
-        m.hashable_attrs()
-        for report in reports
-        for m in report['measurements']
-    }
-    reports = sorted(
-        [
+    reports = [
             {
                 'commit': report['commit'],
                 'datetime': report['datetime'],
                 'measurements': {m.hashable_attrs(): m for m in report['measurements']}
-        }
-        for report in reports
-    ], key=lambda r: r['datetime'])
+            }
+            for report in reports
+    ]
 
     lines = {}
-    for m_attrs in all_unique_measurements:
+    for m_attrs in unique_measurements:
         commit_idxs = []
         commits = []
         values = []
@@ -165,17 +120,18 @@ def create_plot(reports: List[Dict[str, Any]]):
     return p
 
 @click.command()
-@click.option('--benchmarks', '-b', 
-              multiple=True,
-              help='Benchmarks or groups of benchmarks to plot.')
 @click.option('--filter', '-f',
               type=str,
               multiple=True,
               help='Filter measurements by key=value pairs. Can be specified multiple times.')
+@click.option('--number_of_reports', '-n',
+              type=int,
+              default=None,
+              help='Number of most recent reports to include.')
 @click.option('--output', '-o',
               type=click.Path(dir_okay=False),
               help='Save plot to the specified file instead of displaying it.')
-def main(benchmarks: List[str], filter: List[str], output: str):
+def main(filter: List[str], number_of_reports: int, output: str):
     """Plot benchmark results from all report files."""
     # Find repository root and reports directory
     repo_root = Path(__file__).parent.parent
@@ -189,23 +145,24 @@ def main(benchmarks: List[str], filter: List[str], output: str):
         click.echo("No measurements found in reports!")
         return
     
-    # Get selected benchmarks
-    if not benchmarks:
-        benchmarks = list_benchmarks()  # all benchmarks
-    benchmarks = lookup(*benchmarks)
-    if filter:
-        benchmarks = [benchmark.filter(filter) for benchmark in benchmarks]
-    benchmark_str = '\n\t'.join(str(b) for b in benchmarks)
-    click.echo(f"Plotting {len(benchmarks)} benchmarks ({sum(len(b.param_configs) for b in benchmarks)} configs): \n\t{benchmark_str}")
-
     # Filter measurements
+    sorted_reports = sorted(reports, key=lambda r: r['datetime'])
     filtered_reports = [dict(commit=report['commit'], 
                              datetime=report['datetime'], 
-                             measurements=filter_measurements(report['measurements'], benchmarks, filter)) 
-                        for report in reports]
+                             measurements=filter_measurements(report['measurements'], filter)) 
+                        for report in sorted_reports]
+    if number_of_reports is not None:
+        filtered_reports = filtered_reports[-number_of_reports:]
+    unique_measurements = {
+        m.hashable_attrs()
+        for report in filtered_reports
+        for m in report['measurements']
+    }
+
+    click.echo(f"Plotting {len(unique_measurements)} measurements across {len(filtered_reports)} reports")
     
     # Create and show/save the plot
-    p = create_plot(filtered_reports)
+    p = create_plot(unique_measurements, filtered_reports)
     if output:
         output_file(output)
         save(p, output)

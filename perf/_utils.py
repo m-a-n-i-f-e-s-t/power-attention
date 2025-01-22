@@ -138,6 +138,11 @@ def check_filter_matches(filter_strings, attrs):
             
     return True
 
+def filter_measurements(measurements, filters):
+    """Filter measurements based on key=value filters."""
+    # Convert filters to dict
+    return [m for m in measurements if check_filter_matches(filters, m.attrs)]
+
 def describe_gpu():
     """Returns a string describing the GPU type and count, e.g. '2xA100'
     

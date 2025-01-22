@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Set, Optional, Any, Union, NamedTuple
+from typing import Callable, Dict, List, Set, Optional, Any, Union, NamedTuple, Tuple
 from dataclasses import dataclass, field
 from collections import defaultdict
 from perf._utils import check_filter_matches
@@ -46,9 +46,17 @@ def make_serializable(obj):
 class Benchmark:
     """A benchmark function and its associated parameter configurations."""
     func: Callable
-    param_configs: List[Dict[str, Any]]
-    groups: Set[str]
+    param_configs: Optional[List[Dict[str, Any]]] = None
+    groups: Optional[Set[str]] = None
     label: Optional[str] = None
+    filters: Optional[List[str]] = None
+
+    def __post_init__(self):
+        if self.filters is None:
+            self.filters = tuple()
+        if self.groups is None:
+            self.groups = set()
+        self.all_param_configs = tuple() if self.param_configs is None else tuple(super().__getattribute__("param_configs"))
 
     @property
     def fn_name(self) -> str:
@@ -62,9 +70,20 @@ class Benchmark:
             return f"{self.fn_name}_{self.label}"
         return self.fn_name
     
+    @property
+    def param_configs(self) -> List[Dict[str, Any]]:
+        """Parameter configurations to run the benchmark with."""
+        if self.filters:
+            return [params for params in self.all_param_configs if check_filter_matches(self.filters, params | {'benchmark': self.name, 'fn': self.fn_name})]
+        return list(self.all_param_configs)
+    @param_configs.setter
+    def param_configs(self, value):
+        self.all_param_configs = tuple(value)
+    
     def __str__(self) -> str:
         """String representation of the benchmark."""
-        return f'<Benchmark {self.name} ({len(self.param_configs)})>'
+        filter_str = " filtered by " + ",".join(self.filters) if self.filters else ""
+        return f'<Benchmark {self.name}{filter_str} ({len(self.param_configs)})>'
     
     def __repr__(self) -> str:
         """String representation of the benchmark."""
@@ -80,7 +99,7 @@ class Benchmark:
             return NotImplemented
         return self.name == other.name
     
-    def filter(self, filter: Dict[str, Any]) -> 'Benchmark':
+    def filter(self, filter: Tuple[str]) -> 'Benchmark':
         """Filter the benchmark's parameter configurations and return a new Benchmark with filtered configs.
         
         Args:
@@ -89,14 +108,12 @@ class Benchmark:
         Returns:
             New Benchmark object with filtered parameter configurations and updated label
         """
-        filtered_configs = [params for params in self.param_configs if check_filter_matches(filter, params)]
-        filter_str = "filtered_" + ",".join(filter)
-        new_label = f"{self.label}_{filter_str}" if self.label else filter_str
         return Benchmark(
             func=self.func,
-            param_configs=filtered_configs, 
+            param_configs=self.param_configs, 
             groups=self.groups,
-            label=new_label
+            label=self.label,
+            filters=self.filters + filter
         )
 
     def __call__(self, show_progress: bool = False) -> List[Measurement]:
