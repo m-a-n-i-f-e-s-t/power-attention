@@ -35,17 +35,20 @@ fi
 # Track the commit hash
 COMMIT_HASH=$(git rev-parse HEAD)
 
+# Current date and time
+CURRENT_TIME=$(date +"%Y%m%d%H%M")
+
 # Run sequence of training runs with different hyperparameters
-python train.py --run_name=regressions/default/$COMMIT_HASH --max_iters=5000
-python train.py --run_name=regressions/largectx/$COMMIT_HASH --max_iters=5000 --batch_size=2 --block_size=16384
-python train.py --run_name=regressions/p1_att/$COMMIT_HASH --max_iters=5000 --attention_kernel=power --degree=1
-python train.py --run_name=regressions/p2_att/$COMMIT_HASH --max_iters=5000 --attention_kernel=power --degree=2
-python train.py --run_name=regressions/p8_att/$COMMIT_HASH --max_iters=5000 --attention_kernel=power --degree=8
-python train.py --run_name=regressions/p2_att_largectx/$COMMIT_HASH --max_iters=1000 --attention_kernel=power --degree=2 --batch_size=2 --block_size=16384
-python train.py --run_name=regressions/p1/$COMMIT_HASH --max_iters=5000 --attention_kernel=power --degree=1 --chunk_size=128
-python train.py --run_name=regressions/p2/$COMMIT_HASH --max_iters=5000 --attention_kernel=power --degree=2 --chunk_size=1024
-python train.py --run_name=regressions/p1_largectx/$COMMIT_HASH --max_iters=5000 --attention_kernel=power --degree=1 --batch_size=2 --block_size=16384
-python train.py --run_name=regressions/p2_largectx/$COMMIT_HASH --max_iters=5000 --attention_kernel=power --degree=2 --batch_size=2 --block_size=16384
+python train.py --run_name=regressions/default/${COMMIT_HASH}_${CURRENT_TIME} --max_iters=5000 --gradient_accumulation_steps=1 --n_layers=3 --n_heads=2 --n_embd=128
+python train.py --run_name=regressions/largectx/${COMMIT_HASH}_${CURRENT_TIME} --max_iters=5000 --batch_size=2 --block_size=16384 --gradient_accumulation_steps=1 --n_layers=3 --n_heads=2 --n_embd=128
+python train.py --run_name=regressions/p1_att/${COMMIT_HASH}_${CURRENT_TIME} --max_iters=5000 --attention_kernel=power --degree=1 --gradient_accumulation_steps=1 --n_layers=3 --n_heads=2 --n_embd=128
+python train.py --run_name=regressions/p2_att/${COMMIT_HASH}_${CURRENT_TIME} --max_iters=5000 --attention_kernel=power --degree=2 --gradient_accumulation_steps=1 --n_layers=3 --n_heads=2 --n_embd=128
+python train.py --run_name=regressions/p8_att/${COMMIT_HASH}_${CURRENT_TIME} --max_iters=5000 --attention_kernel=power --degree=8 --gradient_accumulation_steps=1 --n_layers=3 --n_heads=2 --n_embd=128
+python train.py --run_name=regressions/p2_att_largectx/${COMMIT_HASH}_${CURRENT_TIME} --max_iters=1000 --attention_kernel=power --degree=2 --batch_size=2 --block_size=16384 --gradient_accumulation_steps=1 --n_layers=3 --n_heads=2 --n_embd=128
+python train.py --run_name=regressions/p1/${COMMIT_HASH}_${CURRENT_TIME} --max_iters=5000 --attention_kernel=power --degree=1 --chunk_size=128 --gradient_accumulation_steps=1 --n_layers=3 --n_heads=2 --n_embd=128
+python train.py --run_name=regressions/p2/${COMMIT_HASH}_${CURRENT_TIME} --max_iters=5000 --attention_kernel=power --degree=2 --chunk_size=1024 --gradient_accumulation_steps=1 --n_layers=3 --n_heads=2 --n_embd=128
+python train.py --run_name=regressions/p1_largectx/${COMMIT_HASH}_${CURRENT_TIME} --max_iters=5000 --attention_kernel=power --degree=1 --batch_size=2 --block_size=16384 --gradient_accumulation_steps=1 --n_layers=3 --n_heads=2 --n_embd=128
+python train.py --run_name=regressions/p2_largectx/${COMMIT_HASH}_${CURRENT_TIME} --max_iters=5000 --attention_kernel=power --degree=2 --batch_size=2 --block_size=16384 --gradient_accumulation_steps=1 --n_layers=3 --n_heads=2 --n_embd=128
 
 
 # Deactivate virtualenv
