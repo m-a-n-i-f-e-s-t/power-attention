@@ -44,9 +44,7 @@ init_from = 'scratch' # 'scratch' or 'resume'
 # logging
 run_name = None
 disable_logging = False
-wandb_log = False # disabled by default
-wandb_project = 'owt'
-wandb_run_name = 'gpt2' # 'run' + str(time.time())
+wandb_project = None
 # data
 data_root = os.path.expanduser('~/mai_datasets')
 dataset = 'ngpt_owt'
@@ -81,11 +79,9 @@ compile = True # use PyTorch 2.0 to compile the model to be faster
 attention_kernel = 'sdpa' # 'sdpa', 'power'
 disable_gating = False
 chunk_size = None
-log_space = True
 degree = 1
 head_size = 64 # to separate from n_embd
 qhead_ratio = 1
-window_size = None
 # -----------------------------------------------------------------------------
 config_keys = [k for k,v in globals().items() if not k.startswith('_') and isinstance(v, (int, float, bool, str))]
 exec(open('configurator.py').read()) # overrides from command line or config file
@@ -155,7 +151,7 @@ best_val_loss = 1e9
 model_args = dict(n_layer=n_layer, n_head=n_head, n_embd=n_embd, block_size=block_size,
                   bias=bias, vocab_size=None, dropout=dropout,
                   attention_kernel=attention_kernel, disable_gating=disable_gating, head_size=head_size,
-                  chunk_size=chunk_size, degree=degree, log_space=log_space, qhead_ratio=qhead_ratio, window_size=window_size) # start with model_args from command line
+                  chunk_size=chunk_size, degree=degree, qhead_ratio=qhead_ratio) # start with model_args from command line
 if init_from == 'scratch':
     # init a new model from scratch
     print("Initializing a new model from scratch")
@@ -191,7 +187,7 @@ else:
 model.to(device)
 
 # initialize a GradScaler. If enabled=False scaler is a no-op
-scaler = torch.cuda.amp.GradScaler(enabled=(dtype == 'float16'))
+scaler = torch.amp.GradScaler(enabled=(dtype == 'float16'))
 
 # optimizer
 optimizer = model.configure_optimizers(weight_decay, learning_rate, (beta1, beta2), device_type)
@@ -244,12 +240,10 @@ if master_process and not disable_logging:
     import logger
     run_name = logger.init(
         name=run_name,
-        info={'config': config}
+        info={'config': config},
+        wandb_project=wandb_project
     )
     print(f"\033[37mLogging as \033[34m{run_name}\033[37m.\033[0m")
-if wandb_log and master_process:
-    import wandb
-    wandb.init(project=wandb_project, name=wandb_run_name, config=config)
 
 # training loop
 X, Y = get_batch('train') # fetch the very first batch
@@ -282,14 +276,7 @@ while True:
                 "train_hours": (time.time() - train_start_time - total_eval_time) / 3600,  # Convert seconds to hours
                 "total_hours": (time.time() - train_start_time) / 3600,  # Convert seconds to hours
             })
-        if wandb_log:
-            wandb.log({
-                "iter": iter_num,
-                "train/avg_loss": losses['train/avg'],
-                "val/avg_loss": losses['val/avg'],
-                "lr": lr,
-            })
-        if (losses['val/avg'] < best_val_loss or always_save_checkpoint) and not disable_logging:
+        if losses['val/avg'] < best_val_loss or always_save_checkpoint:
             best_val_loss = losses['val/avg']
             if iter_num > 0:
                 checkpoint = {

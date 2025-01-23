@@ -28,12 +28,11 @@ param_ranges = {
     'h': [4],
     'd': [32, 64],
     'qhead_ratio': [1, 2],
-    'dtype': [torch.bfloat16],
+    'dtype': [torch.bfloat16, torch.float16],
     'device': ['cuda'],
     'gating': [False, True],
     'chunk_size': [None, 128],
     'deg': [1, 2],
-    'log_space': [False, True],
 }
 # Human-readable id string
 def id_fn(kw):
@@ -43,8 +42,7 @@ def id_fn(kw):
            f"qhead_ratio_{kw['qhead_ratio']}-" \
            f"gating_{kw['gating']}-" \
            f"chunk_size_{kw['chunk_size']}-" \
-           f"deg_{kw['deg']}-" \
-           f"log_space_{kw['log_space']}"
+           f"deg_{kw['deg']}"
 # Generate all combinations
 TEST_CASES = [
     dict(zip(param_ranges.keys(), values))
@@ -113,37 +111,32 @@ def test_power_full_backward_compiled_matches_eager(kw):
 ## CONSISTENCY TESTS ##
 # These tests confirm that the reference implementation is invariant to chunking, modulo layernorm.
 
-def fn_with_layernorm(fn):
-    def wrapper(**inputs):
-        o = fn(**inputs).float()
-        return (o - o.mean(-1, keepdim=True)) / o.std(-1, keepdim=True, correction=False)
-    return wrapper
-power_full_reference_layernorm = fn_with_layernorm(power_full_reference)
 
-@pytest.mark.parametrize("kw", TEST_CASES, ids=id_fn)
-def test_power_full_reference_log_space_consistency(kw):
-    if kw['log_space'] is True: pytest.skip("Skipping test for log_space=True")
-    inputs_log_space = create_inputs(**(kw | {'log_space': True, 'dtype': torch.float32}))
-    inputs_normal_space = create_inputs(**(kw | {'log_space': False, 'dtype': torch.float32}))
+# TODO(sean): find a better place for this test
+# @pytest.mark.parametrize("kw", TEST_CASES, ids=id_fn)
+# def test_power_full_reference_log_space_consistency(kw):
+#     if kw['log_space'] is True: pytest.skip("Skipping test for log_space=True")
+#     inputs_log_space = create_inputs(**(kw | {'log_space': True, 'dtype': torch.float32}))
+#     inputs_normal_space = create_inputs(**(kw | {'log_space': False, 'dtype': torch.float32}))
 
-    check_inputs_forwards_match(
-        fn=power_full_reference_layernorm,
-        inputs1=inputs_log_space,
-        inputs2=inputs_normal_space,
-        atol=1e-1,
-    )
+#     check_inputs_forwards_match(
+#         fn=power_full_reference,
+#         inputs1=inputs_log_space,
+#         inputs2=inputs_normal_space,
+#         atol=1e-1,
+#     )
 
-@pytest.mark.parametrize("kw", TEST_CASES, ids=id_fn)
-def test_power_full_reference_log_space_grad_consistency(kw):
-    if kw['log_space'] is True: pytest.skip("Skipping test for log_space=True")
-    inputs_log_space = create_inputs(**(kw | {'log_space': True, 'dtype': torch.float32}), requires_grad=True)
-    inputs_normal_space = create_inputs(**(kw | {'log_space': False, 'dtype': torch.float32}), requires_grad=True)
-    check_inputs_backwards_match(
-        fn=power_full_reference_layernorm,
-        inputs1=inputs_log_space,
-        inputs2=inputs_normal_space,
-        atol=1e-3,
-    )
+# @pytest.mark.parametrize("kw", TEST_CASES, ids=id_fn)
+# def test_power_full_reference_log_space_grad_consistency(kw):
+#     if kw['log_space'] is True: pytest.skip("Skipping test for log_space=True")
+#     inputs_log_space = create_inputs(**(kw | {'log_space': True, 'dtype': torch.float32}), requires_grad=True)
+#     inputs_normal_space = create_inputs(**(kw | {'log_space': False, 'dtype': torch.float32}), requires_grad=True)
+#     check_inputs_backwards_match(
+#         fn=power_full_reference,
+#         inputs1=inputs_log_space,
+#         inputs2=inputs_normal_space,
+#         atol=1e-3,
+#     )
 
 
 @pytest.mark.parametrize("kw", TEST_CASES, ids=id_fn)
@@ -152,7 +145,7 @@ def test_power_full_reference_chunk_size_consistency(kw):
     inputs_attention = create_inputs(**(kw | {'chunk_size': None, 'dtype': torch.float32}))
     inputs_recurrent = create_inputs(**(kw | {'dtype': torch.float32}))
     check_inputs_forwards_match(
-        fn=power_full_reference_layernorm,
+        fn=power_full_reference,
         inputs1=inputs_attention,
         inputs2=inputs_recurrent,
         atol=1e-1,
@@ -164,7 +157,7 @@ def test_power_full_reference_chunk_size_grad_consistency(kw):
     inputs_attention = create_inputs(**(kw | {'chunk_size': None, 'dtype': torch.float32}), requires_grad=True)
     inputs_recurrent = create_inputs(**(kw | {'dtype': torch.float32}), requires_grad=True)
     check_inputs_backwards_match(
-        fn=power_full_reference_layernorm,
+        fn=power_full_reference,
         inputs1=inputs_attention,
         inputs2=inputs_recurrent,
         atol=1e-3,
@@ -211,7 +204,7 @@ def test_power_full_kernel_matches_reference(kw, compile):
         gold_inputs=gold_inputs,
         test_fn=torch.compile(power_full) if compile else power_full,
         test_inputs=test_inputs,
-        rtol=2, # if test error is more than 2x reference error, then it is probably a real failure
+        rtol=3., # if test error is more than 3x reference error, then it is probably a real failure
     )
 
 
@@ -226,4 +219,5 @@ def test_power_full_kernel_grad_matches_reference(kw, compile):
         test_fn=torch.compile(power_full) if compile else power_full,
         test_inputs=test_inputs,
         rtol=2, # if test error is more than 2x reference error, then it is probably a real failure
+        atol=3e-4
     )

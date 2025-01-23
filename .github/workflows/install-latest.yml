@@ -1,0 +1,40 @@
+name: Test Latest Package Installation
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  test-install:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+        repo: ['https://test.pypi.org/simple/', 'https://pypi.org/simple/']
+
+    steps:
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Create virtual environment
+      run: |
+        python -m venv .venv
+        source .venv/bin/activate
+        python -m pip install --upgrade pip
+
+    - name: Install from ${{ matrix.repo }}
+      run: |
+        source .venv/bin/activate
+        if [ "${{ matrix.repo }}" = "https://test.pypi.org/simple/" ]; then
+          pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple power-attention
+        else
+          pip install power-attention
+        fi
+
+    - name: Verify import
+      run: |
+        source .venv/bin/activate
+        python -c "import power_attention"

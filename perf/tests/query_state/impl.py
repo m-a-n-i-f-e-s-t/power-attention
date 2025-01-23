@@ -15,9 +15,10 @@ from perf._checks import (
 from power_attention._query_state.impl import (
     query_state,
     query_state_fake,
-    create_inputs as create_inputs_impl,
-    compute_expanded_dim
+    create_inputs as create_inputs_impl
 )
+from power_attention._utils import compute_expanded_dim
+
 param_ranges_impl = {
     'b': [4],
     'n': [4, 8], 
@@ -27,7 +28,7 @@ param_ranges_impl = {
     'dtype': [torch.bfloat16],
     'fused': [True, False],
     'device': ['cuda'],
-    'stabilizer': [1.0]
+    'scale': [1.0]
 }
 IMPL_TEST_CASES = [
     dict(zip(param_ranges_impl.keys(), values))
@@ -38,7 +39,7 @@ def id_fn(kw):
            f"dtype_{kw['dtype']}-" \
            f"fused_{kw['fused']}-" \
            f"device_{kw['device']}-" \
-           f"stabilizer_{kw['stabilizer']}"
+           f"scale_{kw['scale']}"
 
 @pytest.mark.parametrize("kw", IMPL_TEST_CASES, ids=id_fn)
 def test_query_state_create_inputs(kw):
@@ -48,9 +49,7 @@ def test_query_state_create_inputs(kw):
         check_tensor_property_pairs(
             (inputs['Q'], ((kw['b'], kw['n'], kw['c'], kw['h'], kw['d']), kw['dtype'], kw['device'])),
             (inputs['S'], ((kw['b'], kw['n'], kw['h'], D, kw['d']), kw['dtype'], kw['device'])),
-            (inputs['Y'], ((kw['b'], kw['n'], kw['c'], kw['h'], kw['d']), kw['dtype'], kw['device']))
-        )
-        check_tensor_property_pairs(
+            (inputs['Y'], ((kw['b'], kw['n'], kw['c'], kw['h'], kw['d']), kw['dtype'], kw['device'])),
             (inputs['rowmax'], ((kw['b'], kw['n'], kw['c'], kw['h']), torch.float32, kw['device'])))
     else:
         check_tensor_property_pairs(
@@ -123,7 +122,7 @@ param_ranges_ref = {
     'dtype': [torch.float16, torch.bfloat16],
     'fused': [True, False],
     'device': ['cuda'],
-    'stabilizer': [1.0]
+    'scale': [1.0]
 }
 
 REF_TEST_CASES = [

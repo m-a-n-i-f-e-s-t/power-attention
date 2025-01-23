@@ -1,6 +1,6 @@
 [project]
 name = "power-attention"
-version = "0.9.15"
+version = "0.9.18"
 description = "Kernels for symmetric-power-based linear transformers"
 authors = [
   { name = "Sean Zhang", email = "sean@manifest.com" },
@@ -21,25 +21,6 @@ dependencies = [
   'einops'
 ]
 
-[project.optional-dependencies]
-dev = [
-  "twine",
-  "pytest>=8.3.4",
-  "pytest-xdist",
-  "cibuildwheel",
-  "auditwheel",
-  "wheel",
-  "build",
-  "matplotlib",
-  "pandas"
-]
-train = [
-  "tiktoken",
-  "datasets",
-  "httpx",
-  "tqdm"
-]
-
 [build-system]
 requires = [
     "setuptools==69.5.1",
@@ -53,6 +34,31 @@ requires = [
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+dev = [
+  "tiktoken",
+  "datasets",
+  "httpx",
+  "tqdm", 
+  "pytest>=8.3.4",
+  "pytest-xdist",
+  "wheel",
+  "build",
+  "cibuildwheel",
+  "auditwheel",
+  "twine",
+  "click",
+  "pyyaml",
+  "bokeh",
+  "matplotlib",
+  "pymdown-extensions",
+  "mkdocs",
+  "mkdocstrings-python",
+  "requests",
+  "wandb",
+  "zarr"
+]
 
 [tool.cibuildwheel]
 # Only build for Linux (since CUDA is required)

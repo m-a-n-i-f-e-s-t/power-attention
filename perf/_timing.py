@@ -54,21 +54,32 @@ def check_tensors_unchanged(tensor1, tensor2, prefix=''):
             check_tensors_unchanged(t, o, prefix)
 
 
-def wrap_with_timer(fn, n=10):
+def wrap_with_timer(fn, n=10, warmup=3):
     """Takes a function and returns a function that calls it n times and returns the total time."""
     def timed_fn(*args, **kwargs):
+        for _ in range(warmup):
+            fn(*args, **kwargs)
+
+        x = torch.empty(int(40 * (1024 ** 2)), dtype=torch.int8, device='cuda')
+        def flush_cache():
+            x.zero_()
+
         torch.cuda.synchronize()
-        start_event = torch.cuda.Event(enable_timing=True)
-        end_event = torch.cuda.Event(enable_timing=True)
-        start_event.record()
-        for _ in range(n):
+        start_events = [torch.cuda.Event(enable_timing=True) for _ in range(n)]
+        end_events = [torch.cuda.Event(enable_timing=True) for _ in range(n)]
+        for i in range(n):
+            flush_cache()
+            torch.cuda._sleep(1_000_000)
+            start_events[i].record()
             out = fn(*args, **kwargs)
-        end_event.record()
-        end_event.synchronize()
-        return out, start_event.elapsed_time(end_event)
+            end_events[i].record()
+        torch.cuda.synchronize()
+        times = [s.elapsed_time(e) for s, e in zip(start_events, end_events)]
+        total_time = sum(times)
+        return out, total_time
     return timed_fn
 
-def estimate_runtime(fn, *args, num1=10, num2=30, **kwargs):
+def estimate_runtime(fn, *args, num1=10, num2=50, **kwargs):
     """Takes a function and returns a an estimate of time per iteration."""
     timed_fn_1 = wrap_with_timer(fn, num1)
     timed_fn_2 = wrap_with_timer(fn, num2)
@@ -105,3 +116,28 @@ def get_timing_functions(fn, inputs, num1=10, num2=30, warmup=3):
         return estimate_runtime(fwd_bwd, num1=num1, num2=num2)
 
     return get_fwd_time, get_bwd_time, get_fwd_bwd_time
+
+def benchmark_speed(direction, fn, create_inputs, create_inputs_kwargs):
+    """Measure speed of a function implementation.
+    
+    Args:
+        direction: str. One of 'fwd', 'bwd', or 'fwd+bwd' to measure forward pass,
+            backward pass, or combined forward+backward pass timing
+        fn: Function to benchmark
+        create_inputs: Function that creates input tensors for fn
+        **kw: Keyword arguments passed to create_inputs() to configure the test case
+            
+    Returns:
+        float: Time in milliseconds per iteration
+    """
+    inputs = create_inputs(**create_inputs_kwargs, requires_grad=True)
+    fwd_timing_fn, bwd_timing_fn, fwd_bwd_timing_fn = get_timing_functions(fn, inputs)
+    if direction == 'fwd':
+        time = fwd_timing_fn()
+    elif direction == 'bwd':
+        time = bwd_timing_fn()
+    elif direction == 'fwd+bwd':
+        time = fwd_bwd_timing_fn()
+    else:
+        raise ValueError(f"Invalid direction: {direction}")
+    return time

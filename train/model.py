@@ -17,7 +17,6 @@ from fused_projxent import FusedProjectionPlusCrossEntropyLoss
 from power_attention import power_full
 from torch.nn import functional as F
 from torch.utils.checkpoint import checkpoint
-from flash_attn import flash_attn_func
 
 
 class LayerNorm(nn.Module):
@@ -45,7 +44,6 @@ class CausalSelfAttention(nn.Module):
         self.head_size = config.head_size
         self.qhead_ratio = config.qhead_ratio
         self.log_space = config.log_space
-        self.window_size = config.window_size
         self.gating = self.attention_kernel == 'power' and not config.disable_gating
         # key, query, value projections for all heads, but in a batch
         self.qkv_size = (config.qhead_ratio + 2) * self.n_head * self.head_size
@@ -56,8 +54,6 @@ class CausalSelfAttention(nn.Module):
         # regularization
         self.attn_dropout = nn.Dropout(config.dropout)
         self.resid_dropout = nn.Dropout(config.dropout)
-        if self.attention_kernel == 'power':
-            self.ln = LayerNorm(self.head_size, bias=config.bias)
 
     def forward(self, x):
         B, T, C = x.size() # batch size, sequence length, embedding dimensionality (n_embd)
@@ -102,20 +98,8 @@ class CausalSelfAttention(nn.Module):
         elif self.attention_kernel == 'power':
             y = power_full(q.contiguous(), k.contiguous(), v.contiguous(), log_g,
                 deg=self.degree,
-                stabilizer=1.0 / d**0.5,
-                chunk_size=self.chunk_size,
-                ε=1e-7,
-                deterministic=False,
-                normal_space=not self.log_space)
-            y = self.ln(y)
-        elif self.attention_kernel == 'flash':
-            y = flash_attn_func(q, k, v,
-                                dropout_p=self.dropout if self.training else 0,
-                                softmax_scale=1.0 / d**0.5,
-                                causal=True,
-                                alibi_slopes=None,
-                                deterministic=False,
-                                window_size=(self.window_size-1, 0) if self.window_size is not None else (-1, -1))
+                scale=1.0 / d**0.5,
+                chunk_size=self.chunk_size)
         else:
             msg = f'Unknown attention kernel: {self.attention_kernel}'
             raise NotImplementedError(msg)
@@ -196,7 +180,6 @@ class GPTConfig:
     head_size: int = 64
     qhead_ratio: int = 1
     log_space: bool = False
-    window_size: int = None
 
 class GPT(nn.Module):
 

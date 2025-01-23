@@ -1,88 +1,96 @@
 # Get version from pyproject.toml
 VERSION := $(shell python scripts/get_version.py)
 PACKAGE_NAME := power-attention
-PYTHON := python3
 
-# Allow overriding venv path through environment variable, default to .venv
-VENV_DIR ?= $(if $(POWER_ATTENTION_VENV_PATH),$(POWER_ATTENTION_VENV_PATH),.venv)
-PIP := $(VENV_DIR)/bin/pip
-PYTEST := $(VENV_DIR)/bin/pytest
+.PHONY: clean check-version check-test-version release release-test help deps-dev kernel refresh-deps refresh-deps-dev
 
-.PHONY: all build test benchmark release release-test clean check-version venv deps deps-dev deps-train
+PIP := pip
+PYTEST := pytest
+PYTHON := python
 
-all: build test
+define install_group_deps
+	$(PYTHON) -c 'import tomllib; print("\n".join(tomllib.load(open("pyproject.toml", "rb"))["dependency-groups"]["$(1)"]))' | $(PIP) install -r /dev/stdin
+endef
 
-dev: venv
-	CC=gcc CXX=g++ $(PIP) install -e .
+define install_deps
+	$(PYTHON) -c 'import tomllib; print("\n".join(tomllib.load(open("pyproject.toml", "rb"))["project"]["dependencies"]))' | $(PIP) install -r /dev/stdin
+endef
 
-venv:
-	$(PYTHON) -m venv $(VENV_DIR)
-	$(PIP) install --upgrade pip
+define install_group_deps
+	$(PYTHON) -c 'import tomllib; print("\n".join(tomllib.load(open("pyproject.toml", "rb"))["dependency-groups"]["$(1)"]))' | $(PIP) install -r /dev/stdin
+endef
 
-deps: venv
-	$(PIP) install .
+define uninstall_deps
+	$(PYTHON) -c 'import tomllib; deps = tomllib.load(open("pyproject.toml", "rb"))["project"]["dependencies"]; [print(dep.split(">=")[0]) for dep in deps]' | xargs -n 1 $(PIP) uninstall -y	
+endef
 
-deps-dev: deps
-	$(PIP) install ".[dev]"
+kernel:
+	@python setup.py build_ext --inplace
 
-deps-train: deps
-	$(PIP) install ".[train]"
+deps-dev:
+	$(call install_group_deps,dev)
 
-# Development commands
-test: deps-dev
-	$(PYTEST) power_attention/tests.py -v
+refresh-deps:
+	@echo "Uninstalling dependencies..."
+	$(call uninstall_deps)
+	@echo "Reinstalling dependencies..."
+	$(call install_deps)
 
-benchmark: deps-dev
-	$(VENV_DIR)/bin/python test/benchmark.py
+refresh-deps-dev:
+	@echo "Uninstalling development dependencies..."
+	$(call uninstall_dev_deps)
+	@echo "Reinstalling development dependencies..."
+	$(call install_dev_deps)
+
+# Clean and check
+clean:
+	rm -rf dist/ build/ *.egg-info/ *.so wheelhouse/ $(VENV_DIR)/.deps_*
+
+kernel:
+	@python setup.py build_ext --inplace
 
 # Version checking
 check-version:
 	@echo "Local version: $(VERSION)"
-	@$(VENV_DIR)/bin/python scripts/version_check.py "$(VERSION)" "$(PACKAGE_NAME)"
+	@python scripts/version_check.py "$(VERSION)" "$(PACKAGE_NAME)"
 
 check-test-version:
 	@echo "Local version: $(VERSION)"
-	@$(VENV_DIR)/bin/python scripts/version_check.py "$(VERSION)" "$(PACKAGE_NAME)" --test
-
-# Clean and check
-clean:
-	rm -rf dist/ build/ *.egg-info/ *.so wheelhouse/
+	@python scripts/version_check.py "$(VERSION)" "$(PACKAGE_NAME)" --test
 
 # Release commands
-release: clean deps-dev check-version
-	@echo "Building wheels with cibuildwheel..."
-	$(VENV_DIR)/bin/python -m cibuildwheel --output-dir dist
-	$(VENV_DIR)/bin/twine check dist/*
+release:
+	python -m twine check dist/*
 	@echo "Uploading to PyPI..."
-	$(VENV_DIR)/bin/twine upload dist/*
+	python -m twine upload dist/*
 	@echo "Release $(VERSION) completed!"
 
-release-test: clean deps-dev check-test-version
+release-test: clean check-test-version
 	@echo "Building wheels with cibuildwheel..."
-	$(VENV_DIR)/bin/python -m cibuildwheel --output-dir dist
-	$(VENV_DIR)/bin/twine check dist/*
+	python -m cibuildwheel --output-dir dist
+	python -m build -s
+	python -m twine check dist/*
 	@echo "Uploading to TestPyPI..."
-	$(VENV_DIR)/bin/twine upload --repository testpypi dist/*
+	python -m twine upload --repository testpypi dist/*
 	@echo "Test release $(VERSION) completed!"
+
+# Visualization
+plot-regressions:
+	@echo "Generating regression visualization..."
+	$(PYTHON) perf/plot_regressions.py
 
 # Help
 help:
 	@echo "Available commands:"
-	@echo "Environment variables:"
-	@echo "  POWER_ATTENTION_VENV_PATH - Override default virtualenv location (.venv)"
-	@echo ""
-	@echo "Commands:"
-	@echo "  make venv          - Create virtual environment"
-	@echo "  make deps          - Install base dependencies"
-	@echo "  make deps-dev      - Install development dependencies"
-	@echo "  make deps-train    - Install training dependencies"
-	@echo "  make test          - Run tests"
-	@echo "  make benchmark     - Run benchmarks"
-	@echo "  make build         - Build package"
-	@echo "  make fast          - Quick build for development"
-	@echo "  make clean         - Clean build artifacts"
-	@echo "  make release       - Release to PyPI (includes version check)"
-	@echo "  make release-test  - Release to TestPyPI"
-	@echo "  make check-version - Check version against PyPI"
+	@echo "  make kernel             - Build kernel and (re)install it"
+	@echo "  make deps               - Install required dependencies"
+	@echo "  make deps-dev           - Install development dependencies"
+	@echo "  make refresh-deps       - Refresh required dependencies"
+	@echo "  make refresh-deps-dev   - Refresh development dependencies"
+	@echo "  make clean              - Clean build artifacts"
+	@echo "  make release            - Release to PyPI (includes version check)"
+	@echo "  make release-test       - Release to TestPyPI"
+	@echo "  make check-version      - Check version against PyPI"
 	@echo "  make check-test-version - Check version against TestPyPI"
+	@echo "  make plot-regressions   - Generate interactive regression visualization"
 	@echo "Current version: $(VERSION)" 

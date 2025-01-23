@@ -63,4 +63,7 @@ coverage.xml
 docs/_build/
 
 wheelhouse/
-*.html
+train/out/
+
+# Migration scripts
+reports/migrate.py

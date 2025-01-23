@@ -2,15 +2,9 @@
 
 ## IMPLEMENTATION ##
 import torch
-from power_attention_cuda import (
-    update_states_bwd,
-    InnerBlock_DT,
-    OuterBlock_DT,
-)
 from typing import Tuple
-
-def ExpandedDim(head_size, deg):
-    return ((InnerBlock_DT // OuterBlock_DT + head_size // OuterBlock_DT) * (head_size // InnerBlock_DT) // 2) * (InnerBlock_DT * OuterBlock_DT)
+from power_attention_cuda import update_states_bwd
+from power_attention._utils import compute_expanded_dim
 
 @torch.library.custom_op("power_attention::update_state_bwd", mutates_args=(), device_types='cuda')
 def update_state_bwd(K : torch.Tensor, V : torch.Tensor, dS : torch.Tensor, deg : int) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -43,12 +37,12 @@ def update_state_bwd_fake(K, V, dS, deg):
 # Useful function to create sample inputs
 def create_inputs(b=2, n=4, c=128, h=8, d=32, dtype=torch.float16, device='cuda', seed=42):
     torch.manual_seed(seed)
-    D = ExpandedDim(d, deg=2)  # Expanded dimension
+    D = compute_expanded_dim(d, deg=2)  # Expanded dimension
     K = torch.randn(size=(b, n, c, h, d), dtype=dtype, device=device) / d**.25
     V = torch.randn(size=(b, n, c, h, d), dtype=dtype, device=device) / d**.25
     dS = torch.randn(size=(b, n, h, D, d), dtype=dtype, device=device)
     deg = 2
-    return K, V, dS, deg
+    return dict(K=K, V=V, dS=dS, deg=deg)
 
 ## TUTORIAL ##
 if __name__ == '__main__':

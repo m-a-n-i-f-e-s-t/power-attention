@@ -11,10 +11,12 @@ import subprocess
 import socket
 import os
 import platform
+import requests
 from typing import Dict, Any
 
 SERVER_URL = None
 LOCAL_ROOT = None
+WANDB_PROJECT = None
 
 # Global variables to store run configuration
 RUN_NAME = None
@@ -141,7 +143,27 @@ def _get_gpu_info() -> Dict[str, Any]:
     except (subprocess.SubprocessError, FileNotFoundError):
         return {}
 
-def init(name=None, info=None, server_url="http://log-cabin:8000", local_root=os.path.expanduser("~/.logs")):
+def _hostname_familiar_or_none(url: str):
+    """Try to resolve and ping a URL and return it if successful, None otherwise.
+    
+    Args:
+        url (str): URL to ping
+        
+    Returns:
+        Optional[str]: The URL if hostname resolution and ping succeeded, None otherwise
+    """
+    try:
+        # Extract hostname from URL
+        hostname = url.split("://")[1].split(":")[0]
+        # Try to resolve the hostname
+        socket.gethostbyname(hostname)
+        # If so return the URL unchanged
+        return url
+    except (socket.gaierror, requests.RequestException, ValueError, IndexError):
+        return None
+
+
+def init(name=None, info=None, server_url="http://log-cabin:8000", local_root=os.path.expanduser("~/.logs"), wandb_project=None):
     """Initialize logging for a new run.
     
     Args:
@@ -156,10 +178,11 @@ def init(name=None, info=None, server_url="http://log-cabin:8000", local_root=os
     Raises:
         RuntimeError: If no valid name could be found or other initialization error
     """
-    global RUN_NAME, LOCAL_BACKUP_DIR, SERVER_URL, LOCAL_ROOT
-    
-    SERVER_URL = server_url if server_url else None
+    global RUN_NAME, LOCAL_BACKUP_DIR, SERVER_URL, LOCAL_ROOT, WANDB_PROJECT
+
+    SERVER_URL = _hostname_familiar_or_none(server_url) if server_url else None
     LOCAL_ROOT = Path(local_root) if local_root else None
+    WANDB_PROJECT = wandb_project if wandb_project else None
     
     # Get valid name checking both local and server storage
     actual_name = _get_valid_name(name)
@@ -225,6 +248,12 @@ def init(name=None, info=None, server_url="http://log-cabin:8000", local_root=os
             raise RuntimeError(f"Error initializing server connection: {e}")
         Thread(target=_log_to_server, daemon=True).start()
     
+    # Initialize wandb if enabled
+    if WANDB_PROJECT:
+        import wandb
+        wandb.init(project=WANDB_PROJECT, name=actual_name, config=info)
+
+
     return actual_name
 
 def log(entry_name, data):
@@ -254,6 +283,12 @@ def log(entry_name, data):
             "entry_name": entry_name,
             "data": data
         })
+
+    # Log to wandb if enabled
+    if WANDB_PROJECT:
+        if entry_name == "eval":
+            import wandb
+            wandb.log(data)
 
 def _log_to_file():
     """Background thread for writing to local files."""

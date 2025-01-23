@@ -14,30 +14,49 @@ from power_attention._discumsum.bwd import discumsum_bwd
 
 @torch.library.custom_op("power_attention::discumsum", mutates_args=())
 def discumsum(X : torch.Tensor, log_G : torch.Tensor) -> torch.Tensor:
-    """Compute discounted cumulative sum along time axis.
+    r"""Compute discounted cumulative sum for recurrent processing.
 
-    Computes the discounted cumulative sum of X using gating factors exp(log_G).
-    The time axis is the second dimension (axis=1).
+    This function implements the discounted cumulative sum operation from [1]. It is a key
+    component in transforming symmetric power attention into a linear-cost RNN, allowing
+    efficient processing of long sequences through chunked computation.
 
-    It implements the following mathematical operation:
-        cum_X[t] = X[t] + exp(log_G[t]) * cum_X[t-1]
+    The operation implements the state update equation of the RNN:
 
-    Input shapes:
-        X: [batch, time, heads, *features] - Input tensor to accumulate
-        log_G: [batch, time, heads] - Log discount factors, broadcasted along features
+    $$Y_t = X_t + \exp(\log G_t) \cdot Y_{t-1}$$
 
-    Output shape: 
-        [batch, time+1, heads, *features] - Accumulated sums
-        NOTE: Output has one more timestep than input, with zeros at t=0
+    with initial condition $Y_0 = 0$
 
-    Shape Restrictions:
+    In the context of symmetric power attention:
+
+    - $X_t$ contains expanded state vectors from the current chunk
+    - $Y_t$ accumulates state information across chunks
+    - $exp(log\ G_t)$ controls how much past information influences the current computation
+    - The +1 in the output time dimension allows for proper causality in the RNN
+
+    This formulation enables O(n) complexity instead of O(n²) for long sequences, while
+    maintaining the expressivity of power attention through the expanded state representation.
+
+    Args:
+        X: Input tensor of shape `(batch_size, time, num_heads, *feature_dims)`.
+           The tensor to be accumulated along the time dimension.
+        log_G: Log discount factors of shape `(batch_size, time, num_heads)`.
+           Natural logarithm of the discount/gating factors.
+           These are broadcasted along the feature dimensions.
+
+    Returns:
+        Y: Accumulated tensor of shape `(batch_size, time+1, num_heads, *feature_dims)`.
+           Note that the output has one more timestep than the input, with zeros at t=0.
+
+    Note:
         - Time dimension must be a multiple of 4
         - Product of feature dimensions must be a multiple of 8
-    
-    The 0th (batch) and 2nd (heads) dimensions are treated as batch dimensions.
-    The discount factors are broadcasted along the final feature dimensions.
+        - The batch and heads dimensions are treated as independent batch dimensions
+        - Initial state support is planned but not yet implemented
+        - The RNN formulation maintains O(1) memory per layer regardless of sequence length
 
-    TODO(jbuckman): Accept an initial state
+    References:
+        [1] J. Buckman, C. Gelada, and S. Zhang, "Symmetric Power Transformers." 
+            Manifest AI, Aug. 15, 2024.
     """
     b, n, h, *ds = X.shape
     if len(X.shape) > 4:

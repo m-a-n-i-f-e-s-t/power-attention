@@ -1,0 +1,53 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: gpu
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Create virtual environment
+      run: |
+        python3.11 -m venv .venv
+        source .venv/bin/activate
+        python -m pip install --upgrade pip
+
+    - name: Install package with dev dependencies
+      run: |
+        source .venv/bin/activate
+        pip install -e .[dev]
+
+    - name: Run tests
+      run: |
+        source .venv/bin/activate
+        pytest perf/tests/ --junit-xml=test-results.xml
+
+    - name: Surface failing tests
+      uses: pmeier/pytest-results-action@main
+      with:
+        path: test-results.xml
+        summary: true
+        display-options: fEX
+        fail-on-empty: true
+        title: Test results
+
+    - name: Sanity-run benchmarks
+      run: |
+        source .venv/bin/activate
+        ./scripts/test_benchmark.sh
+
+    - name: Sanity-run training
+      run: |
+        source .venv/bin/activate
+        ./scripts/test_train.sh

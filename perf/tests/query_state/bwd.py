@@ -9,11 +9,11 @@ from perf._checks import (
 )
 
 ## BACKWARD TESTS ##
+from power_attention._utils import compute_expanded_dim
 from power_attention._query_state.bwd import (
     query_state_bwd,
     query_state_bwd_fake,
-    create_inputs as create_inputs_bwd,
-    ExpandedDim
+    create_inputs as create_inputs_bwd
 )
 
 param_ranges_bwd = {
@@ -25,7 +25,7 @@ param_ranges_bwd = {
     'dtype': [torch.bfloat16],
     'device': ['cuda'],
     'fused': [True, False],
-    'stabilizer': [1.0]
+    'scale': [1.0]
 }
 BWD_TEST_CASES = [
     dict(zip(param_ranges_bwd.keys(), values))
@@ -36,13 +36,13 @@ def id_fn(kw):
            f"dtype_{kw['dtype']}-" \
            f"fused_{kw['fused']}-" \
            f"device_{kw['device']}-" \
-           f"stabilizer_{kw['stabilizer']}"
+           f"scale_{kw['scale']}"
 
 
 @pytest.mark.parametrize("kw", BWD_TEST_CASES, ids=id_fn)
 def test_query_state_bwd_create_inputs(kw):
     inputs = create_inputs_bwd(**kw)
-    D = ExpandedDim(kw['d'], 2)
+    D = compute_expanded_dim(kw['d'], 2)
     check_tensor_property_pairs(
         (inputs['Q'], ((kw['b'], kw['n'], kw['c'], kw['h'], kw['d']), kw['dtype'], kw['device'])),
         (inputs['S'], ((kw['b'], kw['n'], kw['h'], D, kw['d']), kw['dtype'], kw['device'])),
@@ -52,7 +52,7 @@ def test_query_state_bwd_create_inputs(kw):
 @pytest.mark.parametrize("kw", BWD_TEST_CASES, ids=id_fn)
 def test_query_state_bwd_output(kw):
     inputs = create_inputs_bwd(**kw)
-    D = ExpandedDim(kw['d'], 2)
+    D = compute_expanded_dim(kw['d'], 2)
     with torch.no_grad():
         dQ, dS, ds = query_state_bwd(**inputs)
         check_tensor_property_pairs(
@@ -68,8 +68,6 @@ def test_query_state_bwd_determinism(kw):
 def test_query_state_bwd_compiles(kw):
     torch._dynamo.config.cache_size_limit = 32
     inputs = create_inputs_bwd(**kw)
-    # TODO (sean): The backward pass of query_state doesn't support deterministic mode yet
-    # hence the high rtol
     check_fn_compiles(query_state_bwd, inputs, rtol=1e-2, atol=1e-2)
 
 @pytest.mark.parametrize("kw", BWD_TEST_CASES, ids=id_fn)
