@@ -35,12 +35,7 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-<<<<<<< HEAD
 [project.optional-dependencies]
-=======
-[dependency-groups]
-
->>>>>>> manifest/main
 dev = [
   "tiktoken",
   "datasets",
@@ -61,12 +56,8 @@ dev = [
   "mkdocs",
   "mkdocstrings-python",
   "requests",
-<<<<<<< HEAD
   "wandb",
   "zarr"
-=======
-  "wandb"
->>>>>>> manifest/main
 ]
 
 [tool.cibuildwheel]

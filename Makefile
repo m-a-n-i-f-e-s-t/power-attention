@@ -49,19 +49,6 @@ clean:
 kernel:
 	@python setup.py build_ext --inplace
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> manifest/main
-refresh-dev-deps:
-	@echo "Reinstalling development dependencies..."
-	@sh scripts/install_dev_deps.sh
-
->>>>>>> manifest/benchmark_coverage
->>>>>>> manifest/main
 # Version checking
 check-version:
 	@echo "Local version: $(VERSION)"
@@ -95,27 +82,11 @@ plot-regressions:
 # Help
 help:
 	@echo "Available commands:"
-<<<<<<< HEAD
 	@echo "  make kernel             - Build kernel and (re)install it"
 	@echo "  make deps               - Install required dependencies"
 	@echo "  make deps-dev           - Install development dependencies"
 	@echo "  make refresh-deps       - Refresh required dependencies"
 	@echo "  make refresh-deps-dev   - Refresh development dependencies"
-=======
-<<<<<<< HEAD
-	@echo "  make kernel             - Build kernel and (re)install it"
-	@echo "  make deps-dev           - Install required dependencies"
-	@echo "  make deps-dev           - Install dev dependencies"
-	@echo "  make refresh-deps       - Refresh required dependencies"
-	@echo "  make refresh-deps-dev   - Refresh development dependencies"
-=======
-	@echo "  make kernel             - Build kernel and install it"
-	@echo "  make refresh            - Refresh required dependencies"
-	@echo "  make deps-dev           - Install dev dependencies"
-	@echo "  make deps-train         - Install dependencies for training"
-	@echo "  make deps-benchmark     - Install dependencies for benchmark"
->>>>>>> manifest/main
->>>>>>> manifest/main
 	@echo "  make clean              - Clean build artifacts"
 	@echo "  make release            - Release to PyPI (includes version check)"
 	@echo "  make release-test       - Release to TestPyPI"
