@@ -13,7 +13,6 @@ from dataclasses import dataclass
 
 import torch
 import torch.nn as nn
-from fused_projxent import FusedProjectionPlusCrossEntropyLoss
 from power_attention import power_full
 from torch.nn import functional as F
 from torch.utils.checkpoint import checkpoint
@@ -195,7 +194,6 @@ class GPT(nn.Module):
             h = nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
             ln_f = LayerNorm(config.n_embd, bias=config.bias),
         ))
-        # self.lm_head = FusedProjectionPlusCrossEntropyLoss(config.n_embd, config.vocab_size)
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
         # with weight tying when using torch.compile() some warnings get generated:
         # "UserWarning: functional_call was passed multiple values for tied weights.
@@ -221,7 +219,7 @@ class GPT(nn.Module):
         return n_params
 
     def _init_weights(self, module):
-        if isinstance(module, nn.Linear) or isinstance(module, FusedProjectionPlusCrossEntropyLoss):
+        if isinstance(module, nn.Linear):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
             if module.bias is not None:
                 torch.nn.init.zeros_(module.bias)
