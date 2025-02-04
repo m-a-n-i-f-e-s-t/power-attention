@@ -118,7 +118,7 @@ def create_inputs(b=2, n=4, c=128, h=8, d=32, dtype=torch.float16, fused=False, 
 
 ## TUTORIAL ##
 if __name__ == '__main__':
-    from perf._inspect import print_fwd_bwd
+    from perf._inspect import print_runtime
 
     # Hyperparameters
     b, n, c, h, d = (8, 8, 128, 16, 64)
@@ -128,5 +128,5 @@ if __name__ == '__main__':
 
     # Benchmark
     print(f"Benchmarking query state \n {b=} {n=} {c=} {h=} {d=} {dtype}")
-    print_fwd_bwd(query_state, *inputs)
+    print_runtime(query_state, *inputs)
 

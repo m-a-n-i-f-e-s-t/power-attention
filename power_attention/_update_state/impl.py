@@ -90,15 +90,19 @@ def create_inputs(b=2, n=4, c=128, h=8, d=32, dtype=torch.float16, device='cuda'
 
 ## TUTORIAL ##
 if __name__ == '__main__':
-    from perf._inspect import print_fwd_bwd
+    from perf._timing import benchmark_speed
 
     # Hyperparameters
-    b, n, c, h, d = (8, 8, 128, 16, 64)
-    dtype = torch.float16
-    # Create inputs
-    inputs = create_inputs(b, n, c, h, d, dtype, 'cuda', requires_grad=True)
+    kw = dict(b=8, n=8, c=256, h=16, d=64, dtype=torch.bfloat16, device='cuda')
     
-    print(f"Benchmarking chunk state \n {b=} {n=} {c=} {h=} {d=} {dtype=}")
+    print(f"Benchmarking chunk state \n {kw=}")
 
     # benchmark
-    print_fwd_bwd(update_state, inputs['K'], inputs['V'], inputs['deg'])
+    fwd_time = benchmark_speed('fwd', update_state, create_inputs, kw)
+    print(f"Fwd time: {fwd_time:.2f} ms")
+
+    bwd_time = benchmark_speed('bwd', update_state, create_inputs, kw)
+    print(f"Bwd time: {bwd_time:.2f} ms")
+
+    fwd_bwd_time = benchmark_speed('fwd+bwd', update_state, create_inputs, kw)
+    print(f"Fwd+bwd time: {fwd_bwd_time:.2f} ms")

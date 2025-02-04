@@ -50,12 +50,23 @@ def get_violation_pct(gold, ref, test, tol, atol=0):
         tol: float. Tolerance for difference
         atol: float. Absolute tolerance for difference
     """
-    gold_ref_diff = torch.abs(gold - ref)
-    gold_test_diff = torch.abs(gold - test)
-    abs_error = (gold_test_diff - ((1 + tol) * gold_ref_diff + atol))
-    violations = (abs_error > 0)
-    num_violations = violations.sum().item()
-    violation_pct = num_violations / gold.numel()
+    if isinstance(gold, torch.Tensor):
+        gold_ref_diff = torch.abs(gold - ref)
+        gold_test_diff = torch.abs(gold - test)
+        abs_error = (gold_test_diff - ((1 + tol) * gold_ref_diff + atol))
+        violations = (abs_error > 0)
+        num_violations = violations.sum().item()
+        violation_pct = num_violations / gold.numel()
+    elif isinstance(gold, dict) and isinstance(ref, dict) and isinstance(test, dict):
+        violation_pct = 0.
+        for key in gold.keys():
+            violation_pct = max(violation_pct, get_violation_pct(gold[key], ref[key], test[key], tol, atol))
+    elif isinstance(gold, (list, tuple)) and isinstance(ref, (list, tuple)) and isinstance(test, (list, tuple)):
+        violation_pct = 0.
+        for _gold, _ref, _test in zip(gold, ref, test, strict=True):
+            violation_pct = max(violation_pct, get_violation_pct(_gold, _ref, _test, tol, atol))
+    else:
+        raise ValueError(f"Unsupported type: {type(gold)}")
     return violation_pct
 
 def measure_forward_precision(ref_fn: callable, fn: callable, ref_inputs: Dict[str, torch.Tensor], test_inputs: Dict[str, torch.Tensor], relative: bool) -> float:

@@ -7,9 +7,9 @@ import torch.nn.functional as F
 from enum import Enum
 from torch.utils._pytree import tree_map
 from power_attention._attention import attention, attention_reference
-from power_attention._update_state import update_state, update_state_reference
+from power_attention._update_state import update_state, update_state_reference, update_state_triton
 from power_attention._discumsum import discumsum, discumsum_reference
-from power_attention._query_state import query_state, query_state_reference
+from power_attention._query_state import query_state, query_state_reference, query_state_triton
 from power_attention._utils import compute_expanded_dim, layernorm
 import math
 
@@ -18,12 +18,12 @@ class UpdateStateImpl(Enum):
     CUTLASS = 0
     REFERENCE = 1
     MATMUL = 2
-
+    TRITON = 3
 class QueryStateImpl(Enum):
     CUTLASS = 0
     REFERENCE = 1
     MATMUL = 2
-
+    TRITON = 3
 class DiscumsumImpl(Enum):
     CUTLASS = 0
     REFERENCE = 1
@@ -76,9 +76,11 @@ def query_state_matmul(Q, S, attn_Y, rowmax, deg, scale, zero_initial_state):
 IMPL_MAP = {
     UpdateStateImpl.CUTLASS: update_state,
     UpdateStateImpl.REFERENCE: update_state_reference,
+    UpdateStateImpl.TRITON: update_state_triton,
     UpdateStateImpl.MATMUL: update_state_matmul,
     QueryStateImpl.CUTLASS: query_state,
     QueryStateImpl.REFERENCE: query_state_reference,
+    QueryStateImpl.TRITON: query_state_triton,
     QueryStateImpl.MATMUL: query_state_matmul,
     DiscumsumImpl.CUTLASS: discumsum,
     DiscumsumImpl.REFERENCE: discumsum_reference,
@@ -271,6 +273,8 @@ power_full_reference = _make_power_full(UpdateStateImpl.REFERENCE, QueryStateImp
 
 power_full = _make_power_full(UpdateStateImpl.CUTLASS, QueryStateImpl.CUTLASS, DiscumsumImpl.CUTLASS, AttentionImpl.CUTLASS)
 
+power_full_triton = _make_power_full(UpdateStateImpl.TRITON, QueryStateImpl.TRITON, DiscumsumImpl.CUTLASS, AttentionImpl.CUTLASS)
+
 ## Useful function to create sample inputs
 def create_inputs(b=2, t=1024, h=8, d=32, qhead_ratio=1, dtype=torch.float16, device='cuda', gating=False,
                   chunk_size=None, deg=2, requires_grad=False, seed=42):
@@ -295,7 +299,7 @@ def create_inputs(b=2, t=1024, h=8, d=32, qhead_ratio=1, dtype=torch.float16, de
 
 ## TUTORIAL ##
 if __name__ == '__main__':
-    from perf._inspect import print_fwd_bwd
+    from perf._inspect import print_runtime
 
     # Create inputs
     t = 1024
@@ -317,4 +321,4 @@ if __name__ == '__main__':
         # Benchmark
         print(f"Benchmarking power_full {b=} {t=} {h=} {d=} {chunk_size=} {deg=} {gating=} {dtype=}")
 
-        print_fwd_bwd(power_full, **inputs)
+        print_runtime(power_full, **inputs)

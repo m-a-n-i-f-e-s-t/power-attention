@@ -136,7 +136,7 @@ def create_inputs(b=2, t=32, h=8, d=32, dtype=torch.float16, device='cuda', gati
 
 ## TUTORIAL ##
 if __name__ == '__main__':
-    from perf._inspect import print_fwd_bwd
+    from perf._inspect import print_runtime
 
     # Hyperparameters
     b, t, h, d = (8, 1024, 16, 64)
@@ -162,12 +162,12 @@ if __name__ == '__main__':
 
     else:
         # benchmark 
-        print_fwd_bwd(attention, *inputs)
+        print_runtime(attention, *inputs)
 
         # Run flash attention
         Q, K, V = inputs[:3]
         from flash_attn import flash_attn_func
         print("benchmarking flash attention")
-        print_fwd_bwd(flash_attn_func, Q, K, V, dropout_p=0.0, softmax_scale=None, causal=True)
+        print_runtime(flash_attn_func, Q, K, V, dropout_p=0.0, softmax_scale=None, causal=True)
 
 

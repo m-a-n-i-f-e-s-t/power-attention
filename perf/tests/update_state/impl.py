@@ -18,6 +18,9 @@ from power_attention._update_state.impl import (
     update_state_fake,
     create_inputs as create_inputs_impl
 )
+from power_attention._update_state.impl_triton import (
+    update_state as update_state_triton
+)
 from power_attention._utils import compute_expanded_dim
 
 param_ranges_impl = {
@@ -133,6 +136,18 @@ def test_update_state_matches_reference(kw):
     )
 
 @pytest.mark.parametrize("kw", REF_TEST_CASES, ids=id_fn)
+def test_update_state_triton_matches_reference(kw):
+    gold_inputs = create_inputs_impl(**(kw | {'dtype': torch.float32}))
+    test_inputs = create_inputs_impl(**kw)
+    check_fn_forwards_match(
+        ref_fn=update_state_reference,
+        gold_inputs=gold_inputs,
+        test_fn=update_state_triton,
+        test_inputs=test_inputs,
+        rtol=2.
+    )
+
+@pytest.mark.parametrize("kw", REF_TEST_CASES, ids=id_fn)
 def test_update_state_grad_matches_reference(kw):
     gold_inputs = create_inputs_impl(**(kw | {'dtype': torch.float32}), requires_grad=True)
     test_inputs = create_inputs_impl(**kw, requires_grad=True)
@@ -140,6 +155,18 @@ def test_update_state_grad_matches_reference(kw):
         ref_fn=update_state_reference,
         gold_inputs=gold_inputs,
         test_fn=update_state,
+        test_inputs=test_inputs,
+        rtol=2.
+    )
+
+@pytest.mark.parametrize("kw", REF_TEST_CASES, ids=id_fn)
+def test_update_state_triton_grad_matches_reference(kw):
+    gold_inputs = create_inputs_impl(**(kw | {'dtype': torch.float32}), requires_grad=True)
+    test_inputs = create_inputs_impl(**kw, requires_grad=True)
+    check_fn_backwards_match(
+        ref_fn=update_state_reference,
+        gold_inputs=gold_inputs,
+        test_fn=update_state_triton,
         test_inputs=test_inputs,
         rtol=2.
     )

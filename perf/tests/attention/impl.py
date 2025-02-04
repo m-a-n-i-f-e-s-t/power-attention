@@ -104,6 +104,10 @@ from power_attention._attention.reference import (
     attention_reference,
     attention_reference_fwd,
 )
+from power_attention._attention.impl_triton import (
+    attention as attention_triton,
+    create_inputs as create_inputs_triton,
+)
 
 param_ranges_ref = {
     'b': [4],
@@ -144,6 +148,24 @@ def test_attention_matches_reference(kw):
         rtol=2.
     )
 
+@pytest.mark.parametrize("kw", IMPL_TEST_CASES, ids=id_fn)
+def test_attention_triton_matches_reference(kw):
+    gold_inputs = create_inputs_impl(**(kw | {'dtype': torch.float32}))
+    ref_inputs = create_inputs_triton(**kw)
+
+    # this wrapper is needed because triton attention doesn't return lse
+    def wrapper(*args, **kwargs):
+        Y, _, rowmax = attention_reference(*args, **kwargs)
+        return Y, rowmax
+
+    check_fn_forwards_match(
+        ref_fn=wrapper,
+        gold_inputs=gold_inputs,
+        test_fn=attention_triton,
+        test_inputs=ref_inputs,
+        rtol=2.
+    )
+
 @pytest.mark.parametrize("kw", REF_TEST_CASES, ids=id_fn)
 def test_attention_grad_matches_reference(kw):
     gold_inputs = create_inputs_impl(**(kw | {'dtype': torch.float32}), requires_grad=True)
@@ -153,5 +175,23 @@ def test_attention_grad_matches_reference(kw):
         gold_inputs=gold_inputs,
         test_fn=attention,
         test_inputs=test_inputs,
+        rtol=2.
+    )
+
+@pytest.mark.parametrize("kw", IMPL_TEST_CASES, ids=id_fn)
+def test_attention_triton_grad_matches_reference(kw):
+    gold_inputs = create_inputs_impl(**(kw | {'dtype': torch.float32}), requires_grad=True)
+    ref_inputs = create_inputs_triton(**(kw | {'requires_grad': True}))
+
+    # this wrapper is needed because triton attention doesn't return lse
+    def wrapper(*args, **kwargs):
+        Y, _, rowmax = attention_reference(*args, **kwargs)
+        return Y, rowmax
+
+    check_fn_backwards_match(
+        ref_fn=wrapper,
+        gold_inputs=gold_inputs,
+        test_fn=attention_triton,
+        test_inputs=ref_inputs,
         rtol=2.
     )
