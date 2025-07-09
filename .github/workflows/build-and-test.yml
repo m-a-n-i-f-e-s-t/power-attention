@@ -34,7 +34,7 @@ jobs:
     - name: Run tests
       run: |
         source .venv/bin/activate
-        PYTORCH_NO_CUDA_MEMORY_CACHING=1 pytest -n 8 --junit-xml=test-results.xml --randomly-seed=12345 --reruns 10 --reruns-delay 60 --only-rerun "(CUDA.*out of memory|CUDA error: an illegal memory access was encountered)"
+        PYTORCH_NO_CUDA_MEMORY_CACHING=1 pytest -n 8 --junit-xml=test-results.xml --randomly-seed=12345 --reruns 10 --reruns-delay 60 --only-rerun "(CUDA.*out of memory|illegal memory access)"
 
     - name: Surface failing tests
       uses: pmeier/pytest-results-action@main
