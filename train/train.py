@@ -48,7 +48,7 @@ disable_logging = False
 wandb_project = None
 # data
 data_root = os.path.expanduser('~/mai_datasets')
-dataset = 'owt'
+dataset = 'news'
 gradient_accumulation_steps = 1 # used to simulate larger batch sizes
 batch_size = 12 # if gradient_accumulation_steps > 1, this is the micro-batch size
 block_size = 1024
@@ -80,7 +80,7 @@ compile = True # use PyTorch 2.0 to compile the model to be faster
 attention_kernel = 'sdpa' # 'sdpa', 'power'
 disable_gating = False
 chunk_size = None
-degree = 1
+degree = 2
 head_size = 64 # to separate from n_embd
 qhead_ratio = 1
 # -----------------------------------------------------------------------------
