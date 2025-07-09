@@ -1,7 +1,7 @@
 # Power Attention
 [![Build](https://github.com/m-a-n-i-f-e-s-t/power-attention/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/m-a-n-i-f-e-s-t/power-attention/actions/workflows/build-and-test.yml)
 
-This repository contains a PyTorch layer implementing symmetric power attention, a linear-cost variant of attention that whose state size can be controlled
+This repository contains a PyTorch layer implementing symmetric power attention, a linear-cost variant of attention whose state size can be controlled
 independently of context length and parameter count.
 
 For details on the approach, see our paper: [Scaling Context Requires Rethinking Attention](http://arxiv.org/abs/2507.04239)
