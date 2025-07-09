@@ -34,7 +34,7 @@ jobs:
     - name: Run tests
       run: |
         source .venv/bin/activate
-        pytest perf/tests/ --junit-xml=test-results.xml
+        pytest -n 16 --junit-xml=test-results.xml
 
     - name: Surface failing tests
       uses: pmeier/pytest-results-action@main
