@@ -81,7 +81,9 @@ dev = [
   "click",
   "tabulate",
   "flash-linear-attention@git+https://github.com/fla-org/flash-linear-attention",
-  "flash_attn==2.7.3"
+  "flash_attn==2.7.3",
+  "pytest-randomly",
+  "pytest-rerunfailures"
 ]
 
 [tool.cibuildwheel]
