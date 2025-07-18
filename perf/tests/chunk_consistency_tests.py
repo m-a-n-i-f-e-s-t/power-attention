@@ -5,7 +5,8 @@ from perf._checks import (
     check_inputs_backwards_match,
 )
 from perf.tests.test_list import power_full_param_ranges, power_full_input_output, fn_set_and_param_range_to_test_cases
-from power_attention.power_full import power_full_reference, power_full_vidrial_reference
+from power_attention.vidrial_reference import power_full as power_full_vidrial_reference
+from power_attention.reference import power_full as power_full_reference
 power_full_fn_sets = [
     {'name': 'power_full_reference', 'extends': 'power_full', 'impl': 'reference',
         'fn': power_full_reference, **power_full_input_output},

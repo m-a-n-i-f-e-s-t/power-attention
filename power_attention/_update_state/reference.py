@@ -1,12 +1,6 @@
 import torch
 from einops import rearrange
-from power_attention_cuda import (
-    InnerBlock_DT,
-    OuterBlock_DT,
-    InnerBlock_TD,
-    OuterBlock_TD,
-)
-from power_attention._utils import dummify
+from power_attention._utils import dummify, InnerBlock_DT, OuterBlock_DT, InnerBlock_TD, OuterBlock_TD
 
 def reference_expand(K, deg):
     """ Reference implementation of key expansion

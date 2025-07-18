@@ -1,6 +1,10 @@
 [project]
 name = "power-attention"
+<<<<<<< HEAD
+version = "1.1.0"
+=======
 dynamic = ["version"]
+>>>>>>> origin/main
 description = "Kernels for symmetric-power-based linear transformers"
 authors = [
   { name = "Sean Zhang", email = "sean@manifest.com" },
@@ -21,6 +25,7 @@ dependencies = [
   'setuptools>=69.5.1',
   "einops",
   "vidrial==0.1.1",
+  # "power-attention-cuda @ https://github.com/m-a-n-i-f-e-s-t/power-attention-cuda/releases/download/0.1.0/power_attention_cuda-0.1.0+torch2.6.0-cp311-cp311-manylinux2014_x86_64.whl",
 ]
 
 # this is a trick to avoid re-compiling the power attention kernel
@@ -45,7 +50,6 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-# TODO (sean): add flash_attn and flash-linear-attention
 [project.optional-dependencies]
 dev = [
   "twine",
@@ -80,10 +84,15 @@ dev = [
   "bokeh",
   "click",
   "tabulate",
+<<<<<<< HEAD
+  "flash-linear-attention@git+https://github.com/fla-org/flash-linear-attention",
+  "flash_attn==2.7.3"
+=======
   "flash-linear-attention",
   "flash_attn==2.7.3",
   "pytest-randomly",
   "pytest-rerunfailures"
+>>>>>>> origin/main
 ]
 
 [tool.cibuildwheel]
@@ -106,3 +115,20 @@ manylinux-x86_64-image = "manylinux2014"
 
 [tool.cibuildwheel.linux]
 repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel} --plat manylinux2014_x86_64 --exclude libtorch_cpu.so --exclude libtorch_python.so --exclude libc10.so --exclude libtorch_cuda.so --exclude libshm.so --exclude libtorch_global_deps.so --exclude libc10_cuda.so --exclude libcaffe2_nvrtc.so --exclude libtorch_python.so --exclude libtorch_cpu.so --exclude libtorch_cuda.so --exclude libc10.so --exclude libtorch.so --exclude libtorch_cuda_linalg.so"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib", '--pyargs',
+]
+pythonpath = [
+    "."
+]
+testpaths = [
+   "perf/tests"
+]
+python_files = "*.py"
+python_functions = "test_*"
+xfail_strict = true
+filterwarnings = [
+    "ignore::DeprecationWarning"
+]

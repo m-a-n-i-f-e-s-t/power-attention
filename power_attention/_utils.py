@@ -1,7 +1,11 @@
 import torch
 from math import floor, ceil, log
 from functools import partial
-from power_attention_cuda import InnerBlock_DT, OuterBlock_DT
+
+InnerBlock_DT = 16
+OuterBlock_DT = 8
+InnerBlock_TD = 16
+OuterBlock_TD = 1
 
 DEFAULT_SEEDS = [40 + i for i in range(2)]
 class DummyCtx:
@@ -181,7 +185,7 @@ def diff(a, b, rtol=None, atol=None, assert_close=True, verbose=True, title=None
     a = a.to(torch.float32)
     b = b.to(torch.float32)
     if rtol is None: rtol = 1e-3
-    if atol is None: atol = 1e-3
+    if atol is None: atol = 1e-5
     equal = torch.allclose(a, b, rtol=rtol, atol=atol)
     error_max = torch.max(torch.abs(a - b))
     error_hist = torch.histc(torch.abs(a - b), bins=100, min=0, max=1)
