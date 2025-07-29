@@ -3,6 +3,13 @@
 
 ## IMPLEMENTATION ##
 import torch
+from power_attention._attention import attention_cuda, attention_reference, attention_triton
+from power_attention._update_state import update_state_cuda, update_state_reference, update_state_triton, update_state_vidrial_reference, update_state_vidrial
+from power_attention._discumsum import discumsum, discumsum_reference
+from power_attention._query_state import query_state_cuda, query_state_reference, query_state_triton, query_state_vidrial_reference, query_state_vidrial
+from power_attention._update_state.vidrial_fused import update_state as update_state_vidrial_fused
+from power_attention._query_state.vidrial_fused import query_state as query_state_vidrial_fused
+from power_attention._query_state.vidrial_fused_kernel import query_state as query_state_vidrial_fused_kernel
 
 POWER_FULL_DOC = r"""
 Compute symmetric power attention with optional chunking.
@@ -69,7 +76,7 @@ References:
 """
 
 
-def make_power_full(update_state_impl, query_state_impl, discumsum_impl, attention_impl):
+def _make_power_full(update_state_impl, query_state_impl, discumsum_impl, attention_impl):
     """ Create a power_full function with the given implementations.
     """
     def _power_full(Q, K, V, log_G=None, initial_state=None, return_final_state=False,
@@ -195,13 +202,12 @@ def make_power_full(update_state_impl, query_state_impl, discumsum_impl, attenti
     _power_full.__doc__ = POWER_FULL_DOC
     return _power_full
 
-
-def make_power_full_fused(update_state_impl, query_state_impl, discumsum_impl, attention_impl):
+def _make_power_full_fused(update_state_impl, query_state_impl, discumsum_impl, attention_impl):
     """ Create a power_full function with the given implementations.
     """
     def _power_full_fused(Q, K, V, log_G=None, initial_state=None, return_final_state=False,
-                    deg=2, scale=None, chunk_size=None, switch_over_seq_len=None): # noqa: C901
-        # assert deg % 2 == 0, f'deg must be even: {deg=}'
+                    deg=2, scale=None, chunk_size=None): # noqa: C901
+        assert deg % 2 == 0, f'deg must be even: {deg=}'
         _update_state = update_state_impl
         _query_state = query_state_impl
         _discumsum = discumsum_impl
@@ -212,7 +218,6 @@ def make_power_full_fused(update_state_impl, query_state_impl, discumsum_impl, a
         dtype = Q.dtype
         b, t, hq, d = Q.shape
         _, _, h, _ = K.shape
-        switch_over_seq_len = chunk_size if switch_over_seq_len is None else switch_over_seq_len
         assert hq == h, f"qhead ratio must be 1 for now: {hq=} {h=}"
         c = t if chunk_size is None else chunk_size
         n = 1 if chunk_size is None else t // chunk_size
@@ -223,7 +228,7 @@ def make_power_full_fused(update_state_impl, query_state_impl, discumsum_impl, a
         # --- Simple quadratic attention ---
         V = V.clone()
         V[..., 0] = 1. # First feature is reserved for normalization
-        if t <= switch_over_seq_len:
+        if t <= c:
             log_G_accum = log_G.cumsum(1) if log_G is not None else None
             return _attention(Q, K, V, log_G_accum, deg, scale=scale, norm=True)
 
@@ -274,3 +279,38 @@ def make_power_full_fused(update_state_impl, query_state_impl, discumsum_impl, a
 
     _power_full_fused.__doc__ = POWER_FULL_DOC
     return _power_full_fused
+
+power_full = power_full_triton = _make_power_full(update_state_triton, query_state_triton, discumsum, attention_triton)
+power_full_cuda = _make_power_full(update_state_cuda, query_state_cuda, discumsum, attention_cuda)
+power_full_reference = _make_power_full(update_state_reference, query_state_reference, discumsum_reference, attention_reference)
+power_full_vidrial_reference = _make_power_full(update_state_vidrial_reference, query_state_vidrial_reference, discumsum_reference, attention_reference)
+power_full_vidrial = _make_power_full(update_state_vidrial, query_state_vidrial, discumsum, attention_triton)
+power_full_fused = _make_power_full_fused(update_state_vidrial_fused, query_state_vidrial_fused, discumsum, attention_triton)
+power_full_fused_kernel = _make_power_full_fused(update_state_vidrial_fused, query_state_vidrial_fused_kernel, discumsum, attention_triton)
+
+## TUTORIAL ##
+if __name__ == '__main__':
+    from perf._inspect import print_runtime
+    from power_attention.create_inputs import create_inputs
+
+    # Create inputs
+    t = 1024
+    chunk_size=128
+    b = 8
+    h = 16
+    d = 64
+    deg = 2
+    gating = True
+    dtype = torch.float16
+    inputs = create_inputs(b=b, t=t, h=h, d=d, dtype=dtype, device='cuda', gating=gating, chunk_size=chunk_size, deg=deg, requires_grad=True)
+    
+    import sys
+
+    if len(sys.argv) > 1 and sys.argv[1] == 'profile':
+        O = power_full(**inputs)
+        torch.autograd.backward((O,), grad_tensors=(O,))
+    else:
+        # Benchmark
+        print(f"Benchmarking power_full {b=} {t=} {h=} {d=} {chunk_size=} {deg=} {gating=} {dtype=}")
+
+        print_runtime(power_full, **inputs)

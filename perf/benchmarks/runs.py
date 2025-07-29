@@ -2,13 +2,19 @@ from functools import wraps
 import inspect
 import torch
 from flash_attn import flash_attn_func
-from power_attention.power_full import power_full, power_full_vidrial
+from power_attention.triton import power_full
+from power_attention.vidrial import power_full as power_full_vidrial
+from power_attention.vidrial_fused import power_full as power_full_fused
 from power_attention.create_inputs import create_inputs as create_inputs_power
-from power_attention._expansion import expand as triton_expand, create_inputs as create_inputs_expansion
-from power_attention._attention import attention_triton, attention_cuda, create_inputs_cuda as create_inputs_attention_cuda, create_inputs as create_inputs_attention
+from power_attention._attention import attention_triton, create_inputs as create_inputs_attention
+from power_attention._attention.cuda import attention as attention_cuda
+from power_attention._attention import create_inputs_cuda as create_inputs_attention_cuda
 from power_attention._update_state import update_state_triton, update_state_vidrial, create_inputs as create_inputs_update_state
 from power_attention._query_state import query_state_triton, query_state_vidrial, create_inputs as create_inputs_query_state
-from power_attention._discumsum import discumsum, create_inputs as create_inputs_discumsum
+from power_attention._update_state.vidrial_fused import update_state as update_state_vidrial_fused
+from power_attention._query_state.vidrial_fused import query_state as query_state_vidrial_fused
+from power_attention._discumsum.triton import discumsum
+from power_attention._discumsum import create_inputs as create_inputs_discumsum
 from .flash import create_inputs as create_inputs_flash
 from .sdpa import create_inputs as create_inputs_sdpa
 
@@ -54,6 +60,13 @@ class PowerFullVidrial():
         return lambda: power_full_vidrial(**inputs)
     
 
+class PowerFullFused():
+    @staticmethod
+    def make_run(**kw):
+        inputs = sanitize_kwargs(create_inputs_power)(**kw)
+        return lambda: power_full_fused(**inputs)
+
+
 class Discumsum():
     @staticmethod
     def make_run(**kw):
@@ -98,7 +111,13 @@ class UpdateStateVidrial():
     def make_run(**kw):
         inputs = sanitize_kwargs(create_inputs_update_state)(**kw, use_vidrial_layout=True)
         return lambda: update_state_vidrial(**inputs)
+    
 
+class UpdateStateVidrialFused():
+    @staticmethod
+    def make_run(**kw):
+        inputs = sanitize_kwargs(create_inputs_update_state)(**kw, use_vidrial_layout=True)
+        return lambda: update_state_vidrial_fused(**inputs)
 
 class UpdateStateTriton():
     @staticmethod
@@ -112,6 +131,13 @@ class QueryStateVidrial():
     def make_run(**kw):
         inputs = sanitize_kwargs(create_inputs_query_state)(**kw, use_vidrial_layout=True)
         return lambda: query_state_vidrial(**inputs)
+
+
+class QueryStateVidrialFused():
+    @staticmethod
+    def make_run(**kw):
+        inputs = sanitize_kwargs(create_inputs_query_state)(**kw, use_vidrial_layout=True, fused_norm=True)
+        return lambda: query_state_vidrial_fused(**inputs)
 
 
 class QueryStateTriton():

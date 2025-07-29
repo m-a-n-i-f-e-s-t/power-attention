@@ -165,9 +165,12 @@ from power_attention._query_state import (
     query_state_triton,
     query_state_vidrial_reference,
     query_state_vidrial,
+    query_state_vidrial_fused,
+    query_state_vidrial_fused_reference,
 )
 query_state_input_output = {'create_inputs': query_state_create_inputs, 'input_properties': query_state_input_properties, 'output_properties': query_state_output_properties}
 query_state_vidrial_input_output = {'create_inputs': partial(query_state_create_inputs, use_vidrial_layout=True), 'input_properties': partial(query_state_input_properties, use_vidrial_layout=True), 'output_properties': partial(query_state_output_properties, use_vidrial_layout=True)}
+query_state_fused_input_output = {'create_inputs': partial(query_state_create_inputs, fused_norm=True, use_vidrial_layout=True), 'input_properties': partial(query_state_input_properties, fused_norm=True, use_vidrial_layout=True), 'output_properties': partial(query_state_output_properties)}
 query_state_fn_sets = [
     {'name': 'query_state_reference', 'extends': 'query_state', 'impl': 'reference',
         'fn': query_state_reference, 'fwd': query_state_reference_fwd, **query_state_input_output},
