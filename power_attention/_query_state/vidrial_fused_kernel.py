@@ -1,6 +1,6 @@
 # A query state implementation that fuses the normalizer into a dimension of the output tensor, using a custom kernel.
 import torch
-from vidrial.mosaic.utils.common import default_d_tile
+from vidrial.py_utils.common import default_d_tile
 from vidrial.kernels.sympow_mma_normalized.interface import sympow_mma_normalized
 import math
 

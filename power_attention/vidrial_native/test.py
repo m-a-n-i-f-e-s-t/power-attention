@@ -1,7 +1,7 @@
 import pytest
 import torch as th
 from power_attention.vidrial_native.impl import PowerAttention, ChunkedPowerAttention
-from vidrial.mosaic.utils.test_utils import diff
+from vidrial.py_utils.test_utils import diff
 
 import logging
 logging.basicConfig(level=logging.DEBUG)

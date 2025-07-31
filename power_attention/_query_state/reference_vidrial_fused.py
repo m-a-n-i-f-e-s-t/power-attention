@@ -1,7 +1,7 @@
 import torch
 import math
 from vidrial.kernels.sympow.interface import interface_reference as sympow_reference
-from vidrial.mosaic.utils.common import default_d_tile
+from vidrial.py_utils.common import default_d_tile
 
 
 def query_state_normalize_ref(Y_qs, l_qs, Y_attn, l_attn, rowmax, deg, scale, D, zero_initial_state=True):

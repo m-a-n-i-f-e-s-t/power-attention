@@ -3,7 +3,7 @@ import torch
 import torch.nn.functional as F
 from power_attention._utils import compute_expanded_dim
 from torch.utils._pytree import tree_map
-from vidrial.mosaic.utils.common import default_d_tile
+from vidrial.py_utils.common import default_d_tile
 from vidrial.kernels.sympow_mma.dimensions import sympow_dim
 
 

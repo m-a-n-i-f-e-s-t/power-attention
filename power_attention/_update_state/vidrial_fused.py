@@ -2,7 +2,7 @@ import torch
 import sys
 from pathlib import Path
 
-from vidrial.mosaic.utils.common import default_d_tile
+from vidrial.py_utils.common import default_d_tile
 from vidrial.kernels.sympow_mma.dimensions import sympow_dim
 from vidrial.kernels.sympow_mma.op import op as sympow_mma
 

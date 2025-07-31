@@ -1,7 +1,7 @@
 import torch
 from power_attention._utils import compute_expanded_dim
 from torch.utils._pytree import tree_map
-from vidrial.mosaic.utils.common import default_d_tile
+from vidrial.py_utils.common import default_d_tile
 from vidrial.kernels.sympow_mma.dimensions import sympow_dim
 
 def create_inputs(b=2, n=4, c=128, h=8, d=32, deg=2, dtype=torch.float16, device='cuda', seed=42, d_tile=None, use_vidrial_layout=False, requires_grad=False):

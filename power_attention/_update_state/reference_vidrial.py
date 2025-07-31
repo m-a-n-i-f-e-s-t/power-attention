@@ -2,7 +2,7 @@ import torch
 from einops import rearrange
 from power_attention._utils import dummify
 from vidrial.kernels.sympow.interface import interface_reference as sympow_reference
-from vidrial.mosaic.utils.common import default_d_tile
+from vidrial.py_utils.common import default_d_tile
 
 def update_state(K, V, deg, d_tile=None):
     """Reference implementation of the chunk state forward pass

@@ -19,7 +19,7 @@ from .db import KVDB
 from .benchmarks.runs import *  # noqa
 from ._utils import tensors_to_ones_like
 from power_attention._update_state import default_D
-from vidrial.mosaic.utils.gpu import get_cuda_device_basic_props
+from vidrial.py_utils.gpu import get_cuda_device_basic_props
 from vidrial.jit.decorator import set_settings, PickBest
 
 benchmark_db = KVDB(os.path.expanduser('~/.power-attention-benchmark.db'))

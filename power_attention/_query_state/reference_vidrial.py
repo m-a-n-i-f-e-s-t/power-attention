@@ -3,7 +3,7 @@ import math
 from einops import rearrange
 from power_attention._utils import dummify, compute_expanded_dim, diff
 from vidrial.kernels.sympow.interface import interface_reference as sympow_reference
-from vidrial.mosaic.utils.common import default_d_tile
+from vidrial.py_utils.common import default_d_tile
 
 def query_state(Q, S, s, Y_attn, l_attn, rowmax, deg, scale, zero_initial_state, d_tile=None):
     """Compute query state output. It computes the following equation:
