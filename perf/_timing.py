@@ -1,7 +1,20 @@
 from collections.abc import Iterable
-
+from functools import wraps
+import inspect
 import torch
 from perf._utils import clone_or_none, prune_non_tensors, tensors_to_ones_like
+
+
+def sanitize_kwargs(fn):
+    """
+    Sanitizes kwargs by removing any that are not in the function signature.
+    """
+    @wraps(fn)
+    def wrapper(**kwargs):
+        sig = inspect.signature(fn)
+        valid_kwargs = {k: v for k, v in kwargs.items() if k in sig.parameters}
+        return fn(**valid_kwargs)
+    return wrapper
 
 
 def get_compiled_version(fn, inputs, direction, warmup=3, compile=True):
@@ -18,9 +31,9 @@ def get_compiled_version(fn, inputs, direction, warmup=3, compile=True):
     # Define functions
     def fwd():
         with torch.no_grad():
-            return fn(**inputs)
+            return sanitize_kwargs(fn)(**inputs)
     torch._dynamo.config.compiled_autograd = True
-    outputs = fn(**inputs)
+    outputs = sanitize_kwargs(fn)(**inputs)
     grads = tensors_to_ones_like(outputs)
     def bwd():
         nonlocal grads, outputs
@@ -30,7 +43,7 @@ def get_compiled_version(fn, inputs, direction, warmup=3, compile=True):
     torch._dynamo.config.compiled_autograd = False
     def fwd_bwd():
         nonlocal grads
-        outputs = fn(**inputs)
+        outputs = sanitize_kwargs(fn)(**inputs)
         tuples = [(o, g) for o, g in zip(outputs, grads) if o.requires_grad]
         outputs, grads = [t[0] for t in tuples], [t[1] for t in tuples]
         torch.autograd.backward(outputs, grad_tensors=grads)
@@ -76,7 +89,7 @@ def wrap_with_timer(fn, n=10, warmup=3):
         end_events = [torch.cuda.Event(enable_timing=True) for _ in range(n)]
         for i in range(n):
             flush_cache()
-            torch.cuda._sleep(1_000_000)
+            torch.cuda._sleep(5_000_000_0)
             start_events[i].record()
             out = fn(*args, **kwargs)
             end_events[i].record()

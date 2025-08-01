@@ -65,6 +65,8 @@ def get_violation_pct(gold, ref, test, tol, atol=0):
         violation_pct = 0.
         for _gold, _ref, _test in zip(gold, ref, test, strict=True):
             violation_pct = max(violation_pct, get_violation_pct(_gold, _ref, _test, tol, atol))
+    elif gold is None and ref is None and test is None:
+        return 0.
     else:
         raise ValueError(f"Unsupported type: {type(gold)}")
     return violation_pct

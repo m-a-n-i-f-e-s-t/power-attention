@@ -38,11 +38,7 @@ def _query_state_normalize_fwd(Y_qs, L_qs, Y_attn, L_attn, M, O, L,
         
         y = tl.zeros((BLOCK_T, BLOCK_E_VALID), dtype=tl.float32)
         l = tl.zeros((BLOCK_T,), dtype=tl.float32)
-        if off_n == 0 and zero_initial_state:
-            gamma = 1.0
-            gamma = gamma.to(tl.float32)
-        else:
-            gamma = tl.sqrt(D).to(tl.float32)
+        gamma = tl.sqrt(D).to(tl.float32)
         
         mask_T = range_t < c
         
@@ -51,18 +47,18 @@ def _query_state_normalize_fwd(Y_qs, L_qs, Y_attn, L_attn, M, O, L,
         p_l_attn = L_attn + range_t * stride_Lattn_t
         p_y_qs = Y_qs + range_t[:, None] * stride_Yqs_t + range_e[None, :] * stride_Yqs_e
         p_l_qs = L_qs + range_t * stride_Lqs_t
-        rowmax = tl.load(p_m, mask=mask_T, other=float(0.0)) # BLOCK_T
+        rowmax = tl.load(p_m, mask=mask_T, other=-float('inf')) # BLOCK_T
         y_attn = tl.load(p_y_attn, mask=mask_T[:, None], other=0.).to(tl.float32) # BLOCK_T x BLOCK_E_VALID
         l_attn = tl.load(p_l_attn, mask=mask_T, other=0.).to(tl.float32) # BLOCK_T
         y_qs = tl.load(p_y_qs, mask=mask_T[:, None], other=0.).to(tl.float32) # BLOCK_T x BLOCK_E_VALID
         l_qs = tl.load(p_l_qs, mask=mask_T, other=0.).to(tl.float32) # BLOCK_T
         m = tl.exp(rowmax)
         alpha = tl.maximum(gamma, m) # BLOCK_T
-        qs_factor = gamma / alpha # BLOCK_T
+        qs_factor = scale_p * gamma / alpha # BLOCK_T
         attn_factor = m / alpha # BLOCK_T
         
-        o = y_attn * attn_factor[:, None] + y_qs * scale_p * qs_factor[:, None] # BLOCK_T x BLOCK_E_VALID
-        l = l_attn * attn_factor + l_qs * scale_p * qs_factor # BLOCK_T
+        o = y_attn * attn_factor[:, None] + y_qs * qs_factor[:, None] # BLOCK_T x BLOCK_E_VALID
+        l = l_attn * attn_factor + l_qs * qs_factor # BLOCK_T
         o = o / l[:, None] # BLOCK_T x BLOCK_E_VALID
         
         # store y back to O

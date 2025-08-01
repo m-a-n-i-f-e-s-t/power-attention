@@ -32,6 +32,9 @@ def inspect_diff_details(gold, ref, test, tol, atol=0, num_vals=10):
     """
     if isinstance(gold, torch.Tensor):
         assert isinstance(ref, torch.Tensor) and isinstance(test, torch.Tensor), "If gold is tensor, ref and test must also be tensors"
+        gold = gold.contiguous()
+        ref = ref.contiguous()
+        test = test.contiguous()
         gold_ref_diff = torch.abs(gold - ref)
         gold_test_diff = torch.abs(gold - test)
         abs_error = (gold_test_diff - ((1 + tol) * gold_ref_diff + atol))

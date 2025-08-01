@@ -7,6 +7,12 @@ from vidrial.kernels.sympow_mma.dimensions import sympow_dim
 from vidrial.kernels.sympow_mma.op import op as sympow_mma
 
 def update_state(K, V, deg, d_tile=None):
+    if len(K.shape) == 4: # inference call
+        K = K.unsqueeze(1) # [b, 1, c, h, d]
+        V = V.unsqueeze(1) # [b, 1, c, h, d]
+        S = update_state(K, V, deg, d_tile)
+        return S.squeeze(1)
+
     b, n, c, h, d = K.shape
     B = b * n * h
     d_tile = default_d_tile(d, deg) if d_tile is None else d_tile

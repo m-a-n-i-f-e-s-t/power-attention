@@ -12,6 +12,8 @@ from power_attention._utils import diff
 
 def sanity_check_tensor(tensor):
     """ Perform a sanity check on a tensor."""
+    if tensor is None:
+        return
     if not torch.isfinite(tensor).all():
         non_finite_indices = torch.argwhere(~torch.isfinite(tensor))
         torch.set_printoptions(edgeitems=10)
@@ -197,7 +199,7 @@ def check_fn_compiles_with_backward(fn, inputs, rtol=None, atol=None):
     def fwd_bwd():
         output_or_outputs = fn(**inputs)
         if not isinstance(output_or_outputs, torch.Tensor):
-            output_or_outputs = [o for o in output_or_outputs if o.requires_grad]
+            output_or_outputs = [o for o in output_or_outputs if o is not None and o.requires_grad]
         output_grads = torch.ones_like(output_or_outputs) if isinstance(output_or_outputs, torch.Tensor) else [torch.ones_like(o) for o in output_or_outputs]
         torch.autograd.backward(output_or_outputs, grad_tensors=output_grads, retain_graph=True)
         return clone_grads(inputs)
@@ -272,12 +274,19 @@ def check_fn_forwards_match(*, ref_fn, gold_inputs, test_fn, test_inputs, rtol=N
         atol: float. Absolute tolerance for difference
         diff_tol: float. Tolerance for percentage of elements that differ
     """
-    # ref_inputs = clone_inputs(test_inputs)
+    def filter_none(outputs):
+        if isinstance(outputs, torch.Tensor):
+            return outputs
+        elif isinstance(outputs, (tuple, list)):
+            return [o for o in outputs if o is not None]
+        else:
+            raise ValueError(f"Unsupported type: {type(outputs)}")
     ref_inputs = test_inputs
     with torch.no_grad():
-        gold_output = ref_fn(**gold_inputs)
-        ref_output = ref_fn(**ref_inputs)
-        test_output = test_fn(**test_inputs)
+        gold_output = filter_none(ref_fn(**gold_inputs))
+        ref_output = filter_none(ref_fn(**ref_inputs))
+        test_output = filter_none(test_fn(**test_inputs))
+
     sanity_check_tensors([gold_output, ref_output, test_output])
     ref_err = compare(gold_output, ref_output)
     test_err = compare(gold_output, test_output)
@@ -287,6 +296,7 @@ def check_fn_forwards_match(*, ref_fn, gold_inputs, test_fn, test_inputs, rtol=N
         violation_pct = get_violation_pct(gold_output, ref_output, test_output, tol=rtol, atol=atol)
         if diff_tol is not None and violation_pct < diff_tol:
             return
+            
         msg = inspect_diff_details(gold_output, ref_output, test_output, tol=rtol, atol=atol)
         if isinstance(gold_output, torch.Tensor):
             gold_output = [gold_output]

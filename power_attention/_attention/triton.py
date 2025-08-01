@@ -65,7 +65,7 @@ def attention_reference(Q, K, V, log_G, deg, scale, r=1, w=1, causal=True, head_
 
 fwd_configs = [
     triton.Config({'BM': BM, 'BN': BN}, num_stages=s, num_warps=w) \
-    for BM in [64, 128, 256]\
+    for BM in [16, 32, 64, 128]\
     for BN in [32, 64]\
     for s in [1, 2, 3]\
     for w in [4, 8]
@@ -77,6 +77,13 @@ def keep(conf):
     if BM * BN < 128 * 128 and conf.num_warps == 8:
         return False
     return True
+
+def prune_fwd_configs(configs, nargs, **kwargs):
+    pruned_configs = []
+    for config in configs:
+        if config.kwargs["BM"] % kwargs["r"] == 0 and config.kwargs["BN"] % kwargs["w"] == 0:
+            pruned_configs.append(config)
+    return pruned_configs
 
 @triton.jit
 def _power(a, deg: tl.constexpr):
@@ -100,12 +107,11 @@ def _attn_fwd_inner(acc, l_i, m_i, q, gq, p_k, p_gk, p_v, #
                      deg: tl.constexpr, scale: tl.constexpr, gating: tl.constexpr, BM: tl.constexpr, #
                      BN: tl.constexpr, DIM_QK: tl.constexpr, DIM_VO: tl.constexpr, #
                      M_CTX: tl.constexpr, N_CTX: tl.constexpr, STAGE: tl.constexpr, use_log2: tl.constexpr):
+    offset = N_CTX - M_CTX * w // r
     if STAGE == 1: # causal, non-masking part
-        lo, hi = 0, start_m * BM
+        lo, hi = 0, ((start_m * BM) * w // r + offset) // BN * BN
     elif STAGE == 2: # causal, masking part
-        lo, hi = start_m * BM, (start_m + 1) * BM
-        lo = tl.multiple_of(lo, BM)
-        hi = tl.multiple_of(hi, BM)
+        lo, hi = ((start_m * BM) * w // r + offset) // BN * BN, ((((start_m + 1) * BM) * w // r + offset) + (BN - 1)) // BN * BN
     else: # non-causal
         lo, hi = 0, N_CTX
 
@@ -131,7 +137,7 @@ def _attn_fwd_inner(acc, l_i, m_i, q, gq, p_k, p_gk, p_v, #
         if gating:
             s = s + gq[:, None] - gk[None, :]
         if STAGE == 2:
-            mask = (range_m[:, None] // r) >= ((start_n + range_n[None, :]) // w)
+            mask = (range_m[:, None] // r + N_CTX // w - M_CTX // r) >= ((start_n + range_n[None, :]) // w)
             s = s + tl.where(mask, 0., -float("inf"))
         m_ij = tl.maximum(m_i, tl.max(s, 1))
         if deg % 2 == 0:
@@ -164,7 +170,7 @@ def _attn_fwd_inner(acc, l_i, m_i, q, gq, p_k, p_gk, p_v, #
     return acc, l_i, m_i
 
 
-@triton.autotune(list(filter(keep, fwd_configs)), key=["M_CTX", "N_CTX", "DIM_QK", "DIM_VO", "r", "w", "gating", "deg", "norm"])
+@triton.autotune(list(filter(keep, fwd_configs)), key=["M_CTX", "N_CTX", "DIM_QK", "DIM_VO", "r", "w", "gating", "deg", "norm"], prune_configs_by={'early_config_prune': prune_fwd_configs})
 @triton.jit
 def _attn_fwd(Q, K, V, LOG_GQ, LOG_GK, L, M, Out,  #
               stride_qb, stride_qh, stride_qm, stride_qd,  #
@@ -178,7 +184,7 @@ def _attn_fwd(Q, K, V, LOG_GQ, LOG_GK, L, M, Out,  #
               H, M_CTX, N_CTX, r: tl.constexpr, w: tl.constexpr, #
               deg: tl.constexpr, scale: tl.constexpr, gating: tl.constexpr,  #
               DIM_QK: tl.constexpr, DIM_VO: tl.constexpr, STAGE: tl.constexpr,  #
-              BM: tl.constexpr, BN: tl.constexpr, norm: tl.constexpr, use_log2: tl.constexpr):
+              norm: tl.constexpr, use_log2: tl.constexpr, BM: tl.constexpr, BN: tl.constexpr):
     tl.static_assert(BM % r == 0, "BM must be divisible by r")
     tl.static_assert(BN % w == 0, "BN must be divisible by w")
     start_m = tl.program_id(0)
@@ -248,27 +254,45 @@ def _attn_fwd(Q, K, V, LOG_GQ, LOG_GK, L, M, Out,  #
     tl.store(p_o, acc.to(Out.type.element_ty), boundary_check=(0, 1))
 
 
-bwd_configs = [
-    triton.Config({'BN1': BN1, 'BM1': BM1, 'BN2': BN2, 'BM2': BM2, 'BLK_SLICE_FACTOR': BLK_SLICE_FACTOR}, num_stages=s, num_warps=w) \
+bwd_configs_dkdv = [
+    triton.Config({'BN1': BN1, 'BM1': BM1, 'BLK_SLICE_FACTOR': BLK_SLICE_FACTOR}, num_stages=s, num_warps=w) \
     for BN1 in [64, 128]\
     for BM1 in [16, 32]\
-    for BM2 in [64, 128]\
-    for BN2 in [16, 32]\
     for s in [1, 3]\
     for w in [4, 8]\
     for BLK_SLICE_FACTOR in [1, 2]\
 ]
 
-def keep_bwd(conf):
-    BM1 = conf.kwargs["BM1"]
-    BN1 = conf.kwargs["BN1"]
-    BM2 = conf.kwargs["BM2"]
-    BN2 = conf.kwargs["BN2"]
-    FACTOR = conf.kwargs["BLK_SLICE_FACTOR"]
-    if BN1 != BM2 or BN2 // FACTOR < 16 or BM1 // FACTOR < 16:
-        return False
-    return True
+def prune_bwd_dkdv_configs(configs, nargs, **kwargs):
+    pruned_configs = []
+    for config in configs:
+        if config.kwargs["BM1"] % kwargs["r"] == 0 and config.kwargs["BN1"] % kwargs["w"] == 0:
+            pruned_configs.append(config)
+    return pruned_configs
 
+bwd_configs_dq = [
+    triton.Config({'BN2': BN2, 'BM2': BM2, 'BLK_SLICE_FACTOR': BLK_SLICE_FACTOR}, num_stages=s, num_warps=w) \
+    for BM2 in [64, 128]\
+    for BN2 in [16, 32]\
+    for s in [1, 3]\
+    for w in [4, 8]\
+    for BLK_SLICE_FACTOR in [1]\
+]
+
+def prune_bwd_dq_configs(configs, nargs, **kwargs):
+    pruned_configs = []
+    for config in configs:
+        if config.kwargs["BM2"] % kwargs["r"] == 0 and config.kwargs["BN2"] % kwargs["w"] == 0:
+            pruned_configs.append(config)
+    return pruned_configs
+
+def keep_bwd(conf):
+    FACTOR = conf.kwargs["BLK_SLICE_FACTOR"]
+    if 'BM1' in conf.kwargs:
+        return conf.kwargs["BM1"] // FACTOR >= 16
+    elif 'BN2' in conf.kwargs:
+        return conf.kwargs["BN2"] // FACTOR >= 16
+    raise ValueError(f"Invalid config: {conf.kwargs}")
 
 preprocess_configs = [
     triton.Config({'BM': BM})
@@ -335,7 +359,7 @@ def _attn_bwd_dkdv(dk, dv, dgk, k, v, gk, #
         p_m = M + range_m * stride_mm
         m = tl.load(p_m, mask=range_m < M_CTX, other=float("inf"))
         if MASK:
-            mask = (range_m[None, :] // r) >= (range_n[:, None] // w)
+            mask = (range_m[None, :] // r + N_CTX // w - M_CTX // r) >= (range_n[:, None] // w)
             zT = tl.where(mask, zT, -float("inf"))
         if use_log2:
             pT = tl.exp2(zT - m[None, :])
@@ -411,7 +435,7 @@ def _attn_bwd_dq(dq, dgq, q, gq, do, m, dl_or_delta, #
         if gating:
             z = z + gq[:, None] - gk[None, :]
         if MASK:
-            mask = (range_m[:, None] // r) >= (range_n[None, :] // w)
+            mask = (range_m[:, None] // r + N_CTX // w - M_CTX // r) >= (range_n[None, :] // w)
             z = tl.where(mask, z, -float("inf"))
         
         if use_log2:
@@ -442,9 +466,9 @@ def _attn_bwd_dq(dq, dgq, q, gq, do, m, dl_or_delta, #
     return dq, dgq
 
 
-@triton.autotune(list(filter(keep_bwd, bwd_configs)), key=["M_CTX", "N_CTX", "DIM_QK", "DIM_VO", "r", "w", "gating", "deg"])
+@triton.autotune(list(filter(keep_bwd, bwd_configs_dkdv)), key=["M_CTX", "N_CTX", "DIM_QK", "DIM_VO", "r", "w", "gating", "deg"], prune_configs_by={'early_config_prune': prune_bwd_dkdv_configs})
 @triton.jit
-def _attn_bwd(Q, K, V, LOG_GQ, LOG_GK, M, Delta, DO, DL, DQ, DK, DV, DLOG_GQ, DLOG_GK, #
+def attn_bwd_dkdv(Q, K, V, LOG_GQ, LOG_GK, M, Delta, DO, DL, DQ, DK, DV, DLOG_GQ, DLOG_GK, #
               stride_qb, stride_qh, stride_qm, stride_qd, #
               stride_kb, stride_kh, stride_kn, stride_kd, #
               stride_vb, stride_vh, stride_vn, stride_ve, #
@@ -457,7 +481,7 @@ def _attn_bwd(Q, K, V, LOG_GQ, LOG_GK, M, Delta, DO, DL, DQ, DK, DV, DLOG_GQ, DL
               stride_dvb, stride_dvh, stride_dvn, stride_dve, #
               stride_gqb, stride_gqh, stride_gqm, #
               stride_gkb, stride_gkh, stride_gkn, #
-              H, M_CTX, N_CTX, r, w, #
+              H, M_CTX, N_CTX, r: tl.constexpr, w: tl.constexpr, #
               deg: tl.constexpr,  #
               scale: tl.constexpr,  #
               gating: tl.constexpr,  #
@@ -466,20 +490,15 @@ def _attn_bwd(Q, K, V, LOG_GQ, LOG_GK, M, Delta, DO, DL, DQ, DK, DV, DLOG_GQ, DL
               STAGE: tl.constexpr,  #
               BM1: tl.constexpr,  #
               BN1: tl.constexpr,  #
-              BM2: tl.constexpr,  #
-              BN2: tl.constexpr,  #
               BLK_SLICE_FACTOR: tl.constexpr,  #
               norm: tl.constexpr,  #
               use_log2: tl.constexpr,  #
               ):
     if STAGE == 3:
         tl.static_assert((BM1 // BLK_SLICE_FACTOR) % r == 0, "Sliced BM1 must be divisible by w")
-        tl.static_assert((BN2 // BLK_SLICE_FACTOR) % w == 0, "Sliced BN2 must be divisible by w")
     else:
         tl.static_assert(BM1 % r == 0, "BM1 must be divisible by r")
-        tl.static_assert(BN2 % w == 0, "BN2 must be divisible by w")
     tl.static_assert(BN1 % w == 0, "BN1 must be divisible by w")
-    tl.static_assert(BM2 % r == 0, "BM2 must be divisible by r")
 
     off_bh = tl.program_id(1)
     off_b = off_bh // H
@@ -523,9 +542,11 @@ def _attn_bwd(Q, K, V, LOG_GQ, LOG_GK, M, Delta, DO, DL, DQ, DK, DV, DLOG_GQ, DL
     else:
         gk = None
 
-    start_m = start_n if STAGE == 3 else 0
+    offset = (N_CTX - M_CTX * w // r)
+    start_m = (max(0, start_n - offset)) * r // w // MASK_BLOCK_M1 * MASK_BLOCK_M1 if STAGE == 3 else 0
     if STAGE & 2: # masked blocks
-        num_steps = BN1 // MASK_BLOCK_M1
+        end_m = tl.cdiv((max(0, start_n - offset) + BN1) * r // w, MASK_BLOCK_M1) * MASK_BLOCK_M1
+        num_steps = (end_m - start_m) // MASK_BLOCK_M1
         dk, dv, dgk = _attn_bwd_dkdv(dk, dv, dgk, k, v, gk, #
                                     Q, LOG_GQ, DO, M, Delta, DL, #
                                     stride_qm, stride_qd, stride_dom, stride_doe, stride_gqm, stride_mm, stride_dm, stride_dlm, #
@@ -554,6 +575,62 @@ def _attn_bwd(Q, K, V, LOG_GQ, LOG_GK, M, Delta, DO, DL, DQ, DK, DV, DLOG_GQ, DL
     if gating:
         p_dgk = DLOG_GK + range_n * stride_gkn
         tl.store(p_dgk, dgk, mask=mask_dkv)
+
+
+@triton.autotune(list(filter(keep_bwd, bwd_configs_dq)), key=["M_CTX", "N_CTX", "DIM_QK", "DIM_VO", "r", "w", "gating", "deg"], prune_configs_by={'early_config_prune': prune_bwd_dq_configs})
+@triton.jit
+def attn_bwd_dq(Q, K, V, LOG_GQ, LOG_GK, M, Delta, DO, DL, DQ, DK, DV, DLOG_GQ, DLOG_GK, #
+              stride_qb, stride_qh, stride_qm, stride_qd, #
+              stride_kb, stride_kh, stride_kn, stride_kd, #
+              stride_vb, stride_vh, stride_vn, stride_ve, #
+              stride_mb, stride_mh, stride_mm, #
+              stride_db, stride_dh, stride_dm, #
+              stride_dob, stride_doh, stride_dom, stride_doe, #
+              stride_dlb, stride_dlh, stride_dlm, #
+              stride_dqb, stride_dqh, stride_dqm, stride_dqd, #
+              stride_dkb, stride_dkh, stride_dkn, stride_dkd, #
+              stride_dvb, stride_dvh, stride_dvn, stride_dve, #
+              stride_gqb, stride_gqh, stride_gqm, #
+              stride_gkb, stride_gkh, stride_gkn, #
+              H, M_CTX, N_CTX, r: tl.constexpr, w: tl.constexpr, #
+              deg: tl.constexpr,  #
+              scale: tl.constexpr,  #
+              gating: tl.constexpr,  #
+              DIM_QK: tl.constexpr,  #
+              DIM_VO: tl.constexpr,  #
+              STAGE: tl.constexpr,  #
+              BM2: tl.constexpr,  #
+              BN2: tl.constexpr,  #
+              BLK_SLICE_FACTOR: tl.constexpr,  #
+              norm: tl.constexpr,  #
+              use_log2: tl.constexpr,  #
+              ):
+    if STAGE == 3:
+        tl.static_assert((BN2 // BLK_SLICE_FACTOR) % w == 0, "Sliced BN2 must be divisible by w")
+    else:
+        tl.static_assert(BN2 % w == 0, "BN2 must be divisible by w")
+    tl.static_assert(BM2 % r == 0, "BM2 must be divisible by r")
+
+    off_bh = tl.program_id(1)
+    off_b = off_bh // H
+    off_h = off_bh % H
+    log_scale = tl.log2(scale) if use_log2 else tl.log(scale)
+
+    Q += off_b.to(tl.int64) * stride_qb + off_h.to(tl.int64) * stride_qh
+    K += off_b.to(tl.int64) * stride_kb + off_h.to(tl.int64) * stride_kh
+    V += off_b.to(tl.int64) * stride_vb + off_h.to(tl.int64) * stride_vh
+    M += off_b.to(tl.int64) * stride_mb + off_h.to(tl.int64) * stride_mh
+    Delta += off_b.to(tl.int64) * stride_db + off_h.to(tl.int64) * stride_dh
+    DO += off_b.to(tl.int64) * stride_dob + off_h.to(tl.int64) * stride_doh
+    DL += off_b.to(tl.int64) * stride_dlb + off_h.to(tl.int64) * stride_dlh
+    DQ += off_b.to(tl.int64) * stride_dqb + off_h.to(tl.int64) * stride_dqh
+    DK += off_b.to(tl.int64) * stride_dkb + off_h.to(tl.int64) * stride_dkh
+    DV += off_b.to(tl.int64) * stride_dvb + off_h.to(tl.int64) * stride_dvh
+    if gating:
+        LOG_GQ += off_b.to(tl.int64) * stride_gqb + off_h.to(tl.int64) * stride_gqh
+        LOG_GK += off_b.to(tl.int64) * stride_gkb + off_h.to(tl.int64) * stride_gkh
+        DLOG_GQ += off_b.to(tl.int64) * stride_gqb + off_h.to(tl.int64) * stride_gqh
+        DLOG_GK += off_b.to(tl.int64) * stride_gkb + off_h.to(tl.int64) * stride_gkh
 
     # -- Second part: compute dq
     start_m = tl.program_id(0) * BM2
@@ -584,15 +661,17 @@ def _attn_bwd(Q, K, V, LOG_GQ, LOG_GK, M, Delta, DO, DL, DQ, DK, DV, DLOG_GQ, DL
     dq = tl.zeros([BM2, DIM_QK], dtype=tl.float32)
     dgq = tl.zeros([BM2,], dtype=tl.float32)
 
-    end_n = (start_m + BM2) if STAGE & 2 else M_CTX
+    offset = N_CTX - M_CTX * w // r
+    end_n = tl.cdiv((start_m + BM2) * w // r + offset, MASK_BLOCK_N2) * MASK_BLOCK_N2 if STAGE & 2 else N_CTX
     if STAGE & 2: # masked blocks
-        num_steps = BM2 // MASK_BLOCK_N2
+        start_n = (start_m * w // r + offset) // MASK_BLOCK_N2 * MASK_BLOCK_N2
+        num_steps = (end_n - start_n) // MASK_BLOCK_N2
         dq, dgq = _attn_bwd_dq(dq, dgq, q, gq, do, m, dl_or_delta, #
                                K, V, LOG_GK, #
                                stride_kn, stride_kd, stride_vn, stride_ve, stride_gkn, #
                                M_CTX, N_CTX, r, w, #
                                deg, log_scale, gating, BM2, MASK_BLOCK_N2, DIM_QK, DIM_VO, #
-                               start_m, end_n - num_steps * MASK_BLOCK_N2, num_steps, #
+                               start_m, start_n, num_steps, #
                                MASK=True, use_log2=use_log2)
         end_n -= num_steps * MASK_BLOCK_N2
     
@@ -645,27 +724,28 @@ class _power_attention(torch.autograd.Function):
                 rowmax: (B, H_Q // R, CTX) if head_first else (B, CTX, H_Q // R)
         """
         if head_first:
-            b, hq, t, d, hk, e = *Q.shape, K.shape[1], V.shape[-1]
+            b, hq, tq, d, hk, tk, e = *Q.shape, K.shape[1], K.shape[2], V.shape[-1]
         else:
-            b, t, hq, d, hk, e = *Q.shape, K.shape[2], V.shape[-1]
-        assert r in {1, 2, 4, 8, 16}, "r must be 1, 2, 4, 8, or 16"
-        assert w in {1, 2, 4, 8, 16}, "w must be 1, 2, 4, 8, or 16"
+            b, tq, hq, d, tk, hk, e = *Q.shape, K.shape[1], K.shape[2], V.shape[-1]
+        assert r & (r - 1) == 0, "r must be a power of 2"
+        assert w == 1, "w must be 1"
         assert hq % r == 0, "hq must be divisible by r"
         assert hk % w == 0, "hk must be divisible by w"
         assert hq // r == hk // w, "hq // r must be equal to hk // w"
         assert isinstance(deg, int) and deg > 0, "deg must be a positive integer"
         assert d in {16, 32, 64, 128, 256}, "d must be 16, 32, 64, 128, or 256"
         assert e in {16, 32, 64, 128, 256}, "e must be 16, 32, 64, 128, or 256"
+        assert w == 1, "w>1 not well supported yet"
 
         h = hq // r
         gating = log_G is not None
         if use_log2:
             log_G = log_G * math.log2(math.e)
         if head_first:
-            o = torch.empty((b, h, t, e), device=Q.device, dtype=Q.dtype)
+            o = torch.empty((b, h, tq * r, e), device=Q.device, dtype=Q.dtype)
             if gating:
-                assert log_G.shape == (b, h, t)
-                log_GQ = log_G.repeat_interleave(r, dim=2)
+                assert log_G.shape == (b, hk, tk)
+                log_GQ = log_G.narrow(2, -tq, tq).repeat_interleave(r, dim=2)
                 log_GK = log_G.repeat_interleave(w, dim=2)
                 gq_strides = (log_GQ.stride(0), log_GQ.stride(1), log_GQ.stride(2))
                 gk_strides = (log_GK.stride(0), log_GK.stride(1), log_GK.stride(2))
@@ -674,11 +754,11 @@ class _power_attention(torch.autograd.Function):
                 log_GK = None
                 gq_strides = (0, 0, 0)
                 gk_strides = (0, 0, 0)
-            Q = Q.view(b, h, t * r, d)
-            K = K.view(b, h, t * w, d)
-            V = V.view(b, h, t * w, e)
-            rowmax = torch.empty((b, h, t), device=Q.device, dtype=torch.float32)
-            l = torch.empty((b, h, t), device=Q.device, dtype=torch.float32)
+            Q = Q.view(b, h, tq * r, d)
+            K = K.view(b, h, tk * w, d)
+            V = V.view(b, h, tk * w, e)
+            rowmax = torch.empty((b, h, tq * r), device=Q.device, dtype=torch.float32)
+            l = torch.empty((b, h, tq * r), device=Q.device, dtype=torch.float32)
             q_strides = (Q.stride(0), Q.stride(1), Q.stride(2), Q.stride(3))
             k_strides = (K.stride(0), K.stride(1), K.stride(2), K.stride(3))
             v_strides = (V.stride(0), V.stride(1), V.stride(2), V.stride(3))
@@ -686,10 +766,10 @@ class _power_attention(torch.autograd.Function):
             rowmax_strides = (rowmax.stride(0), rowmax.stride(1), rowmax.stride(2))
             o_strides = (o.stride(0), o.stride(1), o.stride(2), o.stride(3))
         else:
-            o = torch.empty((b, t, h, e), device=Q.device, dtype=Q.dtype)
+            o = torch.empty((b, tq * r, h, e), device=Q.device, dtype=Q.dtype)
             if gating:
-                assert log_G.shape == (b, t, h)
-                log_GQ = log_G.repeat_interleave(r, dim=1)
+                assert log_G.shape == (b, tk, h)
+                log_GQ = log_G.narrow(1, -tq, tq).repeat_interleave(r, dim=1)
                 log_GK = log_G.repeat_interleave(w, dim=1)
                 gq_strides = (log_GQ.stride(0), log_GQ.stride(2), log_GQ.stride(1))
                 gk_strides = (log_GK.stride(0), log_GK.stride(2), log_GK.stride(1))
@@ -698,11 +778,11 @@ class _power_attention(torch.autograd.Function):
                 log_GK = None
                 gq_strides = (0, 0, 0)
                 gk_strides = (0, 0, 0)
-            Q = Q.view(b, t * r, h, d)
-            K = K.view(b, t * w, h, d)
-            V = V.view(b, t * w, h, e)
-            rowmax = torch.empty((b, t, h), device=Q.device, dtype=torch.float32)
-            l = torch.empty((b, t, h), device=Q.device, dtype=torch.float32)
+            Q = Q.view(b, tq * r, h, d)
+            K = K.view(b, tk * w, h, d)
+            V = V.view(b, tk * w, h, e)
+            rowmax = torch.empty((b, tq * r, h), device=Q.device, dtype=torch.float32)
+            l = torch.empty((b, tq * r, h), device=Q.device, dtype=torch.float32)
             q_strides = (Q.stride(0), Q.stride(2), Q.stride(1), Q.stride(3))
             k_strides = (K.stride(0), K.stride(2), K.stride(1), K.stride(3))
             v_strides = (V.stride(0), V.stride(2), V.stride(1), V.stride(3))
@@ -712,15 +792,21 @@ class _power_attention(torch.autograd.Function):
 
         stage = 3 if causal else 1
 
-        grid = lambda args: (triton.cdiv(r*t, args["BM"]), b * h)
+        grid = lambda args: (triton.cdiv(r*tq, args["BM"]), b * h)
         _attn_fwd[grid](
             Q, K, V, log_GQ, log_GK, l, rowmax, o, *q_strides, *k_strides, *v_strides, *rowmax_strides, *gq_strides, *gk_strides, *o_strides, *l_strides,
-            H=h, M_CTX=t*r, N_CTX=t*w, r=r, w=w, deg=deg, scale=scale, gating=gating, DIM_QK=d, DIM_VO=e, STAGE=stage, norm=norm, use_log2=use_log2)
-        
+            H=h, M_CTX=tq*r, N_CTX=tk*w, r=r, w=w, deg=deg, scale=scale, gating=gating, DIM_QK=d, DIM_VO=e, STAGE=stage, norm=norm, use_log2=use_log2)
+        o = o.view(b, hq, tq, e) if head_first else o.view(b, tq, hq, e)
+        l = l.view(b, hq, tq) if head_first else l.view(b, tq, hq)
+        rowmax = rowmax.view(b, hq, tq) if head_first else rowmax.view(b, tq, hq)
         ctx.save_for_backward(Q, K, V, l, rowmax, o, log_GQ, log_GK)
         ctx.b = b
         ctx.h = h
-        ctx.t = t
+        ctx.hq = hq
+        ctx.hk = hk
+        ctx.tq = tq
+        ctx.tk = tk
+        ctx.t = tk
         ctx.r = r
         ctx.w = w
         ctx.grid = grid
@@ -749,7 +835,7 @@ class _power_attention(torch.autograd.Function):
             log_GQ = log_GQ.contiguous() # needed for reuse log_GQ's strides for dlog_GQ
             log_GK = log_GK.contiguous() # needed for reuse log_GK's strides for dlog_GK
         do = do.contiguous()
-        b, h, t, stage, norm, gating, use_log2 = ctx.b, ctx.h, ctx.t, ctx.stage, ctx.norm, ctx.gating, ctx.use_log2
+        b, h, hq, hk, tq, tk, stage, norm, gating, use_log2 = ctx.b, ctx.h, ctx.hq, ctx.hk, ctx.tq, ctx.tk, ctx.stage, ctx.norm, ctx.gating, ctx.use_log2
         q_strides, k_strides, v_strides, rowmax_strides, gq_strides, gk_strides = ctx.q_strides, ctx.k_strides, ctx.v_strides, ctx.rowmax_strides, ctx.gq_strides, ctx.gk_strides
         r, w, d, e, deg, scale = ctx.r, ctx.w, ctx.d, ctx.e, ctx.deg, ctx.scale
 
@@ -759,33 +845,55 @@ class _power_attention(torch.autograd.Function):
         delta = torch.empty_like(rowmax) if norm else torch.empty((0, 0, 0))
 
         if ctx.head_first:
+            do = do.view(b, h, tq*r, e)
+            o = o.view(b, h, tq*r, e)
+            dl = dl.view(b, h, tq*r)
+            delta = delta.view(b, h, tq*r) if norm else delta
             do_strides, dQ_strides, dK_strides, dV_strides, o_strides = map(lambda x: (x.stride(0), x.stride(1), x.stride(2), x.stride(3)), (do, dQ, dK, dV, o))
             dl_strides, delta_strides = map(lambda x: (x.stride(0), x.stride(1), x.stride(2)), (dl, delta))
         else:
+            do = do.view(b, tq*r, h, e)
+            o = o.view(b, tq*r, h, e)
+            dl = dl.view(b, tq*r, h)
+            delta = delta.view(b, tq*r, h) if norm else delta
             do_strides, dQ_strides, dK_strides, dV_strides, o_strides = map(lambda x: (x.stride(0), x.stride(2), x.stride(1), x.stride(3)), (do, dQ, dK, dV, o))
             dl_strides, delta_strides = map(lambda x: (x.stride(0), x.stride(2), x.stride(1)), (dl, delta))
 
         if norm:
-            _attn_bwd_preprocess[lambda args: (triton.cdiv(t, args["BM"]), b, h)](
+            _attn_bwd_preprocess[lambda args: (triton.cdiv(tq*r, args["BM"]), b, h)](
                 o, do, delta,
                 *o_strides, *do_strides, *delta_strides,
-                HEAD_DIM=e, M_CTX=t
+                HEAD_DIM=e, M_CTX=tq*r
             )
 
-        _attn_bwd[lambda args: (triton.cdiv(w*t, args["BN1"]), b * h)](
+        attn_bwd_dkdv[lambda args: (triton.cdiv(w*tk, args["BN1"]), b * h)](
             Q, K, V, log_GQ, log_GK, rowmax, delta, do, dl, dQ, dK, dV, dlog_GQ, dlog_GK,
             *q_strides, *k_strides, *v_strides,
             *rowmax_strides, *delta_strides, *do_strides, *dl_strides, 
             *dQ_strides, *dK_strides, *dV_strides,
             *gq_strides, *gk_strides,
-            H=h, M_CTX=t*r, N_CTX=t*w, r=r, w=w, deg=deg, scale=scale, gating=gating, DIM_QK=d, DIM_VO=e, STAGE=stage, norm=norm, use_log2=use_log2)
+            H=h, M_CTX=tq*r, N_CTX=tk*w, r=r, w=w, deg=deg, scale=scale, gating=gating, DIM_QK=d, DIM_VO=e, STAGE=stage, norm=norm, use_log2=use_log2)
+        attn_bwd_dq[lambda args: (triton.cdiv(r*tq, args["BM2"]), b * h)](
+            Q, K, V, log_GQ, log_GK, rowmax, delta, do, dl, dQ, dK, dV, dlog_GQ, dlog_GK,
+            *q_strides, *k_strides, *v_strides,
+            *rowmax_strides, *delta_strides, *do_strides, *dl_strides, 
+            *dQ_strides, *dK_strides, *dV_strides,
+            *gq_strides, *gk_strides,
+            H=h, M_CTX=tq*r, N_CTX=tk*w, r=r, w=w, deg=deg, scale=scale, gating=gating, DIM_QK=d, DIM_VO=e, STAGE=stage, norm=norm, use_log2=use_log2)
         if gating:
+            # TODO(sean): when w>1, the following is incorrect, but we also need to change the way gating works 
+            assert hk == h, "assuming hk == h"
             if ctx.head_first:
-                dlog_G = dlog_GQ.view(b, h, t, r).sum(dim=-1) + dlog_GK.view(b, h, t, w).sum(dim=-1)
+                dlog_G = dlog_GK.view(b, h, tk, w).transpose(2, 3).view(b, hk, tk).contiguous()
+                dlog_G[:, :, -tq:] += dlog_GQ.view(b, h, tq, r).sum(dim=-1)
             else:
-                dlog_G = dlog_GQ.view(b, t, r, h).sum(dim=-2) + dlog_GK.view(b, t, w, h).sum(dim=-2)
+                dlog_G = dlog_GK.view(b, tk, w, h).view(b, tk, hk)
+                dlog_G[:, -tq:, :] += dlog_GQ.view(b, tq, r, h).sum(dim=-2)
         else:
             dlog_G = None
+        dQ = dQ.view(b, hq, tq, d) if ctx.head_first else dQ.view(b, tq, hq, d)
+        dK = dK.view(b, hk, tk, d) if ctx.head_first else dK.view(b, tk, hk, d)
+        dV = dV.view(b, hk, tk, e) if ctx.head_first else dV.view(b, tk, hk, e)
         return dQ, dK, dV, dlog_G, None, None, None, None, None, None, None, None
 
 def _attention_fn(Q, K, V, log_G, deg, r=1, w=1, causal=True, head_first=False, scale=1.0, norm=False, use_log2=False):

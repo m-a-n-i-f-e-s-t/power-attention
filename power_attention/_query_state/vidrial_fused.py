@@ -13,7 +13,8 @@ from power_attention.kernelgen import kernelgen
 from power_attention._utils import compute_expanded_dim, diff
 
 def prune_configs(configs, nargs, **kwargs):
-    pruned_configs = [c for c in configs if c.kwargs.get("BLOCK_E", 0) <= nargs["e"] and c.kwargs["BLOCK_T"] <= nargs["c"]]
+    smallest_block_T = min(c.kwargs["BLOCK_T"] for c in configs)
+    pruned_configs = [c for c in configs if c.kwargs.get("BLOCK_E", 0) <= nargs["e"] and (c.kwargs["BLOCK_T"] <= nargs["c"] or c.kwargs["BLOCK_T"] == smallest_block_T)]
     return pruned_configs
 
 fwd_configs = [
@@ -74,11 +75,7 @@ range_e = tl.arange(0, BLOCK_E_VALID).to(tl.int64) + off_e * BLOCK_E_VALID
 
 y = tl.zeros((BLOCK_T, BLOCK_E_VALID), dtype=tl.float32)
 l = tl.zeros((BLOCK_T,), dtype=tl.float32)
-if off_n == 0 and zero_initial_state:
-    gamma = 1.0
-    gamma = gamma.to(tl.float32)
-else:
-    gamma = tl.sqrt(D).to(tl.float32)
+gamma = tl.sqrt(D).to(tl.float32)
 
 mask_T = range_t < c
 
@@ -87,18 +84,18 @@ p_m = M + range_t * stride_mt
 p_l_attn = L_attn + range_t * stride_Lattn_t
 p_y_qs = Y_qs + range_t[:, None] * stride_Yqs_t + range_e[None, :] * stride_Yqs_e
 p_l_qs = L_qs + range_t * stride_Lqs_t
-rowmax = tl.load(p_m, mask=mask_T, other=float(0.0)) # BLOCK_T
+rowmax = tl.load(p_m, mask=mask_T, other=-float('inf')) # BLOCK_T
 y_attn = tl.load(p_y_attn, mask=mask_T[:, None], other=0.).to(tl.float32) # BLOCK_T x BLOCK_E_VALID
 l_attn = tl.load(p_l_attn, mask=mask_T, other=0.).to(tl.float32) # BLOCK_T
 y_qs = tl.load(p_y_qs, mask=mask_T[:, None], other=0.).to(tl.float32) # BLOCK_T x BLOCK_E_VALID
 l_qs = tl.load(p_l_qs, mask=mask_T, other=0.).to(tl.float32) # BLOCK_T
 m = tl.exp(rowmax)
 alpha = tl.maximum(gamma, m) # BLOCK_T
-qs_factor = gamma / alpha # BLOCK_T
+qs_factor = scale_p * gamma / alpha # BLOCK_T
 attn_factor = m / alpha # BLOCK_T
 
-o = y_attn * attn_factor[:, None] + y_qs * scale_p * qs_factor[:, None] # BLOCK_T x BLOCK_E_VALID
-l = l_attn * attn_factor + l_qs * scale_p * qs_factor # BLOCK_T
+o = y_attn * attn_factor[:, None] + y_qs * qs_factor[:, None] # BLOCK_T x BLOCK_E_VALID
+l = l_attn * attn_factor + l_qs * qs_factor # BLOCK_T
 o = o / l[:, None] # BLOCK_T x BLOCK_E_VALID
 
 # store y back to O
@@ -179,12 +176,7 @@ l = tl.load(p_l, mask=range_t < c, other=float('inf'))
 p_delta = Delta + range_t * stride_dt
 delta = tl.load(p_delta, mask=range_t < c, other=0.)
 
-chunk_id = off_bn % n
-if (chunk_id == 0 and zero_initial_state):
-    gamma = 1.0
-    gamma = gamma.to(tl.float32)
-else:
-    gamma = tl.sqrt(D).to(tl.float32)
+gamma = tl.sqrt(D).to(tl.float32)
 m = tl.exp(rowmax)
 alpha = tl.maximum(gamma, m) # BLOCK_T
 attn_factor = m / alpha / l # BLOCK_T
@@ -197,7 +189,7 @@ dL_qs = -qs_factor * delta # BLOCK_T
 tl.store(p_dL_qs, dL_qs, mask=range_t < c)
 
 # --- compute dY_attn ---
-do = tl.load(p_do) # [BLOCK_T x e]
+do = tl.load(p_do, mask=(range_t < c)[:, None], other=0.) # [BLOCK_T x e]
 dy_attn = (do * attn_factor[:, None]).to(dO.dtype.element_ty) # BLOCK_T x e
 tl.store(p_dY_attn, dy_attn, mask=(range_t < c)[:, None])
 
@@ -245,7 +237,7 @@ class _query_state_normalize(torch.autograd.Function):
             O = -------------------------------------------------------------
                 ( (l_qs * (scale^p) * γ/α + l_attn * exp(rowmax)/α )
             where α = max(γ, exp(rowmax))
-                  γ = 1.0 if S == 0 else sqrt(D)
+                  γ = sqrt(D)
 
         args:
             Y_qs: [b, n, c, h, e] - query state output
@@ -367,13 +359,25 @@ def _query_state_normalize_fn(Y_qs, l_qs, Y_attn, l_attn, rowmax, deg, scale, D,
 query_state_normalize = torch.compiler.disable(_query_state_normalize_fn)
 
 def query_state(Q, S, Y_attn, l_attn, rowmax, deg, scale, zero_initial_state, d_tile=None):
-    b, n, c, h, d = Q.shape
-    _, _, _, D, _ = S.shape
+    if len(Q.shape) == 4: # inference call
+        Q = Q.unsqueeze(1) # [b, 1, c, hq, d]
+        S = S.unsqueeze(1) # [b, 1, hk, D, e]
+        Y_attn = Y_attn.unsqueeze(1) # [b, 1, c, hq, e]
+        l_attn = l_attn.unsqueeze(1) # [b, 1, c, hq]
+        rowmax = rowmax.unsqueeze(1) # [b, 1, c, hq]
+        O = query_state(Q, S, Y_attn, l_attn, rowmax, deg, scale, zero_initial_state, d_tile)
+        return O.squeeze(1) # type: ignore
+
+    b, n, c, hq, d = Q.shape
+    _, _, hk, D, e = S.shape
+    assert hq == hk or hq % hk == 0, f'hq must be equal to hk or a multiple of hk: {hq=}, {hk=}'
+    group_ratio = hq // hk
     d_tile = default_d_tile(d, deg) if d_tile is None else d_tile
     transpose_head = lambda x: x.transpose(2,3)
-    Q = transpose_head(Q) # [b, n, h, c d]
-    Y_qs = sympow_mma(Q, S, power=deg, scale_A=1/math.sqrt(float(D)), d_tile=d_tile, expand_dim=-1) # [b, n, h, c, d]
+    Q = transpose_head(Q) # [b, n, hq, c, d]
+    Q = Q.reshape(b, n, hk, c * group_ratio, d)
+    Y_qs = sympow_mma(Q, S, power=deg, scale_A=1/math.sqrt(float(D)), d_tile=d_tile, expand_dim=-1).reshape(b, n, hq, c, e) # [b, n, hq, c, e]
     l_qs = Y_qs.narrow(-1, 0, 1).to(torch.float32).squeeze(-1)
-    Y_qs, l_qs = map(transpose_head, (Y_qs, l_qs)) # [b, n, c, h, ...]
+    Y_qs, l_qs = map(transpose_head, (Y_qs, l_qs)) # [b, n, c, hq, ...]
     O = query_state_normalize(Y_qs, l_qs, Y_attn, l_attn, rowmax, deg, scale, D, zero_initial_state) # type: ignore
     return O

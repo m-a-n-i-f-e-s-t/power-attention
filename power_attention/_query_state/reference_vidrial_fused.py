@@ -41,22 +41,31 @@ def query_state(Q, S, Y_attn, l_attn, rowmax, deg, scale, zero_initial_state, d_
     returns:
         O: [b, n, c, h, d] - temporal-normalized output
     """
-    b, n, c, h, d = Q.shape
-    _, _, _, D, _ = S.shape
-    scale_p = scale**deg
+    if len(Q.shape) == 4: # inference call
+        Q = Q.unsqueeze(1) # [b, 1, c, h, d]
+        S = S.unsqueeze(1) # [b, 1, h, D, d]
+        Y_attn = Y_attn.unsqueeze(1) # [b, 1, c, h, d]
+        l_attn = l_attn.unsqueeze(1) # [b, 1, c, h]
+        rowmax = rowmax.unsqueeze(1) # [b, 1, c, h]
+        O = query_state(Q, S, Y_attn, l_attn, rowmax, deg, scale, zero_initial_state, d_tile)
+        return O.squeeze(1)
+
+    b, n, c, hq, d = Q.shape
+    _, _, hk, D, e = S.shape
+    assert hq == hk or hq % hk == 0, f'hq must be equal to hk or a multiple of hk: {hq=}, {hk=}'
+    group_ratio = hq // hk
     d_tile = default_d_tile(d, deg) if d_tile is None else d_tile
     γ = torch.ones(n, device=Q.device, dtype=torch.float32) * math.sqrt(float(D))
-    # special case for zero initial state, no need to scale by γ
-    if zero_initial_state:
-        γ[0] = 1.0
     γ = γ.unsqueeze(0).unsqueeze(-1).unsqueeze(-1) # [1, n, 1, 1]
     S = (S / γ.unsqueeze(-1)).to(S.dtype) # [b, n, h, D, d]
 
     transpose_head = lambda x: x.transpose(2,3)
-    Q = transpose_head(Q) # [b, n, h, c, d]
-    phi_Q = sympow_reference(Q, deg, d_tile=d_tile, dim=-1, duplicate_correction=True) # [b, n, h, c, D]
-    Y_qs = torch.matmul(phi_Q.to(Q.dtype), S.to(Q.dtype)).to(Q.dtype)  # [b n h c d] # [b, n, h, c, d]
-    l_qs = Y_qs[..., 0].to(torch.float32) # [b, n, h, c]
-    Y_qs, l_qs = map(transpose_head, (Y_qs, l_qs)) # [b, n, c, h, ...]
+    Q = transpose_head(Q) # [b, n, hq, c, d]
+    phi_Q = sympow_reference(Q, deg, d_tile=d_tile, dim=-1, duplicate_correction=True) # [b, n, hq, c, D]
+    phi_Q = phi_Q.reshape(b, n, hk, c * group_ratio, D)
+    Y_qs = torch.matmul(phi_Q.to(Q.dtype), S.to(Q.dtype)).to(Q.dtype)  # [b n hk c*group_ratio D]
+    Y_qs = Y_qs.reshape(b, n, hq, c, e)
+    l_qs = Y_qs[..., 0].to(torch.float32) # [b, n, hq, c]
+    Y_qs, l_qs = map(transpose_head, (Y_qs, l_qs)) # [b, n, c, hq, ...]
 
     return query_state_normalize_ref(Y_qs, l_qs, Y_attn, l_attn, rowmax, deg, scale, D, zero_initial_state)

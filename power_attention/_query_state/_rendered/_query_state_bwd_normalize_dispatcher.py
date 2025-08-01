@@ -47,12 +47,7 @@ def _query_state_bwd_normalize(dO, Delta, M, L, dY_qs, dL_qs, dY_attn, dL_attn,
         p_delta = Delta + range_t * stride_dt
         delta = tl.load(p_delta, mask=range_t < c, other=0.)
         
-        chunk_id = off_bn % n
-        if (chunk_id == 0 and zero_initial_state):
-            gamma = 1.0
-            gamma = gamma.to(tl.float32)
-        else:
-            gamma = tl.sqrt(D).to(tl.float32)
+        gamma = tl.sqrt(D).to(tl.float32)
         m = tl.exp(rowmax)
         alpha = tl.maximum(gamma, m) # BLOCK_T
         attn_factor = m / alpha / l # BLOCK_T
@@ -65,7 +60,7 @@ def _query_state_bwd_normalize(dO, Delta, M, L, dY_qs, dL_qs, dY_attn, dL_attn,
         tl.store(p_dL_qs, dL_qs, mask=range_t < c)
         
         # --- compute dY_attn ---
-        do = tl.load(p_do) # [BLOCK_T x e]
+        do = tl.load(p_do, mask=(range_t < c)[:, None], other=0.) # [BLOCK_T x e]
         dy_attn = (do * attn_factor[:, None]).to(dO.dtype.element_ty) # BLOCK_T x e
         tl.store(p_dY_attn, dy_attn, mask=(range_t < c)[:, None])
         
