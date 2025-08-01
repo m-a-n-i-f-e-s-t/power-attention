@@ -50,7 +50,7 @@ attention_fn_sets = [
 attention_param_ranges = {
     'b': [1],
     't': [128, 1024],
-    'h': [8],
+    'h': [2],
     'd': [32, 64],
     'deg': [2, 4],
     'scale': [1.0, 1/8.0],
@@ -59,6 +59,7 @@ attention_param_ranges = {
     'causal': [True],
     'dtype': [torch.bfloat16],
     'device': ['cuda'],
+    'qhead_ratio': [1, 8],
 }
 ATTENTION_TEST_CASES = fn_set_and_param_range_to_test_cases(attention_fn_sets, attention_param_ranges)
 attention_inference_input_output = {'create_inputs': partial(attention_create_inputs, inference=True), 'input_properties': partial(attention_input_properties, inference=True), 'output_properties': partial(attention_output_properties, inference=True)}

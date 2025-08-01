@@ -213,7 +213,6 @@ def make_power_full_fused(update_state_impl, query_state_impl, discumsum_impl, a
         b, t, hq, d = Q.shape
         _, _, h, _ = K.shape
         switch_over_seq_len = chunk_size if switch_over_seq_len is None else switch_over_seq_len
-        assert hq == h, f"qhead ratio must be 1 for now: {hq=} {h=}"
         c = t if chunk_size is None else chunk_size
         n = 1 if chunk_size is None else t // chunk_size
         assert t % c == 0, f'{t=} not evenly divisible by {c=}'
@@ -230,7 +229,8 @@ def make_power_full_fused(update_state_impl, query_state_impl, discumsum_impl, a
         # --- Reshape into chunks ---
         Q = Q.view(b, n, c, hq, d)  
         K = K.view(b, n, c, h, d)
-        V = V.view(b, n, c, h, d)    
+        V = V.view(b, n, c, h, d)
+        r = hq // h
         if gating:
             log_G = log_G.view(b, n, c, h)
             log_G_intrachunk_accum = log_G.cumsum(2)
@@ -262,7 +262,7 @@ def make_power_full_fused(update_state_impl, query_state_impl, discumsum_impl, a
         attn_Y, l_attn, rowmax = _attention(make_flatbatch(Q), make_flatbatch(K), make_flatbatch(V), make_flatbatch(log_G_intrachunk_accum), deg, scale=scale, norm=False)
         attn_Y, l_attn, rowmax = map(lambda x: x.view(b, n, *x.shape[1:]), (attn_Y, l_attn, rowmax)) # [b, n, c, h ...]
         # --- Gate Query for Query State ---
-        Q = Q * torch.exp(log_G_intrachunk_accum / deg).unsqueeze(-1).to(Q.dtype) if gating else Q
+        Q = Q * torch.exp(log_G_intrachunk_accum.repeat_interleave(r, dim=-1) / deg).unsqueeze(-1).to(Q.dtype) if gating else Q # type: ignore
 
         # --- Compute Query State ---
         Q, S, attn_Y, l_attn, rowmax = map(lambda x: x.contiguous(), (Q, S, attn_Y, l_attn, rowmax))

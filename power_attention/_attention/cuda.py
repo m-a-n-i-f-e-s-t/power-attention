@@ -129,7 +129,7 @@ def attention_bwd_gating_fake(Q, K, V, log_G_Q, log_G_K, dY, dy, rowmax, deg, sc
 @torch.library.custom_op("power::attention", mutates_args=())
 def attention(Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor, 
               log_G: Optional[torch.Tensor], deg: int, scale: Optional[float],
-              r:int=1, w:int=1, causal:bool=True, head_first:bool=False, norm:bool=True, use_log2:bool=False) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+              causal:bool=True, head_first:bool=False, norm:bool=True, use_log2:bool=False) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     r"""Computes the power attention operation Y = ((Q·K^T) * scale)^deg · V with optional gating factors.
     
     This function implements the core symmetric power attention mechanism from [1]. It replaces
@@ -175,7 +175,7 @@ def attention(Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
         [1] J. Buckman, C. Gelada, and S. Zhang, "Symmetric Power Transformers." 
             Manifest AI, Aug. 15, 2024.
     """
-    assert r==1 and w==1 and causal and not head_first and not use_log2, "Only the default arguments are supported for the CUDA implementation"
+    assert causal and not head_first and not use_log2, "Only the default arguments are supported for the CUDA implementation"
 
     #  batch, seq, head, features
     b, t, h, d = Q.shape
@@ -200,7 +200,7 @@ def attention(Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
 
 # Make it traceable
 @attention.register_fake
-def attention_fake(Q, K, V, log_G, deg, scale, r=1, w=1, causal=True, head_first=False, norm=True, use_log2=False):
+def attention_fake(Q, K, V, log_G, deg, scale, causal=True, head_first=False, norm=True, use_log2=False):
     b, t, h, d = Q.shape
     return (torch.empty(b, t, h, d, device=Q.device, dtype=Q.dtype), 
             torch.empty(b, t, h, device=Q.device, dtype=torch.float32))

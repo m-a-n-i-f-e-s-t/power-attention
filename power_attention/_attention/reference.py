@@ -7,7 +7,9 @@ normal_space = False
 normalize_output = False
 ε = 1e-6
 
-def attention(Q, K, V, log_G, deg, r=1, w=1, causal=True, head_first=False, scale=1.0, norm=False, use_log2=False):
+def attention(Q, K, V, log_G, deg, causal=True, head_first=False, scale=1.0, norm=False, use_log2=False):
+    r = Q.shape[2] // K.shape[2]
+    w = 1
     if head_first:
         b, hq, ctx_q, d, hk, ctx_k, e = *Q.shape, K.shape[1], K.shape[2], V.shape[-1]
     else:

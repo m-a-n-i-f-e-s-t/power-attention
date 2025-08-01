@@ -8,60 +8,6 @@ import torch.nn.functional as F
 
 from power_attention._utils import diff
 
-def attention_reference(Q, K, V, log_G, deg, scale, r=1, w=1, causal=True, head_first=False, norm=False, use_log2=False):
-    if head_first:
-        b, hq, ctx, d, hk, e = *Q.shape, K.shape[1], V.shape[-1]
-    else:
-        b, ctx, hq, d, hk, e = *Q.shape, K.shape[2], V.shape[-1]
-    assert hq % r == 0, "hq must be divisible by r"
-    assert hk % w == 0, "hk must be divisible by w"
-    assert hq // r == hk // w, "hq // r must be equal to hk // w"
-    assert isinstance(deg, int) and deg % 2 == 0, "deg must be a positive even integer"
-    h = hq // r
-    if log_G is not None:
-        if head_first:
-            assert log_G.shape == (b, h, ctx)
-        else:
-            assert log_G.shape == (b, ctx, h)
-            log_G = log_G.transpose(1, 2) # (b, h, ctx)
-    if head_first:
-        Q = Q.view(b, h, ctx * r, d)
-        K = K.view(b, h, ctx * w, d)
-        V = V.view(b, h, ctx * w, e)
-    else:
-        Q = Q.view(b, ctx * r, h, d).transpose(1, 2)
-        K = K.view(b, ctx * w, h, d).transpose(1, 2)
-        V = V.view(b, ctx * w, h, e).transpose(1, 2)
-    
-    exp = torch.exp if not use_log2 else torch.exp2
-    log = torch.log if not use_log2 else torch.log2
-
-    _qidx = torch.arange(ctx*r, device=Q.device).unsqueeze(1)
-    _kidx = torch.arange(ctx*w, device=K.device).unsqueeze(0)
-    m = (_qidx // r) >= (_kidx // w)
-    s = torch.matmul(Q, K.transpose(2,3)) * scale
-    signs = torch.sign(s)
-    s = float(deg) * torch.where(m, log(s.abs() + 1e-7), -float("inf"))
-    if log_G is not None:
-        s = s + (log_G.repeat_interleave(r, dim=2)[..., :, None] - log_G.repeat_interleave(w, dim=2)[..., None, :])
-    rowmax = torch.max(s, dim=-1, keepdim=True).values.detach()
-    if deg % 2 == 0:
-        p = exp(s - rowmax).to(V.dtype)
-    else:
-        p = exp(s - rowmax).to(V.dtype) * signs
-    l = torch.sum(p, dim=-1)
-    o = torch.matmul(p, V)
-    if norm:
-        o = o / l[..., None]
-    if not head_first:
-        o = o.transpose(1, 2)
-        rowmax = rowmax.transpose(1, 2)
-        l = l.transpose(1, 2)
-    if norm:
-        return o
-    else:
-        return o, l, rowmax.squeeze(-1)
-
 
 fwd_configs = [
     triton.Config({'BM': BM, 'BN': BN}, num_stages=s, num_warps=w) \
@@ -731,7 +677,7 @@ class _power_attention(torch.autograd.Function):
         assert w == 1, "w must be 1"
         assert hq % r == 0, "hq must be divisible by r"
         assert hk % w == 0, "hk must be divisible by w"
-        assert hq // r == hk // w, "hq // r must be equal to hk // w"
+        assert hq // r == hk // w, f"hq // r must be equal to hk // w, {hq=} {r=} {hk=} {w=}"
         assert isinstance(deg, int) and deg > 0, "deg must be a positive integer"
         assert d in {16, 32, 64, 128, 256}, "d must be 16, 32, 64, 128, or 256"
         assert e in {16, 32, 64, 128, 256}, "e must be 16, 32, 64, 128, or 256"
@@ -845,17 +791,17 @@ class _power_attention(torch.autograd.Function):
         delta = torch.empty_like(rowmax) if norm else torch.empty((0, 0, 0))
 
         if ctx.head_first:
-            do = do.view(b, h, tq*r, e)
-            o = o.view(b, h, tq*r, e)
-            dl = dl.view(b, h, tq*r)
-            delta = delta.view(b, h, tq*r) if norm else delta
+            do = do.reshape(b, h, tq*r, e)
+            o = o.reshape(b, h, tq*r, e)
+            dl = dl.reshape(b, h, tq*r)
+            delta = delta.reshape(b, h, tq*r) if norm else delta
             do_strides, dQ_strides, dK_strides, dV_strides, o_strides = map(lambda x: (x.stride(0), x.stride(1), x.stride(2), x.stride(3)), (do, dQ, dK, dV, o))
             dl_strides, delta_strides = map(lambda x: (x.stride(0), x.stride(1), x.stride(2)), (dl, delta))
         else:
-            do = do.view(b, tq*r, h, e)
-            o = o.view(b, tq*r, h, e)
-            dl = dl.view(b, tq*r, h)
-            delta = delta.view(b, tq*r, h) if norm else delta
+            do = do.reshape(b, tq*r, h, e)
+            o = o.reshape(b, tq*r, h, e)
+            dl = dl.reshape(b, tq*r, h)
+            delta = delta.reshape(b, tq*r, h) if norm else delta
             do_strides, dQ_strides, dK_strides, dV_strides, o_strides = map(lambda x: (x.stride(0), x.stride(2), x.stride(1), x.stride(3)), (do, dQ, dK, dV, o))
             dl_strides, delta_strides = map(lambda x: (x.stride(0), x.stride(2), x.stride(1)), (dl, delta))
 
@@ -896,8 +842,10 @@ class _power_attention(torch.autograd.Function):
         dV = dV.view(b, hk, tk, e) if ctx.head_first else dV.view(b, tk, hk, e)
         return dQ, dK, dV, dlog_G, None, None, None, None, None, None, None, None
 
-def _attention_fn(Q, K, V, log_G, deg, r=1, w=1, causal=True, head_first=False, scale=1.0, norm=False, use_log2=False):
-    Y, l, rowmax = _power_attention.apply(Q, K, V, log_G, deg, r, w, causal, head_first, scale, norm, use_log2)
+def _attention_fn(Q, K, V, log_G, deg, causal=True, head_first=False, scale=1.0, norm=False, use_log2=False):
+    r = Q.shape[2] // K.shape[2]
+    w = 1
+    Y, l, rowmax = _power_attention.apply(Q, K, V, log_G, deg, r, w, causal, head_first, scale, norm, use_log2) # type: ignore
     rowmax = rowmax.detach()
     if norm:
         return Y
@@ -906,28 +854,8 @@ def _attention_fn(Q, K, V, log_G, deg, r=1, w=1, causal=True, head_first=False, 
 attention = torch.compiler.disable(_attention_fn)
 
 if __name__ == "__main__":
-    from power_attention._attention.impl import attention as attention_cutlass, create_inputs as create_inputs_cutlass
-    from power_attention._attention.reference import attention_reference as attention_reference_old
     from power_attention._attention.create_inputs import create_inputs
     from perf._timing import benchmark_speed
 
-    VERBOSE = True
-
-    # Thorough benchmarking
     kw = dict(b=1, h=6, d=64, dtype=torch.bfloat16, device='cuda', scale=1.0, deg=2, seed=42, std=1/8.0, gating=True, norm=False)
-    def print_rowstr(rowstr):
-        print(" | ".join([f"{r.upper():<10}" for r in rowstr.split(",")]))
-
-    token_count = 2**16
-    for deg in [2, 4]:
-        for mode in ['fwd', 'bwd']:
-            print(f"triton-vs-cutlass-token{token_count}-head{kw['h']}-dim{kw['d']}-deg{deg}-{mode}")
-            print_rowstr("chunk_size,triton,cutlass,triton speedup")
-            for ctx in [2**i for i in range(7, 16)]:
-                kw['t'] = ctx
-                kw['b'] = token_count // ctx
-                kw['deg'] = deg
-                triton_time = benchmark_speed(mode, attention, create_inputs, kw, compile=False)
-                cutlass_time = benchmark_speed(mode, attention_cutlass, create_inputs_cutlass, {key: kw[key] for key in kw if key != 'norm'}, compile=False)
-                speedup = cutlass_time / triton_time
-                print_rowstr(f"{ctx}, {triton_time:.2f}, {cutlass_time:.2f}, {speedup:.2f}")
+    benchmark_speed('fwd', attention, create_inputs, kw, compile=False)
