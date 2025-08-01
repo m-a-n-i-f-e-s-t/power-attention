@@ -334,11 +334,11 @@ def make_power_full_inference(update_state_impl, query_state_impl, attention_imp
         log_G_accum = log_G.cumsum(1) if log_G is not None else None
         r, w = hq // hk, 1
         if state is None:
-            Y = _attention(Q, K, V, log_G_accum, deg, r=r, w=w, scale=scale, norm=True) # [b, 1, hq, e]
+            Y = _attention(Q, K, V, log_G_accum, deg, scale=scale, norm=True) # [b, 1, hq, e]
         else:
             assert state.shape[0] == b, 'state must have a batch size of the same as the query'
             assert state.shape[1] == hk, 'state must have the same number of kv heads as the key'
-            attn_Y, l_attn, rowmax = _attention(Q, K, V, log_G_accum, deg, r=r, w=w, scale=scale, norm=False) # [b, 1, hq, e], [b, 1, hq], [b, 1, hq]
+            attn_Y, l_attn, rowmax = _attention(Q, K, V, log_G_accum, deg, scale=scale, norm=False) # [b, 1, hq, e], [b, 1, hq], [b, 1, hq]
             if log_G_accum is not None:
                 Q = Q * torch.exp(log_G_accum.narrow(1, -1, 1) / deg).repeat_interleave(r, dim=-1).unsqueeze(-1).to(Q.dtype) # discount the query when querying the state, since it's cheaper than discounting the state
             Y = _query_state(Q, state, attn_Y, l_attn, rowmax, deg, scale, zero_initial_state=False) # [b, 1, hq, e]

@@ -23,11 +23,11 @@ def measure_attention_time(**kwargs):
     log_G_accum = log_G.cumsum(1) if log_G is not None else None
     r, w = hq // hk, 1
     if kwargs.get('profile', False):
-        time = estimate_runtime(get_compiled_version(attention, {**inputs, 'log_G_accum': log_G_accum, 'r': r, 'w': w, 'scale': 1.0 / kwargs['d']**0.5, 'norm': False}, direction='fwd', compile=False))
-        return time
-    else:
-        sanitize_kwargs(attention)(**{**inputs, 'log_G_accum': log_G_accum, 'r': r, 'w': w, 'scale': 1.0 / kwargs['d']**0.5, 'norm': False})
+        sanitize_kwargs(attention)(**{**inputs, 'log_G_accum': log_G_accum, 'scale': 1.0 / kwargs['d']**0.5, 'norm': False})
         return 0
+    else:
+        time = estimate_runtime(get_compiled_version(attention, {**inputs, 'log_G_accum': log_G_accum, 'scale': 1.0 / kwargs['d']**0.5, 'norm': False}, direction='fwd', compile=False))
+        return time
 
 def measure_query_state_time(**kwargs):
     d, deg = kwargs['d'], kwargs['deg']
@@ -36,13 +36,13 @@ def measure_query_state_time(**kwargs):
     hq, hk = Q.shape[2], K.shape[2]
     log_G_accum = log_G.cumsum(1) if log_G is not None else None
     r, w = hq // hk, 1
-    attn_Y, l_attn, rowmax = attention(Q, K, V, log_G_accum, deg, r=r, w=w, scale=scale, norm=False) # type: ignore
+    attn_Y, l_attn, rowmax = attention(Q, K, V, log_G_accum, deg, scale=scale, norm=False) # type: ignore
     if kwargs.get('profile', False):
-        time = estimate_runtime(get_compiled_version(query_state, {**inputs, 'Y_attn': attn_Y, 'l_attn': l_attn, 'rowmax': rowmax, 'zero_initial_state': False, 'S': state}, direction='fwd', compile=False))
-        return time
-    else:
         sanitize_kwargs(query_state)(**{**inputs, 'Y_attn': attn_Y, 'l_attn': l_attn, 'rowmax': rowmax, 'zero_initial_state': False, 'S': state})
         return 0
+    else:
+        time = estimate_runtime(get_compiled_version(query_state, {**inputs, 'Y_attn': attn_Y, 'l_attn': l_attn, 'rowmax': rowmax, 'zero_initial_state': False, 'S': state}, direction='fwd', compile=False))
+        return time
 
 def measure_update_state_time(**kwargs):
     t, chunk_size = kwargs['t'], kwargs['chunk_size']
@@ -50,21 +50,21 @@ def measure_update_state_time(**kwargs):
     if t < chunk_size:
         return 0
     if kwargs.get('profile', False):
-        time = estimate_runtime(get_compiled_version(update_state, {**inputs}, direction='fwd', compile=False)) / chunk_size
-        return time
-    else:
         sanitize_kwargs(update_state)(**inputs)
         return 0
+    else:
+        time = estimate_runtime(get_compiled_version(update_state, {**inputs}, direction='fwd', compile=False)) / chunk_size
+        return time
 
 def measure_total_time(**kwargs):
     chunk_size = kwargs['chunk_size']
     inputs = create_inference_inputs(**{**kwargs, 'initial_state': True, 'device': 'cuda'})
     if kwargs.get('profile', False):
-        time = estimate_runtime(get_compiled_version(power_full_inference, inputs, direction='fwd', compile=False)) - measure_update_state_time(**kwargs) * (chunk_size - 1)
-        return time
-    else:
         sanitize_kwargs(power_full_inference)(**inputs)
         return 0
+    else:
+        time = estimate_runtime(get_compiled_version(power_full_inference, inputs, direction='fwd', compile=False)) - measure_update_state_time(**kwargs) * (chunk_size - 1)
+        return time
 
 def measure_time(**kwargs):
     return {
@@ -75,16 +75,55 @@ def measure_time(**kwargs):
     }
 
 
-def main(profile=False):
-    df = []
-    b, t, h, d, chunk_size, deg, gating, dtype = 32, 64, 8, 64, 64, 2, True, torch.bfloat16
-    print(f"Measuring runtime for {b=} {t=} {h=} {d=} {chunk_size=} {deg=} {gating=} {dtype=}")
+def measure_flashinfer_time(b, t, h, qhead_ratio, d, chunk_size, deg, gating, dtype, page_size=16, workspace_buffer=128 * 1024 * 1024, **kwargs):
+    import flashinfer
+    workspace_buffer = torch.empty(workspace_buffer, dtype=torch.uint8, device="cuda:0")
+    decode_wrapper = flashinfer.BatchDecodeWithPagedKVCacheWrapper(
+        workspace_buffer, "NHD"
+    )
+    pages_per_batch = t // page_size
+    max_num_pages = b * pages_per_batch
+    kv_page_indptr = torch.tensor(
+        list(range(0, b * pages_per_batch, pages_per_batch)), dtype=torch.int32, device="cuda:0"
+    )
+    kv_page_indices = torch.arange(b * pages_per_batch).int().to("cuda:0")
+    kv_last_page_len = torch.tensor(
+        [page_size - 1] * b, dtype=torch.int32, device="cuda:0"
+    )
+    decode_wrapper.plan(
+        kv_page_indptr,
+        kv_page_indices,
+        kv_last_page_len,
+        num_qo_heads=h * qhead_ratio,
+        num_kv_heads=h,
+        head_dim=d,
+        page_size=page_size,
+        pos_encoding_mode="NONE",
+        q_data_type=torch.bfloat16,
+        kv_data_type=torch.bfloat16,
+    )
 
-    # logging.basicConfig(level=logging.DEBUG)
+    q = torch.randn(b, h * qhead_ratio, d, device="cuda:0", dtype=torch.bfloat16)
+    kv_cache = torch.randn(
+        max_num_pages, 2, page_size, h, d, device="cuda:0", dtype=torch.bfloat16
+    )
+    time = estimate_runtime(get_compiled_version(decode_wrapper.run, {'q': q, 'paged_kv_cache': kv_cache}, direction='fwd', compile=False))
+    return time
+
+
+def inference_time_breakdown(profile=False):
+    df = []
+    b, t, h, d, chunk_size, deg, gating, dtype = 32, 32, 8, 64, 64, 2, True, torch.bfloat16
+    print(f"Measuring runtime for {b=} {t=} {h=} {d=} {chunk_size=} {deg=} {gating=} {dtype=}")
+    logging.basicConfig(level=logging.ERROR)
+
     with set_settings(policy=PickBest):
-        for qhead_ratio in [1, 8, 16, 32]:
+        for qhead_ratio in [1, 8]:
             print(f"========== {qhead_ratio=} ==========")
-            df.append({**measure_time(b=b, t=t, h=h, d=d, qhead_ratio=qhead_ratio, deg=deg, chunk_size=chunk_size, dtype=dtype, gating=gating, profile=profile), 'group': qhead_ratio})
+            df.append({
+                **measure_time(b=b, t=t%chunk_size, h=h, d=d, qhead_ratio=qhead_ratio, deg=deg, chunk_size=chunk_size, dtype=dtype, gating=gating),
+                'group': qhead_ratio,
+            })
 
     df = pd.DataFrame(df)
     print(df)
@@ -121,6 +160,61 @@ def main(profile=False):
     plt.show()
 
 
+def compare_with_flashinfer():
+    # install from https://github.com/flashinfer-ai/flashinfer
+    df = []
+    b, h, d, chunk_size, deg, gating, dtype = 32, 8, 64, 64, 2, True, torch.bfloat16
+    print(f"Measuring runtime for {b=} {h=} {d=} {chunk_size=} {deg=} {gating=} {dtype=}")
+    logging.basicConfig(level=logging.ERROR)
+    qhead_ratio = 8
+
+    with set_settings(policy=PickBest):
+        for t in range(32, 1024, 128):
+            print(f"========== {t=} ==========")
+            df.append({
+                **measure_time(b=b, t=t%chunk_size, h=h, d=d, qhead_ratio=qhead_ratio, deg=deg, chunk_size=chunk_size, dtype=dtype, gating=gating),
+                'group': qhead_ratio,
+                'flashinfer_time': measure_flashinfer_time(b=b, t=t, h=h, qhead_ratio=qhead_ratio, d=d, chunk_size=chunk_size, deg=deg, gating=gating, dtype=dtype),
+                'context_size': t,
+            })
+
+    df = pd.DataFrame(df)
+    print(df)
+
+
+    import matplotlib.pyplot as plt
+
+    # Create stack plot
+    plt.figure(figsize=(12, 8))
+
+    # Prepare data for stack plot
+    x = df['context_size']
+    power_inference_time = df['total_time']
+    flashinfer_time = df['flashinfer_time']
+    attention_time = df['attention_time']
+    query_state_time = df['query_state_time']
+    update_state_time = df['update_state_time']
+
+
+    # Create the stack plot
+    plt.plot(x, power_inference_time, 'k--', color='red', linewidth=2, marker='o', label='Power Attention', markersize=6)
+    plt.plot(x, flashinfer_time, 'k-', color='blue', linewidth=2, marker='o', label='FlashInfer', markersize=6)
+    plt.plot(x, attention_time, 'k-', color='green', linewidth=2, marker='o', label='Attention', markersize=6)
+    plt.plot(x, query_state_time, 'k-', color='yellow', linewidth=2, marker='o', label='Query State', markersize=6)
+    plt.plot(x, update_state_time, 'k-', color='purple', linewidth=2, marker='o', label='Update State', markersize=6)
+
+    plt.xlabel('Context Size (tokens)')
+    plt.ylabel('Time (ms)')
+    plt.title(f'Power Infer vs FlashInfer\n{b=} {h=} {qhead_ratio=} {d=} {chunk_size=} {deg=} {gating=} {dtype=}')
+    plt.legend(loc='upper left')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+
+    # Save the plot
+    plt.savefig(f'power_infer_vs_flashinfer_{b}_{h}_{qhead_ratio}_{d}_{chunk_size}_{deg}_{gating}_{dtype}.png', dpi=150, bbox_inches='tight')
+    plt.show()
+
+
 def torch_profile():
     from torch.profiler import profile, ProfilerActivity, record_function
     b, t, h, d, chunk_size, deg, gating, dtype = 32, 64, 8, 64, 64, 2, True, torch.bfloat16
@@ -134,4 +228,4 @@ def torch_profile():
     print(prof.key_averages(group_by_stack_n=2).table(sort_by='cuda_time_total', row_limit=10))
 
 if __name__ == '__main__':
-    main()
+    compare_with_flashinfer()
