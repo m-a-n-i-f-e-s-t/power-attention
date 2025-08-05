@@ -9,7 +9,7 @@ The main entry point for using symmetric power attention in your models.
 Main implementation of symmetric power attention, which generalizes linear transformers using symmetric power embeddings. 
 Provides O(n) complexity for long sequences through an efficient RNN formulation.
 
-::: power_attention.power_full.power_full
+::: power_attention.power_full
     options:
         show_root_heading: false
         show_source: true

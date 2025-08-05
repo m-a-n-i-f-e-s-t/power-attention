@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 import torch
 import torch.nn as nn
-from power_attention import power_full
+from power_attention.triton import power_full
 from torch.nn import functional as F
 from torch.utils.checkpoint import checkpoint
 
