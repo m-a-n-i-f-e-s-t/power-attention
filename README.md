@@ -46,7 +46,7 @@ The main entry point is the `power_full` function, which implements symmetric po
 
 ```python
 import torch
-from power_attention.power_full import power_full
+from power_attention.triton import power_full
 
 # Create input tensors
 batch_size = 2
