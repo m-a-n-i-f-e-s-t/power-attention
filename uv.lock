@@ -1744,7 +1744,7 @@ wheels = [
 
 [[package]]
 name = "power-attention"
-version = "1.2.0"
+version = "1.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "einops" },
@@ -1817,7 +1817,7 @@ requires-dist = [
     { name = "tqdm", marker = "extra == 'dev'" },
     { name = "triton", specifier = ">=3.2" },
     { name = "twine", marker = "extra == 'dev'" },
-    { name = "vidrial", specifier = "==0.1.2" },
+    { name = "vidrial", specifier = "==0.1.3" },
     { name = "wandb", marker = "extra == 'dev'" },
     { name = "wheel", marker = "extra == 'dev'" },
     { name = "zarr", marker = "extra == 'dev'" },
@@ -2734,7 +2734,7 @@ wheels = [
 
 [[package]]
 name = "vidrial"
-version = "0.1.2"
+version = "0.1.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -2744,9 +2744,9 @@ dependencies = [
     { name = "torch" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3a/1b/51b74024ea03efbec1e7e81aa5ddbb59292df2cfd8ba5137b33a28e3805e/vidrial-0.1.2.tar.gz", hash = "sha256:cf32a69b8f8e9a02d07996e8493d0ee8794e9054f42550cb29d8e89242bcaedb", size = 162299 }
+sdist = { url = "https://files.pythonhosted.org/packages/3e/c3/dc837eafc51f1f1e98ba083a63559b4e6da08160ceae17509df1bb02ecb8/vidrial-0.1.3.tar.gz", hash = "sha256:8ca49e316455e08530627915276fb66ad086aa313f15a4a8aa766e863ebcfaef", size = 169947 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/85/2d/69bddfe510a7467914059314c0bb9ae0424a8c91f23ffbbaffa749adb2e8/vidrial-0.1.2-py3-none-manylinux2014_x86_64.whl", hash = "sha256:46a7a7972bd09a235febe2a51f3e10a53d4300952fc2a9677f3252a45309d175", size = 189392 },
+    { url = "https://files.pythonhosted.org/packages/21/82/cf2afffdbc916d3dc1df7abc08b860285a4d9a0e3471f33441d1dd4f279a/vidrial-0.1.3-py3-none-manylinux2014_x86_64.whl", hash = "sha256:8a7d029c933a1dd79c943fece2e85c662cd1fff34ae3a9fe814c01d1abec0962", size = 193149 },
 ]
 
 [[package]]
