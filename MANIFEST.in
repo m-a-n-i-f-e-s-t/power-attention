@@ -1,8 +1,0 @@
-include csrc/cutlass/include *.h
-include csrc/cutlass/tools/include *.h
-recursive-include csrc/power_attention *.cu *.h
-recursive-include csrc/cutlass/include *
-recursive-include csrc/cutlass/tools/include *
-
-prune */__pycache__ 
-recursive-exclude */__pycache__ *
